@@ -23,18 +23,30 @@
 <div class="w-full h-screen flex items-center justify-center">
 	<div class="text-gray-700 flex items-center gap-4 p-4 border-2 border-primary rounded-lg">
 		<img src={logo} alt="daai-logo" />
-		<button type="button" class="bg-recording text-white px-5 py-2.5 rounded-lg">
+		<button
+			type="button"
+			class="bg-recording text-white px-5 py-2.5 rounded-lg transition-transform duration-150 ease-in-out active:scale-95"
+		>
 			<i class="fa-solid fa-pause"></i>
 		</button>
-		<button type="button" class="bg-primary text-white px-5 py-2.5 rounded-lg">
+		<button
+			type="button"
+			class="bg-primary text-white px-5 py-2.5 rounded-lg transition-transform duration-150 ease-in-out active:scale-95"
+		>
 			<i class="fa-solid fa-microphone"></i>
 			Iniciar Registro
 		</button>
-		<button type="button" class="bg-recording text-white px-5 py-2.5 rounded-lg">
+		<button
+			type="button"
+			class="bg-recording text-white px-5 py-2.5 rounded-lg transition-transform duration-150 ease-in-out active:scale-95"
+		>
 			<i class="fa-solid fa-check"></i>
 			Finalizar Registro
 		</button>
-		<button type="button" class="bg-primary text-white px-5 py-2.5 rounded-lg">
+		<button
+			type="button"
+			class="bg-primary text-white px-5 py-2.5 rounded-lg transition-transform duration-150 ease-in-out active:scale-95"
+		>
 			<i class="fa-solid fa-circle"></i>
 			Continuar registro
 		</button>
