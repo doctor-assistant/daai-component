@@ -1,25 +1,27 @@
-<script>
-	export let status = 'waiting_authorization';
+<script lang="ts">
+	import { currentStatus } from '../store.js';
+
 	let message = '';
-	let bgColor = '';
+	let textColor = '';
 
 	$: {
-		if (status === 'waiting_authorization') {
+		if ($currentStatus === 'waiting_authorization') {
 			message = 'Aguardando autorização do microfone';
-			bgColor = 'bg-yellow-500';
-		} else if (status === 'in_process') {
+			textColor = 'text-recording';
+		} else if ($currentStatus === 'authorized') {
+			message = 'Microfone';
+			textColor = 'text-primary';
+		} else if ($currentStatus === 'in_process') {
 			message = 'Aguarde enquanto geramos o relatório final...';
-			bgColor = 'bg-blue-500';
-		} else if (status === 'finish_upload') {
+			textColor = 'text-primary';
+		} else if ($currentStatus === 'finish_upload') {
 			message = 'Relatório finalizado!';
-			bgColor = 'bg-green-500';
+			textColor = 'text-process';
 		} else {
-			message = 'Estado desconhecido';
-			bgColor = 'bg-gray-500';
+			message = '';
+			textColor = '';
 		}
 	}
 </script>
 
-<div class={`p-4 text-white ${bgColor}`}>
-	<p>{message}</p>
-</div>
+<p class={textColor}>{message}</p>
