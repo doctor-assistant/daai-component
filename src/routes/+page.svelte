@@ -15,7 +15,9 @@
 	onMount(async () => {
 		try {
 			microphoneStream = await requestMicrophonePermission();
-			currentStatus = 'authorized';
+			if (microphoneStream.active) {
+				currentStatus = 'authorized';
+			}
 		} catch (error) {
 			currentStatus = 'authorization_failed';
 		}
