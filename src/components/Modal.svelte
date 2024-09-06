@@ -20,7 +20,8 @@
 					<li>
 						<button
 							type="button"
-							class="block w-full text-left px-4 py-2 mb-2 border rounded-lg"
+							class="block w-full text-left px-4 py-2 mb-2 border rounded-lg
+								{device.deviceId === deviceId ? 'selected' : ''}"
 							on:click={() => handleDeviceChange(device.deviceId)}
 						>
 							{device.label || 'Microfone sem nome'}
@@ -38,3 +39,10 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.selected {
+		background-color: #f0f0f0;
+		border-color: #007bff;
+	}
+</style>
