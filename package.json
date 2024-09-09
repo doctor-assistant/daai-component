@@ -4,7 +4,8 @@
   "description": "A custom web component for a recording badge.",
   "main": "dist/daai-badge.js",
   "scripts": {
-    "build": "mkdir -p dist && cp src/daai-badge.js dist/daai-badge.js"
+    "build": "mkdir -p dist && cp src/daai-badge.js dist/daai-badge.js",
+    "start": "lite-server"
   },
   "keywords": [
     "web-component",
@@ -12,5 +13,11 @@
     "badge"
   ],
   "author": "vitoria.cst",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "lite-server": "^2.6.1"
+  },
+  "dependencies": {
+    "daai-badge": "^1.0.0"
+  }
 }

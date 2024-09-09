@@ -10,57 +10,62 @@ class DaaiRecorder extends HTMLElement {
 
     const style = document.createElement('style');
     style.textContent = `
-      .container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        width: 100vw;
-      }
-      .recorder-box {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        border: 2px solid #007bff; /* Ajuste a cor conforme necessário */
-        border-radius: 8px;
-        background-color: #ffffff;
-      }
-      .recorder-box img {
-        height: 40px; /* Ajuste conforme necessário */
-      }
-      .recorder-box button {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: transform 0.15s ease-in-out;
-      }
-      .recorder-box button:active {
-        transform: scale(0.95);
-      }
-      .button-primary {
-        background-color: #007bff;
-        color: white;
-      }
-      .button-recording {
-        background-color: #ff0000;
-        color: white;
-      }
-      .button-inactive {
-        background-color: #6c757d;
-        color: white;
-      }
-      .button-success {
-        background-color: #28a745;
-        color: white;
-      }
-      .icon {
-        margin-right: 0.5rem;
-      }
+    <style>
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    .recorder-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border: 2px solid #009CB1;
+      border-radius: 8px;
+      background-color: #ffffff;
+    }
+    .recorder-box img {
+      height: 40px; /* Ajuste conforme necessário */
+    }
+    .recorder-box button {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease-in-out;
+    }
+    .recorder-box button:active {
+      transform: scale(0.95);
+    }
+    .button-primary {
+      background-color: #009CB1;
+      color: white;
+    }
+    .button-recording {
+      background-color: #ff0000;
+      color: white;
+    }
+    .button-inactive {
+      background-color: #6c757d;
+      color: white;
+    }
+    .button-success {
+      background-color: #28a745;
+      color: white;
+    }
+    .icon {
+      margin-right: 0.5rem;
+    }
+    </style>
+    <div>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    </div>
     `;
 
     const container = document.createElement('div');

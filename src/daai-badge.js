@@ -1,4 +1,4 @@
-class DaaiRecorder extends HTMLElement {
+class DaaiBadge extends HTMLElement {
   constructor() {
     super();
     this.mediaRecorder = null;
@@ -22,12 +22,12 @@ class DaaiRecorder extends HTMLElement {
         align-items: center;
         gap: 1rem;
         padding: 1rem;
-        border: 2px solid #007bff; /* Ajuste a cor conforme necessário */
+        border: 2px solid #009CB1;
         border-radius: 8px;
         background-color: #ffffff;
       }
       .recorder-box img {
-        height: 40px; /* Ajuste conforme necessário */
+        height: 40px;
       }
       .recorder-box button {
         display: flex;
@@ -43,11 +43,11 @@ class DaaiRecorder extends HTMLElement {
         transform: scale(0.95);
       }
       .button-primary {
-        background-color: #007bff;
+        background-color: #009CB1;
         color: white;
       }
       .button-recording {
-        background-color: #ff0000;
+        background-color: #F43F5E;
         color: white;
       }
       .button-inactive {
@@ -163,4 +163,4 @@ class DaaiRecorder extends HTMLElement {
   }
 }
 
-customElements.define('daai-badge', DaaiRecorder);
+customElements.define('daai-badge', DaaiBadge);
