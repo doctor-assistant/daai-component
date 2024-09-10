@@ -4,7 +4,10 @@ class DaaiBadge extends HTMLElement {
     this.mediaRecorder = null;
     this.chunks = [];
     this.stream = null;
-    this.recordingBlob = null;
+    this.audioContext = null;
+    this.status = 'waiting';
+    this.devices = [];
+    this.currentDeviceId = null;
 
     const shadow = this.attachShadow({ mode: 'open' });
 
@@ -20,22 +23,23 @@ class DaaiBadge extends HTMLElement {
       .recorder-box {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        justify-content:center;
+        gap: 2rem;
         padding: 1rem;
-        border: 2px solid #009CB1;
-        border-radius: 8px;
+        border: 3px solid  #009CB1;
+        border-radius: 30px;
         background-color: #ffffff;
+        height: 60px;
+        width: 600px;
       }
       .recorder-box img {
         height: 40px;
       }
       .recorder-box button {
-        display: flex;
-        align-items: center;
         padding: 0.5rem 1rem;
         border: none;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: medium;
         cursor: pointer;
         transition: transform 0.15s ease-in-out;
       }
@@ -43,102 +47,250 @@ class DaaiBadge extends HTMLElement {
         transform: scale(0.95);
       }
       .button-primary {
+        width:180px;
+        height:50px;
+        font-size:30px;
+        border-radius:8px;
         background-color: #009CB1;
         color: white;
       }
       .button-recording {
+        width:180px;
+        height:50px;
+        font-size:30px;
+        border-radius:8px;
         background-color: #F43F5E;
-        color: white;
-      }
-      .button-inactive {
-        background-color: #6c757d;
         color: white;
       }
       .button-success {
         background-color: #28a745;
         color: white;
       }
-      .icon {
-        margin-right: 0.5rem;
+      .hidden {
+        display: none;
       }
+      .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius:10px;
+        padding: 1rem;
+        z-index: 1000;
+        display: none;
+      }
+      .modal.active {
+        display: block;
+      }
+      .modal button {
+        margin-top: 1rem;
+      }
+      .backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+        border-radius:20px;
+      }
+      .backdrop.active {
+        display: block;
+      }
+      .close-button{
+        background-color: #009CB1;
+        border:none;
+        border-radius:10px;
+        padding:4px;
+        color:#FFFFFF;
+        }
     `;
 
     const container = document.createElement('div');
     container.className = 'container';
 
-    const recorderBox = document.createElement('div');
-    recorderBox.className = 'recorder-box';
+    this.recorderBox = document.createElement('div');
+    this.recorderBox.className = 'recorder-box';
 
     const logo = document.createElement('img');
     logo.src = 'images/logo.png';
     logo.alt = 'daai-logo';
-    recorderBox.appendChild(logo);
+    this.recorderBox.appendChild(logo);
 
     this.statusText = document.createElement('span');
-    this.statusText.textContent = 'Aguardando';
-    recorderBox.appendChild(this.statusText);
+    this.statusText.textContent = 'Aguardando autorização do microfone';
+    this.recorderBox.appendChild(this.statusText);
+
+    this.buttons = {
+      start: this.createButton('start', 'fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
+      pause: this.createButton('pause', 'fa-pause', 'Pausar Registro', this.pauseRecording.bind(this)),
+      finish: this.createButton('finish', 'fa-check', 'Finalizar Registro', this.finishRecording.bind(this)),
+      resume: this.createButton('resume', 'fa-circle', 'Continuar Registro', this.resumeRecording.bind(this)),
+      download: this.createButton('download', 'fa-download', 'Download Registro', this.downloadRecording.bind(this)),
+      changeMicrophone: this.createButton('change', 'fa-microphone-alt', 'Mudar Microfone', this.openMicrophoneModal.bind(this))
+    };
+
+    for (const button of Object.values(this.buttons)) {
+      this.recorderBox.appendChild(button);
+    }
 
 
-    this.addButton(recorderBox, 'recording', 'pause', 'fa-pause', 'Pausar Gravação', this.pauseRecording.bind(this));
-    this.addButton(recorderBox, 'waiting_authorization', 'start', 'fa-microphone', 'Iniciar Registro', this.startRecording.bind(this));
-    this.addButton(recorderBox, 'recording', 'finish', 'fa-check', 'Finalizar Registro', this.finishRecording.bind(this));
-    this.addButton(recorderBox, 'paused', 'resume', 'fa-circle', 'Continuar Registro', this.resumeRecording.bind(this));
-    this.addButton(recorderBox, 'in_process', 'download', 'fa-download', 'Download Registro', this.downloadRecording.bind(this));
+    this.modal = document.createElement('div');
+    this.modal.className = 'modal';
+    this.modal.innerHTML = `
+      <h2>Selecionar Microfone</h2>
+      <select id="microphone-select"></select>
+      <button id="close-modal" class='close-button'>Fechar</button>
+    `;
+
+    this.backdrop = document.createElement('div');
+    this.backdrop.className = 'backdrop';
 
     shadow.appendChild(style);
     shadow.appendChild(container);
-    container.appendChild(recorderBox);
+    container.appendChild(this.recorderBox);
+    shadow.appendChild(this.modal);
+    shadow.appendChild(this.backdrop);
+
+    this.updateButtons();
+    this.loadDevices();
   }
 
-  addButton(parent, status, type, iconClass, text, handler) {
+  createButton(type, iconClass, text, handler) {
     const button = document.createElement('button');
-    button.className = this.getButtonClass(status, type);
-    button.innerHTML = `<i class="fa-solid ${iconClass} icon"></i>${text}`;
+    button.className = `button ${this.getButtonClass(type)}`;
+    button.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
     button.addEventListener('click', handler);
-    parent.appendChild(button);
+    button.classList.add('hidden');
+    return button;
   }
 
-  getButtonClass(status, type) {
-    if (status === 'recording') return 'button-recording';
-    if (type === 'start' || type === 'resume') return 'button-primary';
+  getButtonClass(type) {
+    if (type === 'start') return 'button-primary';
     if (type === 'pause' || type === 'finish') return 'button-recording';
+    if (type === 'resume') return 'button-primary';
     if (type === 'download') return 'button-success';
-    return 'button-inactive';
+    return '';
+  }
+
+  updateButtons() {
+    Object.keys(this.buttons).forEach(buttonType => {
+      const button = this.buttons[buttonType];
+      switch (this.status) {
+        case 'waiting':
+          buttonType === 'start' || buttonType === 'changeMicrophone' ? button.classList.remove('hidden') : button.classList.add('hidden');
+          break;
+        case 'authorized':
+        case 'paused':
+          buttonType === 'pause' || buttonType === 'start' || buttonType === 'changeMicrophone' ? button.classList.remove('hidden') : button.classList.add('hidden');
+          break;
+        case 'recording':
+          buttonType === 'pause' || buttonType === 'finish' ? button.classList.remove('hidden') : button.classList.add('hidden');
+          break;
+        case 'finished':
+          buttonType === 'download' ? button.classList.remove('hidden') : button.classList.add('hidden');
+          break;
+      }
+    });
+  }
+
+  async loadDevices() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      this.devices = devices.filter(device => device.kind === 'audioinput');
+
+      const select = this.modal.querySelector('#microphone-select');
+      select.innerHTML = '';
+      this.devices.forEach(device => {
+        const option = document.createElement('option');
+        option.value = device.deviceId;
+        option.textContent = device.label || `Microfone ${device.deviceId}`;
+        select.appendChild(option);
+      });
+
+      select.addEventListener('change', () => {
+        this.currentDeviceId = select.value;
+      });
+
+      const closeModal = this.modal.querySelector('#close-modal');
+      closeModal.addEventListener('click', () => {
+        this.closeMicrophoneModal();
+      });
+    } catch (error) {
+      console.error('Erro ao carregar dispositivos:', error);
+    }
+  }
+
+  openMicrophoneModal() {
+    this.backdrop.classList.add('active');
+    this.modal.classList.add('active');
+  }
+
+  closeMicrophoneModal() {
+    this.backdrop.classList.remove('active');
+    this.modal.classList.remove('active');
   }
 
   async startRecording() {
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const constraints = { audio: { deviceId: this.currentDeviceId ? { exact: this.currentDeviceId } : undefined } };
+      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      const source = this.audioContext.createMediaStreamSource(this.stream);
+      source.connect(this.audioContext.destination);
+
       this.mediaRecorder = new MediaRecorder(this.stream);
-      this.mediaRecorder.ondataavailable = (event) => this.chunks.push(event.data);
+      this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
       this.mediaRecorder.onstop = () => this.handleStop();
       this.mediaRecorder.start();
+      this.status = 'recording';
       this.statusText.textContent = 'Gravando';
+
+      this.updateButtons();
     } catch (error) {
       console.error('Erro ao acessar o microfone:', error);
       this.statusText.textContent = 'Erro ao acessar o microfone';
+      this.status = 'waiting'; // Retorna ao status inicial
+      this.updateButtons();
     }
   }
 
   pauseRecording() {
     if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
       this.mediaRecorder.pause();
-      this.statusText.textContent = 'Gravacao pausada';
+      this.status = 'paused';
+      this.statusText.textContent = 'Registro pausado';
+      this.updateButtons();
     }
   }
 
   resumeRecording() {
     if (this.mediaRecorder && this.mediaRecorder.state === 'paused') {
       this.mediaRecorder.resume();
+      this.status = 'recording';
       this.statusText.textContent = 'Gravando';
+      this.updateButtons();
     }
   }
 
   finishRecording() {
     if (this.mediaRecorder) {
       this.mediaRecorder.stop();
+      this.status = 'finished';
       this.statusText.textContent = 'Finalizando';
+      this.updateButtons();
     }
+  }
+
+  handleDataAvailable(event) {
+    this.chunks.push(event.data);
   }
 
   handleStop() {
