@@ -13,6 +13,7 @@ class DaaiBadge extends HTMLElement {
 
     const style = document.createElement('style');
     style.textContent = `
+     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
       .container {
         display: flex;
         align-items: center;
@@ -117,7 +118,7 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox.className = 'recorder-box';
 
     const logo = document.createElement('img');
-    logo.src = 'images/logo.png';
+    logo.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=';
     logo.alt = 'daai-logo';
     this.recorderBox.appendChild(logo);
 
@@ -126,12 +127,12 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox.appendChild(this.statusText);
 
     this.buttons = {
-      start: this.createButton('start', 'fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
-      pause: this.createButton('pause', 'fa-pause', 'Pausar Registro', this.pauseRecording.bind(this)),
-      finish: this.createButton('finish', 'fa-check', 'Finalizar Registro', this.finishRecording.bind(this)),
-      resume: this.createButton('resume', 'fa-circle', 'Continuar Registro', this.resumeRecording.bind(this)),
-      download: this.createButton('download', 'fa-download', 'Download Registro', this.downloadRecording.bind(this)),
-      changeMicrophone: this.createButton('change', 'fa-microphone-alt', 'Mudar Microfone', this.openMicrophoneModal.bind(this))
+      start: this.createButton('start', 'fa fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
+      pause: this.createButton('pause', 'fa fa-pause', 'Pausar Registro', this.pauseRecording.bind(this)),
+      finish: this.createButton('finish', 'fa  fa-check', 'Finalizar Registro', this.finishRecording.bind(this)),
+      resume: this.createButton('resume', ' fa fa-circle', 'Continuar Registro', this.resumeRecording.bind(this)),
+      download: this.createButton('download', 'fa fa-download', 'Download Registro', this.downloadRecording.bind(this)),
+      changeMicrophone: this.createButton('change', "fas fa-gear", 'Mudar Microfone', this.openMicrophoneModal.bind(this))
     };
 
     for (const button of Object.values(this.buttons)) {
