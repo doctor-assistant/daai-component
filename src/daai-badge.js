@@ -14,6 +14,7 @@ class DaaiBadge extends HTMLElement {
     const style = document.createElement('style');
     style.textContent = `
      @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
+     @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
       .container {
         display: flex;
         align-items: center;
@@ -32,11 +33,15 @@ class DaaiBadge extends HTMLElement {
         background-color: #ffffff;
         height: 60px;
         width: 600px;
+        font-family: "Inter", sans-serif;
       }
       .recorder-box img {
         height: 40px;
       }
       .recorder-box button {
+        diplay:flex
+        width:300px;
+        height:50px;
         padding: 0.5rem 1rem;
         border: none;
         border-radius: 8px;
@@ -48,15 +53,21 @@ class DaaiBadge extends HTMLElement {
         transform: scale(0.95);
       }
       .button-primary {
-        width:180px;
+        width:300px;
         height:50px;
         font-size:30px;
         border-radius:8px;
         background-color: #009CB1;
         color: white;
       }
+      .button-pause{
+        width: 100px;
+        height: Fill (29.99px)px;
+        gap: 15px;
+        opacity: 0px;
+      }
       .button-recording {
-        width:180px;
+        width:200px;
         height:50px;
         font-size:30px;
         border-radius:8px;
@@ -67,6 +78,7 @@ class DaaiBadge extends HTMLElement {
         background-color: #28a745;
         color: white;
       }
+
       .hidden {
         display: none;
       }
@@ -87,6 +99,7 @@ class DaaiBadge extends HTMLElement {
       }
       .modal button {
         margin-top: 1rem;
+
       }
       .backdrop {
         position: fixed;
@@ -103,12 +116,25 @@ class DaaiBadge extends HTMLElement {
         display: block;
       }
       .close-button{
+        width:200px;
         background-color: #009CB1;
         border:none;
-        border-radius:10px;
+        border-radius:4px;
         padding:4px;
         color:#FFFFFF;
         }
+      .button-change{
+        background-color: transparent;
+        font-size:30px;
+        border:none;
+        padding:4px;
+        color:#64748B;
+        width: 12.66px;
+        height: 13.26px;
+
+      }
+
+
     `;
 
     const container = document.createElement('div');
@@ -127,12 +153,12 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox.appendChild(this.statusText);
 
     this.buttons = {
+      changeMicrophone: this.createButton('change', "fas fa-gear fa-lg", '', this.openMicrophoneModal.bind(this)),
       start: this.createButton('start', 'fa fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
-      pause: this.createButton('pause', 'fa fa-pause', 'Pausar Registro', this.pauseRecording.bind(this)),
+      pause: this.createButton('pause', 'fa fa-pause', '', this.pauseRecording.bind(this)),
       finish: this.createButton('finish', 'fa  fa-check', 'Finalizar Registro', this.finishRecording.bind(this)),
       resume: this.createButton('resume', ' fa fa-circle', 'Continuar Registro', this.resumeRecording.bind(this)),
       download: this.createButton('download', 'fa fa-download', 'Download Registro', this.downloadRecording.bind(this)),
-      changeMicrophone: this.createButton('change', "fas fa-gear", 'Mudar Microfone', this.openMicrophoneModal.bind(this))
     };
 
     for (const button of Object.values(this.buttons)) {
@@ -171,10 +197,13 @@ class DaaiBadge extends HTMLElement {
   }
 
   getButtonClass(type) {
+    console.log('type',type)
     if (type === 'start') return 'button-primary';
-    if (type === 'pause' || type === 'finish') return 'button-recording';
+    if (type === 'pause') return 'button-pause';
+    if (type === 'finish') return 'button-recording';
     if (type === 'resume') return 'button-primary';
     if (type === 'download') return 'button-success';
+    if(type === 'change') return 'button-change'
     return '';
   }
 
