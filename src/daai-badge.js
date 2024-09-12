@@ -58,6 +58,12 @@ class DaaiBadge extends HTMLElement {
       .recorder-box button:active {
         transform: scale(0.95);
       }
+      .text-primary {
+       text-color:'#009CB1'
+      }
+      .text-waiting-mic-aprove {
+       text-color:'#F43F5E'
+      }
       .button-primary {
         height: 50px;
         font-size: 30px;
@@ -147,14 +153,9 @@ class DaaiBadge extends HTMLElement {
         color: white;
       }
     .audio-visualizer {
-      width: 300px;
-      height: 100px;
       pointer-events: none;
       background-color: transparent;
     }
-    .audio-visualizer.recording {
-        margin-bottom: 50px;
-      }
 
     .button[disabled] {
       cursor: not-allowed;
@@ -174,15 +175,24 @@ class DaaiBadge extends HTMLElement {
     logo.alt = 'daai-logo';
     this.recorderBox.appendChild(logo);
 
-    this.statusText = document.createElement('span');
-    this.statusText.textContent = 'Aguardando autorização do microfone';
-    this.recorderBox.appendChild(this.statusText);
+    // this.statusText = document.createElement('span');
+    // this.statusText.textContent = 'Aguardando autorização do microfone';
+    // this.recorderBox.appendChild(this.statusText);
 
-    if(this.status !== 'waiting'){
+      this.statusText = document.createElement('span');
+      this.statusText.textContent = 'Microfone';
+      this.recorderBox.appendChild(this.statusText);
       this.canvas = document.createElement('canvas');
       this.canvas.className = 'audio-visualizer';
       this.recorderBox.appendChild(this.canvas);
-    }
+
+    this.textContent = {
+      start: this.createText('recording',''),
+      pause: this.createText('recording',''),
+      finish:this.createText('recording','Aguarde enquanto geramos o relatório final...'),
+      resume: this.createText('',''),
+      upload: this.createText('','Relatório finalizado!'),
+    };
 
 // aqui vamos usar o createButton para criar esses botões com ícones e textos apropriados.
     this.buttons = {
@@ -224,6 +234,14 @@ class DaaiBadge extends HTMLElement {
     button.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
     button.addEventListener('click', handler);
     return button;
+  }
+  // metódo para criar os textos, definido o seu conteúdo
+  createText(type, iconClass,text, content) {
+    const textElement = document.createElement('p');
+    textElement.className = `text-${type}`;
+    textElement.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
+    textElement.textContent = content;
+    return textElement;
   }
 
   // setando as classes de acordo com o status
@@ -298,6 +316,7 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
+  // abrir o modal de mudança de microfone
   openMicrophoneModal() {
     this.backdrop.classList.add('active');
     this.modal.classList.add('active');
@@ -331,13 +350,11 @@ class DaaiBadge extends HTMLElement {
 
       this.mediaRecorder = new MediaRecorder(this.stream);
       this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
+      this.status = 'recording';
       this.mediaRecorder.onstop = () => this.handleStop();
       this.mediaRecorder.start();
-      this.status = 'recording';
-
-      this.setupVisualizer(this.analyser, dataArray, bufferLength);
-
       this.updateButtons();
+      this.setupVisualizer(this.analyser, dataArray, bufferLength);
     } catch (error) {
       console.error('Erro ao acessar o microfone:', error);
       this.statusText.textContent = 'Erro ao acessar o microfone';
@@ -349,51 +366,123 @@ class DaaiBadge extends HTMLElement {
   setupVisualizer(analyser, dataArray, bufferLength) {
     const canvas = this.canvas;
     const ctx = canvas.getContext('2d');
-    const WIDTH = canvas.width;
-    const HEIGHT = canvas.height;
-    const barWidth = (WIDTH / bufferLength) * 1.5;
-    const barSpacing = 4;
-    let barHeight;
-    let x = 0;
 
-    const scale = 0.5;
+    // Definições com base nos parâmetros fornecidos
+    const canvWidth = 250; // Largura do canvas
+    const canvHeight = 50; // Altura do canvas
+    const lineWidth = 0.5; // Largura das linhas
+    const frequLnum = 50;  // Número total de barras
+    const middleOut = true; // Desenhar do meio para fora
+    const minBarHeight = 2; // Altura mínima das barras
+
+    // Atualiza o canvas para as novas dimensões
+    canvas.width = canvWidth;
+    canvas.height = canvHeight;
+
+    const barWidth = canvWidth / frequLnum; // Largura de cada barra
+    const centerX = canvWidth / 2; // Ponto central no eixo X
 
     const draw = () => {
-      if (this.status === 'recording' || this.status === 'paused' || this.status === 'resume') {
-        requestAnimationFrame(draw);
+        if (this.status === 'recording' || this.status === 'resume') {
+            requestAnimationFrame(draw);
 
-        analyser.getByteFrequencyData(dataArray);
+            analyser.getByteFrequencyData(dataArray);
 
-        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            ctx.clearRect(0, 0, canvWidth, canvHeight);
 
-        if (this.status === 'paused') {
-          ctx.strokeStyle = '#009CB1';
-          ctx.lineWidth = 2;
-          ctx.setLineDash([3, 3]);
-          ctx.beginPath();
-          ctx.moveTo(0, HEIGHT / 2);
-          ctx.lineTo(WIDTH, HEIGHT / 2);
-          ctx.stroke();
+            // Define a cor de fundo
+            const backgroundColor = '#FFF';
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvWidth, canvHeight);
 
-        } else {
-          ctx.fillStyle = '#F43F5E';
-          x = 0;
+            // Define a cor das barras
+            const barColor = '#F43F5E';
+            ctx.strokeStyle = barColor;
+            ctx.lineWidth = lineWidth;
 
-          for (let i = 0; i < bufferLength; i++) {
-            barHeight = dataArray[i] * scale;
+            const h = canvHeight;
 
-            ctx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight);
+            // Desenha as barras com intensidade maior no centro e menor nas laterais
+            for (let i = 0; i < frequLnum; i++) {
+                // Normaliza o índice para um intervalo de -1 a 1
+                const normalizedIndex = i / (frequLnum - 1) * 2 - 1;
+                const xOffset = normalizedIndex * (canvWidth / 2); // Deslocamento horizontal das barras
+                const distanceFromCenter = Math.abs(normalizedIndex); // Distância do centro
+                const intensity = 1 - distanceFromCenter; // Intensidade menor nas laterais
+                const barHeight = Math.max(dataArray[i] * intensity, minBarHeight); // Ajusta a altura da barra
+                const space = (h - barHeight) / 2 + 2; // Espaço para os "caps" das barras
 
-            x += barWidth + barSpacing;
-          }
+                // Desenha barras à direita do centro
+                ctx.beginPath();
+                ctx.moveTo(centerX + xOffset, space);
+                ctx.lineTo(centerX + xOffset, h - space);
+                ctx.stroke();
+
+                // Desenha barras à esquerda do centro
+                if (i > 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - xOffset, space);
+                    ctx.lineTo(centerX - xOffset, h - space);
+                    ctx.stroke();
+                }
+            }
+        } else if (this.status === 'paused') {
+            requestAnimationFrame(draw);
+
+            ctx.clearRect(0, 0, canvWidth, canvHeight);
+
+            // Define a cor de fundo
+            const backgroundColor = '#FFF';
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvWidth, canvHeight);
+
+            // Define a cor da linha pontilhada
+            const dashLineColor = '#009CB1';
+            ctx.strokeStyle = dashLineColor;
+            ctx.lineWidth = lineWidth;
+            ctx.setLineDash([3, 5]); // Define a linha pontilhada
+
+            const h = canvHeight;
+            const centerY = canvHeight / 2;
+
+            // Desenha uma linha horizontal pontilhada no centro
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvWidth, centerY);
+            ctx.stroke();
+
+            // Reseta a linha pontilhada para garantir que não afete outras partes do desenho
+            ctx.setLineDash([]);
         }
-      } else {
-        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        else if (this.status === 'paused') {
+          requestAnimationFrame(draw);
+
+          ctx.clearRect(0, 0, canvWidth, canvHeight);
+
+          const backgroundColor = '#FFF';
+          ctx.fillStyle = backgroundColor;
+          ctx.fillRect(0, 0, canvWidth, canvHeight);
+
+          const dashLineColor = '#009CB1';
+          ctx.strokeStyle = dashLineColor;
+          ctx.lineWidth = lineWidth;
+          ctx.setLineDash([3, 5]);
+
+          const h = canvHeight;
+          const centerY = canvHeight / 2;
+          ctx.beginPath();
+          ctx.moveTo(0, centerY);
+          ctx.lineTo(canvWidth, centerY);
+          ctx.stroke();
+          ctx.setLineDash([]);
       }
+        else {
+            ctx.clearRect(0, 0, canvWidth, canvHeight);
+        }
     };
 
     draw();
-  }
+}
 
 
 
