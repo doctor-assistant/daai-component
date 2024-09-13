@@ -8,7 +8,7 @@ class DaaiBadge extends HTMLElement {
     this.audioContext = null;
     this.analyser = null;
     this.gainNode = null;
-    this.status = 'waiting';
+    this.status = 'initial';
     this.devices = [];
     this.currentDeviceId = null;
 
@@ -17,8 +17,9 @@ class DaaiBadge extends HTMLElement {
     // Aqui criamos o style
     const style = document.createElement('style');
 
-    style.textContent = `
-      @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
+    this.shadowRoot.innerHTML = `
+    <style>
+       @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
       @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
       .container {
         display: flex;
@@ -156,13 +157,36 @@ class DaaiBadge extends HTMLElement {
       pointer-events: none;
       background-color: transparent;
     }
+    .audio-hide {
+      width:0px;
+      heigth:0px
+    }
 
     .button[disabled] {
       cursor: not-allowed;
       background-color:#A6AFC366;
       opacity: 0.5;
     }
-    `;
+    <div class="container">
+      <div class="recorder-box">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=" alt="daai-logo">
+        <canvas class="audio-hide"></canvas>
+        <button class="button button-change" id="change-microphone" aria-label="Change Microphone"></button>
+        <button class="button button-primary" id="start-recording">Iniciar Registro</button>
+        <button class="button button-pause hidden" id="pause-recording">Pausar Registro</button>
+        <button class="button button-recording hidden" id="finish-recording">Finalizar Registro</button>
+        <button class="button button-resume hidden" id="resume-recording">Continuar Registro</button>
+        <button class="button button-success hidden" id="download-recording">Download</button>
+      </div>
+    </div>
+    <div class="modal" id="microphone-modal">
+      <p>Escolha o Microfone</p>
+      <select id="microphone-select"></select>
+      <button id="close-modal" class="close-button">Fechar</button>
+    </div>
+    <div class="backdrop"></div>
+  `;
+
 
     const container = document.createElement('div');
     container.className = 'container';
@@ -175,30 +199,42 @@ class DaaiBadge extends HTMLElement {
     logo.alt = 'daai-logo';
     this.recorderBox.appendChild(logo);
 
-    // this.statusText = document.createElement('span');
-    // this.statusText.textContent = 'Aguardando autorização do microfone';
-    // this.recorderBox.appendChild(this.statusText);
+    this.status = 'waiting';
+     this.statusText = document.createElement('span');
+     this.statusText.textContent = 'Aguardando autorização do microfone...';
+     this.recorderBox.appendChild(this.statusText);
 
-      this.statusText = document.createElement('span');
-      this.statusText.textContent = 'Microfone';
-      this.recorderBox.appendChild(this.statusText);
       this.canvas = document.createElement('canvas');
-      this.canvas.className = 'audio-visualizer';
+      this.canvas.className = 'audio-hide';
       this.recorderBox.appendChild(this.canvas);
 
-    this.textContent = {
-      start: this.createText('recording',''),
-      pause: this.createText('recording',''),
-      finish:this.createText('recording','Aguarde enquanto geramos o relatório final...'),
-      resume: this.createText('',''),
-      upload: this.createText('','Relatório finalizado!'),
-    };
+      // createText(type, iconClass, text) {
+      //   const textElement = document.createElement('p');
+      //   textElement.className = `text-${type}`;
+      //   textElement.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
+      //   return textElement;
+      // }
+
+
+      this.textContent = {
+        pause: this.createText('recording', '', 'Pausar Registro'),
+        start: this.createText('recording', '', 'Iniciar Registro'),
+        finish: this.createText('recording', '', 'Aguarde enquanto geramos o relatório final...'),
+        resume: this.createText('resume', '', 'Continuar Registro'),
+        upload: this.createText('upload', 'fa-regular fa-circle-check', 'Relatório finalizado!')
+      };
+
+      // Adiciona os elementos ao Shadow DOM
+      // Object.values(this.textContent).forEach(element => {
+      //   this.shadowRoot.appendChild(element);
+      // });
+
 
 // aqui vamos usar o createButton para criar esses botões com ícones e textos apropriados.
     this.buttons = {
       changeMicrophone: this.createButton('change', 'fas fa-gear fa-lg', '', this.openMicrophoneModal.bind(this)),
-      start: this.createButton('start', 'fa fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
       pause: this.createButton('pause', 'fa fa-pause', '', this.pauseRecording.bind(this)),
+      start: this.createButton('start', 'fa fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
       finish: this.createButton('finish', 'fa fa-check', 'Finalizar Registro', this.finishRecording.bind(this)),
       resume: this.createButton('resume', 'fa fa-circle', 'Continuar Registro', this.resumeRecording.bind(this)),
       download: this.createButton('download', 'fa fa-download', 'Download', this.downloadRecording.bind(this))
@@ -222,7 +258,7 @@ class DaaiBadge extends HTMLElement {
     container.appendChild(this.recorderBox);
     shadow.appendChild(this.modal);
     shadow.appendChild(this.backdrop);
-
+    this.checkMicrophonePermissions()
     this.updateButtons();
     this.loadDevices();
   }
@@ -255,38 +291,80 @@ class DaaiBadge extends HTMLElement {
     return '';
   }
 
-// aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
-  updateButtons() {
-    Object.keys(this.buttons).forEach(buttonType => {
-      const button = this.buttons[buttonType];
-
-      switch (this.status) {
-        case 'waiting':
-        case 'authorized':
-          buttonType === 'start' || buttonType === 'changeMicrophone' ? button.classList.remove('hidden') : button.classList.add('hidden');
-          button.disabled = false;
-          break;
-        case 'paused':
-          buttonType === 'pause' || buttonType === 'resume' ? button.classList.remove('hidden') : button.classList.add('hidden');
-          this.canvas.classList.remove('recording');
-          if (buttonType === 'pause') {
-            button.disabled = true;
-          } else {
-            button.disabled = false;
-          }
-          break;
-        case 'recording':
-          buttonType === 'pause' || buttonType === 'finish' ? button.classList.remove('hidden') : button.classList.add('hidden');
-          this.canvas.classList.add('recording');
-          button.disabled = false;
-          break;
-        case 'finished':
-          buttonType === 'download' ? button.classList.remove('hidden') : button.classList.add('hidden');
-          button.disabled = false;
-          break;
-      }
-    });
+  connectedCallback() {
+    this.checkMicrophonePermissions();
   }
+
+  async checkMicrophonePermissions() {
+    try {
+      // Verificar o estado da permissão do microfone
+      const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+
+      // Se a permissão for concedida, atualizar o status para 'micTest'
+      if (permissionStatus.state === 'granted') {
+        this.status = 'micTest';
+        this.canvas.className = 'audio-visualizer';
+        this.statusText.textContent = 'Microfone';
+      } else {
+        console.log('aqui')
+        this.status = 'waiting';
+        this.statusText.textContent = 'Aguardando autorização do microfone...';
+      }
+
+      // Atualizar botões e outros elementos baseados no novo status
+      this.updateButtons();
+
+      // Também escutar futuras alterações no estado da permissão
+      permissionStatus.onchange = () => {
+        if (permissionStatus.state === 'granted') {
+          this.status = 'micTest';
+          this.statusText.textContent = 'Microfone autorizado, pronto para o teste.';
+        } else {
+          this.status = 'waiting';
+          this.statusText.textContent = 'Aguardando autorização do microfone';
+        }
+        this.updateButtons();
+      };
+    } catch (error) {
+      console.error('Erro ao verificar permissões do microfone:', error);
+      this.statusText.textContent = 'Erro ao verificar permissões do microfone';
+    }
+  }
+
+
+// aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
+updateButtons() {
+  Object.keys(this.buttons).forEach(buttonType => {
+    const button = this.buttons[buttonType];
+    if (this.status === 'waiting') {
+      button.classList.add('hidden');
+    }
+    if (this.status === 'finished') {
+      this.canvas.classList.add('hidden');
+    } else {
+      this.canvas.classList.remove('hidden');
+    }
+    switch (this.status) {
+      case 'micTest':
+        buttonType === 'start' || buttonType === 'changeMicrophone' ? button.classList.remove('hidden') : button.classList.add('hidden');
+        this.canvas.classList.remove('hidden');
+        break;
+      case 'paused':
+        buttonType === 'pause' || buttonType === 'resume' ? button.classList.remove('hidden') : button.classList.add('hidden');
+        button.disabled = (this.status === 'paused' && buttonType === 'pause');
+        break;
+      case 'recording':
+        buttonType === 'pause' || buttonType === 'finish' ? button.classList.remove('hidden') : button.classList.add('hidden');
+        button.disabled = false;
+        break;
+      case 'finished':
+        buttonType === 'download' ? button.classList.remove('hidden') : button.classList.add('hidden');
+        break;
+    }
+  });
+}
+
+
 
 // aqui nesse ele manipula os microfones
   async loadDevices() {
@@ -330,159 +408,138 @@ class DaaiBadge extends HTMLElement {
   async startRecording() {
     this.statusText.textContent = '';
     try {
-      const constraints = { audio: { deviceId: this.currentDeviceId ? { exact: this.currentDeviceId } : undefined } };
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
-      if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      }
-
-      const source = this.audioContext.createMediaStreamSource(this.stream);
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = 256;
-      const bufferLength = this.analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      this.gainNode = this.audioContext.createGain();
-      source.connect(this.analyser);
-      this.analyser.connect(this.gainNode);
-
-      this.gainNode.connect(this.audioContext.createBufferSource().context.destination);
-
-      this.mediaRecorder = new MediaRecorder(this.stream);
-      this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
-      this.status = 'recording';
-      this.mediaRecorder.onstop = () => this.handleStop();
-      this.mediaRecorder.start();
-      this.updateButtons();
-      this.setupVisualizer(this.analyser, dataArray, bufferLength);
-    } catch (error) {
-      console.error('Erro ao acessar o microfone:', error);
-      this.statusText.textContent = 'Erro ao acessar o microfone';
-      this.status = 'waiting';
-      this.updateButtons();
-    }
-  }
-
-  setupVisualizer(analyser, dataArray, bufferLength) {
-    const canvas = this.canvas;
-    const ctx = canvas.getContext('2d');
-
-    // Definições com base nos parâmetros fornecidos
-    const canvWidth = 250; // Largura do canvas
-    const canvHeight = 50; // Altura do canvas
-    const lineWidth = 0.5; // Largura das linhas
-    const frequLnum = 50;  // Número total de barras
-    const middleOut = true; // Desenhar do meio para fora
-    const minBarHeight = 2; // Altura mínima das barras
-
-    // Atualiza o canvas para as novas dimensões
-    canvas.width = canvWidth;
-    canvas.height = canvHeight;
-
-    const barWidth = canvWidth / frequLnum; // Largura de cada barra
-    const centerX = canvWidth / 2; // Ponto central no eixo X
-
-    const draw = () => {
-        if (this.status === 'recording' || this.status === 'resume') {
-            requestAnimationFrame(draw);
-
-            analyser.getByteFrequencyData(dataArray);
-
-            ctx.clearRect(0, 0, canvWidth, canvHeight);
-
-            // Define a cor de fundo
-            const backgroundColor = '#FFF';
-            ctx.fillStyle = backgroundColor;
-            ctx.fillRect(0, 0, canvWidth, canvHeight);
-
-            // Define a cor das barras
-            const barColor = '#F43F5E';
-            ctx.strokeStyle = barColor;
-            ctx.lineWidth = lineWidth;
-
-            const h = canvHeight;
-
-            // Desenha as barras com intensidade maior no centro e menor nas laterais
-            for (let i = 0; i < frequLnum; i++) {
-                // Normaliza o índice para um intervalo de -1 a 1
-                const normalizedIndex = i / (frequLnum - 1) * 2 - 1;
-                const xOffset = normalizedIndex * (canvWidth / 2); // Deslocamento horizontal das barras
-                const distanceFromCenter = Math.abs(normalizedIndex); // Distância do centro
-                const intensity = 1 - distanceFromCenter; // Intensidade menor nas laterais
-                const barHeight = Math.max(dataArray[i] * intensity, minBarHeight); // Ajusta a altura da barra
-                const space = (h - barHeight) / 2 + 2; // Espaço para os "caps" das barras
-
-                // Desenha barras à direita do centro
-                ctx.beginPath();
-                ctx.moveTo(centerX + xOffset, space);
-                ctx.lineTo(centerX + xOffset, h - space);
-                ctx.stroke();
-
-                // Desenha barras à esquerda do centro
-                if (i > 0) {
-                    ctx.beginPath();
-                    ctx.moveTo(centerX - xOffset, space);
-                    ctx.lineTo(centerX - xOffset, h - space);
-                    ctx.stroke();
-                }
-            }
-        } else if (this.status === 'paused') {
-            requestAnimationFrame(draw);
-
-            ctx.clearRect(0, 0, canvWidth, canvHeight);
-
-            // Define a cor de fundo
-            const backgroundColor = '#FFF';
-            ctx.fillStyle = backgroundColor;
-            ctx.fillRect(0, 0, canvWidth, canvHeight);
-
-            // Define a cor da linha pontilhada
-            const dashLineColor = '#009CB1';
-            ctx.strokeStyle = dashLineColor;
-            ctx.lineWidth = lineWidth;
-            ctx.setLineDash([3, 5]); // Define a linha pontilhada
-
-            const h = canvHeight;
-            const centerY = canvHeight / 2;
-
-            // Desenha uma linha horizontal pontilhada no centro
-            ctx.beginPath();
-            ctx.moveTo(0, centerY);
-            ctx.lineTo(canvWidth, centerY);
-            ctx.stroke();
-
-            // Reseta a linha pontilhada para garantir que não afete outras partes do desenho
-            ctx.setLineDash([]);
+        const constraints = { audio: { deviceId: this.currentDeviceId ? { exact: this.currentDeviceId } : undefined } };
+        this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (!this.audioContext) {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-        else if (this.status === 'paused') {
+
+        const source = this.audioContext.createMediaStreamSource(this.stream);
+        this.analyser = this.audioContext.createAnalyser();
+        this.analyser.fftSize = 256;
+        const bufferLength = this.analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        this.gainNode = this.audioContext.createGain();
+        source.connect(this.analyser);
+        this.analyser.connect(this.gainNode);
+
+        this.gainNode.connect(this.audioContext.createBufferSource().context.destination);
+
+        this.mediaRecorder = new MediaRecorder(this.stream);
+        this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
+        this.status = 'recording';
+        this.mediaRecorder.onstop = () => this.handleStop();
+        this.mediaRecorder.start();
+
+        // Altera a classe do canvas para 'audio-visualizer'
+        this.canvas.className = 'audio-visualizer';
+
+        this.updateButtons();
+        this.setupVisualizer(this.analyser, dataArray, bufferLength);
+    } catch (error) {
+        console.error('Erro ao acessar o microfone:', error);
+        this.statusText.textContent = 'Erro ao acessar o microfone';
+        this.status = 'waiting';
+        this.updateButtons();
+    }
+}
+
+
+setupVisualizer(analyser, dataArray, bufferLength) {
+  const canvas = this.canvas;
+  const ctx = canvas.getContext('2d');
+
+  const defaultCanvWidth = 250;
+  const defaultCanvHeight = 50;
+  const lineWidth = 0.5;
+  const frequLnum = 50;
+  const minBarHeight = 2;
+
+  const barWidth = defaultCanvWidth / frequLnum;
+  const centerX = defaultCanvWidth / 2;
+
+  const draw = () => {
+      if (this.status === 'recording' || this.status === 'resume') {
           requestAnimationFrame(draw);
 
-          ctx.clearRect(0, 0, canvWidth, canvHeight);
+          analyser.getByteFrequencyData(dataArray);
+
+          canvas.width = defaultCanvWidth;
+          canvas.height = defaultCanvHeight;
+
+          ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
           const backgroundColor = '#FFF';
           ctx.fillStyle = backgroundColor;
-          ctx.fillRect(0, 0, canvWidth, canvHeight);
+          ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+
+          const barColor = '#F43F5E';
+          ctx.strokeStyle = barColor;
+          ctx.lineWidth = lineWidth;
+
+          const h = defaultCanvHeight;
+
+          for (let i = 0; i < frequLnum; i++) {
+              const normalizedIndex = i / (frequLnum - 1) * 2 - 1;
+              const xOffset = normalizedIndex * (defaultCanvWidth / 2);
+              const distanceFromCenter = Math.abs(normalizedIndex);
+              const intensity = 1 - distanceFromCenter;
+              const barHeight = Math.max(dataArray[i] * intensity, minBarHeight);
+              const space = (h - barHeight) / 2 + 2;
+
+              ctx.beginPath();
+              ctx.moveTo(centerX + xOffset, space);
+              ctx.lineTo(centerX + xOffset, h - space);
+              ctx.stroke();
+
+              if (i > 0) {
+                  ctx.beginPath();
+                  ctx.moveTo(centerX - xOffset, space);
+                  ctx.lineTo(centerX - xOffset, h - space);
+                  ctx.stroke();
+              }
+          }
+      } else if (this.status === 'paused' || this.status === 'micTest') {
+          requestAnimationFrame(draw);
+
+          ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+
+          const backgroundColor = '#FFF';
+          ctx.fillStyle = backgroundColor;
+          ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
           const dashLineColor = '#009CB1';
           ctx.strokeStyle = dashLineColor;
           ctx.lineWidth = lineWidth;
           ctx.setLineDash([3, 5]);
 
-          const h = canvHeight;
-          const centerY = canvHeight / 2;
+          const h = defaultCanvHeight;
+          const centerY = defaultCanvHeight / 2;
+
           ctx.beginPath();
           ctx.moveTo(0, centerY);
-          ctx.lineTo(canvWidth, centerY);
+          ctx.lineTo(defaultCanvWidth, centerY);
           ctx.stroke();
+
           ctx.setLineDash([]);
       }
-        else {
-            ctx.clearRect(0, 0, canvWidth, canvHeight);
-        }
-    };
+      else {
+          canvas.width = 0;
+          canvas.height = 0;
+      }
+  };
 
-    draw();
+  // Se canvas não deve ser mostrado, garantir que é limpo e oculto
+  if (this.status === 'waiting' || this.status === 'finished') {
+      canvas.classList.add('hidden');
+  } else {
+      canvas.classList.remove('hidden');
+      draw();
+  }
 }
+
+
 
 
 
@@ -515,7 +572,6 @@ class DaaiBadge extends HTMLElement {
     if (this.mediaRecorder) {
       this.mediaRecorder.stop();
       this.status = 'finished';
-      this.statusText.textContent = 'Finalizando';
       this.updateButtons();
     }
   }
