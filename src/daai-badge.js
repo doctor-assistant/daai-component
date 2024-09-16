@@ -1,7 +1,6 @@
 class DaaiBadge extends HTMLElement {
   constructor() {
     super();
-    // Variáveis de estado e objetos relacionados ao áudio
     this.mediaRecorder = null;
     this.chunks = [];
     this.stream = null;
@@ -182,12 +181,6 @@ class DaaiBadge extends HTMLElement {
       <div class="recorder-box">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=" alt="daai-logo">
         <canvas class="audio-hide" id="audioCanvas"></canvas>
-        <button class="button button-change" id="change-microphone" aria-label="Change Microphone"></button>
-        <button class="button button-primary" id="start-recording">Iniciar Registro</button>
-        <button class="button button-pause hidden" id="pause-recording">Pausar Registro</button>
-        <button class="button button-recording hidden" id="finish-recording">Finalizar Registro</button>
-        <button class="button button-resume hidden" id="resume-recording">Continuar Registro</button>
-        <button class="button button-success hidden" id="download-recording">Download</button>
       </div>
     </div>
     <div class="modal" id="microphone-modal">
@@ -248,7 +241,7 @@ class DaaiBadge extends HTMLElement {
       start: this.createButton('start', 'fa fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
       finish: this.createButton('finish', 'fa fa-check', 'Finalizar Registro', this.finishRecording.bind(this)),
       resume: this.createButton('resume', 'fa fa-circle', 'Continuar Registro', this.resumeRecording.bind(this)),
-      download: this.createButton('download', 'fa fa-download', 'Download', this.downloadRecording.bind(this))
+      upload: this.createButton('upload', 'fa fa-microphone', 'Iniciar novo registro', this.startRecording.bind(this))
     };
 
     Object.values(this.buttons).forEach(button => this.recorderBox.appendChild(button));
@@ -297,7 +290,7 @@ class DaaiBadge extends HTMLElement {
     if (type === 'pause') return 'button-pause';
     if (type === 'finish') return 'button-recording';
     if (type === 'resume') return 'button-resume';
-    if (type === 'download') return 'button-success';
+    if (type === 'upload') return 'button-primary';
     if (type === 'change') return 'button-change';
     return '';
   }
@@ -442,9 +435,13 @@ updateButtons() {
             button.disabled = false;
             break;
         case 'finished':
-            buttonType === 'download' ? button.classList.remove('hidden') : button.classList.add('hidden');
+            buttonType === '' ? button.classList.remove('hidden') : button.classList.add('hidden');
             button.disabled = false;
             break;
+        case 'upload':
+          buttonType === 'upload' ? button.classList.remove('hidden') : button.classList.add('hidden');
+          button.disabled = false;
+          break;
     }
   });
 }
@@ -643,7 +640,15 @@ setupVisualizer(analyser, dataArray, bufferLength) {
     if (this.mediaRecorder) {
       this.mediaRecorder.stop();
       this.status = 'finished';
+      this.statusText.classList.add('text-primary');
+      this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
       this.updateButtons();
+
+      setTimeout(() => {
+        this.status = 'upload';
+        this.statusText.textContent = 'Relatório finalizado!'
+        this.updateButtons();
+      }, 10000);
     }
   }
 

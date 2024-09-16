@@ -20,5 +20,6 @@
   "dependencies": {
     "daai-badge": "^1.0.0",
     "vue-audio-visual": "^3.0.8"
-  }
+  },
+  "type": "module"
 }
