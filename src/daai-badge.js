@@ -330,7 +330,7 @@ class DaaiBadge extends HTMLElement {
       permissionStatus.onchange = () => {
         if (permissionStatus.state === 'granted') {
           this.status = 'micTest';
-          this.statusText.textContent = 'microfone.';
+          this.statusText.textContent = 'microfone';
           this.canvas.classList.remove('hidden');
           this.startAudioVisualizer();
         } else {
@@ -352,12 +352,22 @@ class DaaiBadge extends HTMLElement {
 
   async startAudioVisualizer() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          sampleRate: 44100,
+          channelCount: 1,
+          echoCancellation: false,
+          autoGainControl: true,
+          noiseSuppression: false,
+          latency: 0
+        }
+      });
+
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
 
-      analyser.fftSize = 2048;
+      analyser.fftSize = 4096;
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
 
@@ -368,41 +378,60 @@ class DaaiBadge extends HTMLElement {
 
       const canvasCtx = this.canvas.getContext('2d');
       const WIDTH = this.canvas.width;
-      const HEIGHT = 50;
+      const HEIGHT = 100;
 
-      // Conectar o Analyser ao destination do contexto de áudio
       source.connect(analyser);
+
+      const barWidth = 20;
+      const barSpacing = 12;
+      const numberOfBars = 8;
+      const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
+      const startX = (WIDTH - totalWidth) / 2;
+
+      const barPositions = [];
+      for (let i = 0; i < numberOfBars; i++) {
+        barPositions.push(startX + i * (barWidth + barSpacing));
+      }
 
       const draw = () => {
         requestAnimationFrame(draw);
 
         analyser.getByteFrequencyData(dataArray);
 
-
         canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
-        const barWidth = 20;
-        const barSpacing = 12;
-        let barHeight;
-        const numberOfBars = 6;
-        const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
-        let x = (WIDTH - totalWidth) / 2;
+        barPositions.forEach((x, i) => {
 
-        for (let i = 0; i < numberOfBars; i++) {
-          barHeight = dataArray[i];
+          const barIntensity = dataArray[i * Math.floor(bufferLength / numberOfBars)];
+          const normalizedIntensity = Math.min(barIntensity / 256, 1);
 
-          canvasCtx.fillStyle = '#DFE4EA';
-          canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
+          const isActive = normalizedIntensity > 0.05;
 
-          x += barWidth + barSpacing;
-        }
+          const color = isActive ? '#637381' : '#DFE4EA';
+
+          // Calcula a altura da barra
+          const barHeight = HEIGHT / 2;
+          const radius = 10;
+
+          canvasCtx.fillStyle = color;
+
+          canvasCtx.beginPath();
+          canvasCtx.moveTo(x + radius, HEIGHT / 2 - barHeight);
+          canvasCtx.arcTo(x + barWidth, HEIGHT / 2 - barHeight, x + barWidth, HEIGHT / 2, radius);
+          canvasCtx.arcTo(x + barWidth, HEIGHT / 2, x, HEIGHT / 2, radius);
+          canvasCtx.arcTo(x, HEIGHT / 2, x, HEIGHT / 2 - barHeight, radius);
+          canvasCtx.arcTo(x, HEIGHT / 2 - barHeight, x + radius, HEIGHT / 2 - barHeight, radius);
+          canvasCtx.closePath();
+          canvasCtx.fill();
+        });
       };
 
       draw();
     } catch (error) {
       console.error('Erro ao capturar o áudio:', error);
     }
-}
+  }
+
 
 // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
 updateButtons() {
