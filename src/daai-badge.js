@@ -63,7 +63,8 @@ class DaaiBadge extends HTMLElement {
        text-color:'#009CB1'
       }
       .text-waiting-mic-aprove {
-       text-color:'#F43F5E'
+         color:#F43F5E;
+         font-weight: bold;
       }
       .button-primary {
         height: 50px;
@@ -167,10 +168,20 @@ class DaaiBadge extends HTMLElement {
       background-color:#A6AFC366;
       opacity: 0.5;
     }
+
+    .text-waiting-aprove-mic {
+      text-color:'#F43F5E'
+    }
+
+    .animation-mic-test{
+      width:130px;
+      margin-top:40px;
+    }
+
     <div class="container">
       <div class="recorder-box">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=" alt="daai-logo">
-        <canvas class="audio-hide"></canvas>
+        <canvas class="audio-hide" id="audioCanvas"></canvas>
         <button class="button button-change" id="change-microphone" aria-label="Change Microphone"></button>
         <button class="button button-primary" id="start-recording">Iniciar Registro</button>
         <button class="button button-pause hidden" id="pause-recording">Pausar Registro</button>
@@ -300,71 +311,143 @@ class DaaiBadge extends HTMLElement {
       // Verificar o estado da permissão do microfone
       const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
 
+      // Certifique-se de que o statusText e o canvas são válidos
+      if (!this.statusText || !this.canvas) {
+        console.error('Elementos necessários não encontrados no DOM.');
+        return;
+      }
+
       // Se a permissão for concedida, atualizar o status para 'micTest'
       if (permissionStatus.state === 'granted') {
         this.status = 'micTest';
-        this.canvas.className = 'audio-visualizer';
         this.statusText.textContent = 'Microfone';
+        this.canvas.classList.remove('hidden');
+        this.canvas.className = 'animation-mic-test';
+        this.startAudioVisualizer();
       } else {
-        console.log('aqui')
         this.status = 'waiting';
-        this.statusText.textContent = 'Aguardando autorização do microfone...';
+        this.statusText.textContent = 'Aguardando autorização do microfone';
+        this.statusText.classList.remove('text-primary');
+        this.statusText.classList.add('text-waiting-mic-aprove');
+        this.canvas.classList.add('hidden');
       }
 
-      // Atualizar botões e outros elementos baseados no novo status
       this.updateButtons();
 
-      // Também escutar futuras alterações no estado da permissão
       permissionStatus.onchange = () => {
         if (permissionStatus.state === 'granted') {
           this.status = 'micTest';
-          this.statusText.textContent = 'Microfone autorizado, pronto para o teste.';
+          this.statusText.textContent = 'microfone.';
+          this.canvas.classList.remove('hidden');
+          this.startAudioVisualizer();
         } else {
           this.status = 'waiting';
           this.statusText.textContent = 'Aguardando autorização do microfone';
+          this.statusText.classList.remove('text-primary');
+          this.statusText.classList.add('text-waiting-mic-aprove');
+          this.canvas.classList.add('hidden'); // Ocultar o canvas
         }
         this.updateButtons();
       };
     } catch (error) {
       console.error('Erro ao verificar permissões do microfone:', error);
-      this.statusText.textContent = 'Erro ao verificar permissões do microfone';
+      if (this.statusText) {
+        this.statusText.textContent = 'Erro ao verificar permissões do microfone';
+      }
     }
   }
 
+  async startAudioVisualizer() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaStreamSource(stream);
+      const analyser = audioContext.createAnalyser();
+
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      if (!this.canvas) {
+        console.error('Canvas não encontrado!');
+        return;
+      }
+
+      const canvasCtx = this.canvas.getContext('2d');
+      const WIDTH = this.canvas.width;
+      const HEIGHT = 50;
+
+      // Conectar o Analyser ao destination do contexto de áudio
+      source.connect(analyser);
+
+      const draw = () => {
+        requestAnimationFrame(draw);
+
+        analyser.getByteFrequencyData(dataArray);
+
+
+        canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+        const barWidth = 20;
+        const barSpacing = 12;
+        let barHeight;
+        const numberOfBars = 6;
+        const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
+        let x = (WIDTH - totalWidth) / 2;
+
+        for (let i = 0; i < numberOfBars; i++) {
+          barHeight = dataArray[i];
+
+          canvasCtx.fillStyle = '#DFE4EA';
+          canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
+
+          x += barWidth + barSpacing;
+        }
+      };
+
+      draw();
+    } catch (error) {
+      console.error('Erro ao capturar o áudio:', error);
+    }
+}
 
 // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
 updateButtons() {
   Object.keys(this.buttons).forEach(buttonType => {
     const button = this.buttons[buttonType];
-    if (this.status === 'waiting') {
-      button.classList.add('hidden');
-    }
     if (this.status === 'finished') {
       this.canvas.classList.add('hidden');
     } else {
       this.canvas.classList.remove('hidden');
     }
-    switch (this.status) {
+      switch (this.status) {
+        case 'waiting':
+            buttonType === 'start' ? button.classList.remove('hidden') : button.classList.add('hidden');
+            button.disabled = true;
+            this.canvas.classList.remove('hidden');
+            break;
       case 'micTest':
-        buttonType === 'start' || buttonType === 'changeMicrophone' ? button.classList.remove('hidden') : button.classList.add('hidden');
-        this.canvas.classList.remove('hidden');
-        break;
-      case 'paused':
-        buttonType === 'pause' || buttonType === 'resume' ? button.classList.remove('hidden') : button.classList.add('hidden');
-        button.disabled = (this.status === 'paused' && buttonType === 'pause');
-        break;
-      case 'recording':
-        buttonType === 'pause' || buttonType === 'finish' ? button.classList.remove('hidden') : button.classList.add('hidden');
-        button.disabled = false;
-        break;
-      case 'finished':
-        buttonType === 'download' ? button.classList.remove('hidden') : button.classList.add('hidden');
-        break;
+              buttonType === 'start' || buttonType === 'pause' || buttonType === 'changeMicrophone'
+                  ? button.classList.remove('hidden')
+                  : button.classList.add('hidden');
+              button.disabled = (buttonType === 'pause');
+              this.canvas.classList.remove('hidden');
+              break;
+        case 'paused':
+            buttonType === 'pause' || buttonType === 'resume' ? button.classList.remove('hidden') : button.classList.add('hidden');
+            button.disabled = (this.status === 'paused' && buttonType === 'pause');
+            break;
+        case 'recording':
+            buttonType === 'pause' || buttonType === 'finish' ? button.classList.remove('hidden') : button.classList.add('hidden');
+            button.disabled = false;
+            break;
+        case 'finished':
+            buttonType === 'download' ? button.classList.remove('hidden') : button.classList.add('hidden');
+            button.disabled = false;
+            break;
     }
   });
 }
-
-
 
 // aqui nesse ele manipula os microfones
   async loadDevices() {
@@ -405,7 +488,7 @@ updateButtons() {
     this.modal.classList.remove('active');
   }
 
-  async startRecording() {
+async startRecording() {
     this.statusText.textContent = '';
     try {
         const constraints = { audio: { deviceId: this.currentDeviceId ? { exact: this.currentDeviceId } : undefined } };
@@ -423,28 +506,23 @@ updateButtons() {
         this.gainNode = this.audioContext.createGain();
         source.connect(this.analyser);
         this.analyser.connect(this.gainNode);
-
         this.gainNode.connect(this.audioContext.createBufferSource().context.destination);
-
         this.mediaRecorder = new MediaRecorder(this.stream);
         this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
         this.status = 'recording';
         this.mediaRecorder.onstop = () => this.handleStop();
         this.mediaRecorder.start();
-
-        // Altera a classe do canvas para 'audio-visualizer'
         this.canvas.className = 'audio-visualizer';
-
         this.updateButtons();
         this.setupVisualizer(this.analyser, dataArray, bufferLength);
-    } catch (error) {
+
+      } catch (error) {
         console.error('Erro ao acessar o microfone:', error);
         this.statusText.textContent = 'Erro ao acessar o microfone';
         this.status = 'waiting';
         this.updateButtons();
     }
 }
-
 
 setupVisualizer(analyser, dataArray, bufferLength) {
   const canvas = this.canvas;
@@ -456,92 +534,85 @@ setupVisualizer(analyser, dataArray, bufferLength) {
   const frequLnum = 50;
   const minBarHeight = 2;
 
-  const barWidth = defaultCanvWidth / frequLnum;
   const centerX = defaultCanvWidth / 2;
 
   const draw = () => {
-      if (this.status === 'recording' || this.status === 'resume') {
-          requestAnimationFrame(draw);
+    if (this.status === 'recording' || this.status === 'micTest') {
+      requestAnimationFrame(draw);
 
-          analyser.getByteFrequencyData(dataArray);
+      analyser.getByteFrequencyData(dataArray);
 
-          canvas.width = defaultCanvWidth;
-          canvas.height = defaultCanvHeight;
+      canvas.width = defaultCanvWidth;
+      canvas.height = defaultCanvHeight;
 
-          ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+      ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-          const backgroundColor = '#FFF';
-          ctx.fillStyle = backgroundColor;
-          ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+      const backgroundColor = '#FFF';
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-          const barColor = '#F43F5E';
-          ctx.strokeStyle = barColor;
-          ctx.lineWidth = lineWidth;
+      const barColor = '#F43F5E';
+      ctx.strokeStyle = barColor;
+      ctx.lineWidth = lineWidth;
 
-          const h = defaultCanvHeight;
+      const h = defaultCanvHeight;
 
-          for (let i = 0; i < frequLnum; i++) {
-              const normalizedIndex = i / (frequLnum - 1) * 2 - 1;
-              const xOffset = normalizedIndex * (defaultCanvWidth / 2);
-              const distanceFromCenter = Math.abs(normalizedIndex);
-              const intensity = 1 - distanceFromCenter;
-              const barHeight = Math.max(dataArray[i] * intensity, minBarHeight);
-              const space = (h - barHeight) / 2 + 2;
+      for (let i = 0; i < frequLnum; i++) {
+        const normalizedIndex = i / (frequLnum - 1) * 2 - 1;
+        const xOffset = normalizedIndex * (defaultCanvWidth / 2);
+        const distanceFromCenter = Math.abs(normalizedIndex);
+        const intensity = 1 - distanceFromCenter;
+        const barHeight = Math.max(dataArray[i] * intensity, minBarHeight);
+        const space = (h - barHeight) / 2 + 2;
 
-              ctx.beginPath();
-              ctx.moveTo(centerX + xOffset, space);
-              ctx.lineTo(centerX + xOffset, h - space);
-              ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX + xOffset, space);
+        ctx.lineTo(centerX + xOffset, h - space);
+        ctx.stroke();
 
-              if (i > 0) {
-                  ctx.beginPath();
-                  ctx.moveTo(centerX - xOffset, space);
-                  ctx.lineTo(centerX - xOffset, h - space);
-                  ctx.stroke();
-              }
-          }
-      } else if (this.status === 'paused' || this.status === 'micTest') {
-          requestAnimationFrame(draw);
-
-          ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
-
-          const backgroundColor = '#FFF';
-          ctx.fillStyle = backgroundColor;
-          ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
-
-          const dashLineColor = '#009CB1';
-          ctx.strokeStyle = dashLineColor;
-          ctx.lineWidth = lineWidth;
-          ctx.setLineDash([3, 5]);
-
-          const h = defaultCanvHeight;
-          const centerY = defaultCanvHeight / 2;
-
+        if (i > 0) {
           ctx.beginPath();
-          ctx.moveTo(0, centerY);
-          ctx.lineTo(defaultCanvWidth, centerY);
+          ctx.moveTo(centerX - xOffset, space);
+          ctx.lineTo(centerX - xOffset, h - space);
           ctx.stroke();
+        }
+      }
+    } else if (this.status === 'paused') {
+      requestAnimationFrame(draw);
 
-          ctx.setLineDash([]);
-      }
-      else {
-          canvas.width = 0;
-          canvas.height = 0;
-      }
+      ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+
+      const backgroundColor = '#FFF';
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+
+      const dashLineColor = '#009CB1';
+      ctx.strokeStyle = dashLineColor;
+      ctx.lineWidth = lineWidth;
+      ctx.setLineDash([3, 5]);
+
+      const h = defaultCanvHeight;
+      const centerY = defaultCanvHeight / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(defaultCanvWidth, centerY);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+    } else {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
   };
 
-  // Se canvas não deve ser mostrado, garantir que é limpo e oculto
   if (this.status === 'waiting' || this.status === 'finished') {
-      canvas.classList.add('hidden');
+    canvas.classList.add('hidden');
   } else {
-      canvas.classList.remove('hidden');
-      draw();
+    canvas.classList.remove('hidden');
+    draw();
   }
 }
-
-
-
-
 
   pauseRecording() {
     if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
