@@ -177,6 +177,28 @@ class DaaiBadge extends HTMLElement {
       margin-top:40px;
     }
 
+    .rounded-select {
+     font-size: 18px;
+      padding: 10px 16px;
+      border-radius: 25px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      font-size: 16px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+      cursor: pointer;
+  }
+
+  .rounded-select:focus {
+    border-color: #007bff;
+  }
+
+
     <div class="container">
       <div class="recorder-box">
       <img src="${this.getAttribute('icon') || 'default-icon.png'}" alt="Icon">
@@ -184,9 +206,9 @@ class DaaiBadge extends HTMLElement {
       </div>
     </div>
     <div class="modal" id="microphone-modal">
-      <p>Escolha o Microfone</p>
-      <select id="microphone-select"></select>
-      <button id="close-modal" class="close-button">Fechar</button>
+     <p>Escolha o Microfone</p>
+    <select id="microphone-select" class="rounded-select"></select>
+    <button id="close-modal" class="close-button">Fechar</button>
     </div>
     <div class="backdrop"></div>
   `;
@@ -313,33 +335,34 @@ class DaaiBadge extends HTMLElement {
 
       // Se a permissão for concedida, atualizar o status para 'micTest'
       if (permissionStatus.state === 'granted') {
-        this.status = 'micTest';
-        this.statusText.textContent = 'Microfone';
         this.canvas.classList.remove('hidden');
         this.canvas.className = 'animation-mic-test';
+        this.status = 'micTest';
+        this.statusText.textContent = 'Microfone';
         this.startAudioVisualizer();
       } else {
+        this.canvas.classList.add('hidden');
         this.status = 'waiting';
         this.statusText.textContent = 'Aguardando autorização do microfone';
         this.statusText.classList.remove('text-primary');
         this.statusText.classList.add('text-waiting-mic-aprove');
-        this.canvas.classList.add('hidden');
       }
 
       this.updateButtons();
 
       permissionStatus.onchange = () => {
         if (permissionStatus.state === 'granted') {
-          this.status = 'micTest';
-          this.statusText.textContent = 'microfone';
           this.canvas.classList.remove('hidden');
+          this.canvas.className = 'animation-mic-test';
+          this.status = 'micTest';
+          this.statusText.textContent = 'Microfone';
           this.startAudioVisualizer();
         } else {
+          this.canvas.classList.add('hidden');
           this.status = 'waiting';
           this.statusText.textContent = 'Aguardando autorização do microfone';
           this.statusText.classList.remove('text-primary');
           this.statusText.classList.add('text-waiting-mic-aprove');
-          this.canvas.classList.add('hidden'); // Ocultar o canvas
         }
         this.updateButtons();
       };
