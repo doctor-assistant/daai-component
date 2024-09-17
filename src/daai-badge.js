@@ -34,7 +34,7 @@ class DaaiBadge extends HTMLElement {
         text-items:center;
         gap: 1rem;
         padding: 1rem;
-        border: 3px solid #009CB1;
+        border: 3px solid;
         border-radius: 30px;
         background-color: #ffffff;
         height: 60px;
@@ -59,10 +59,10 @@ class DaaiBadge extends HTMLElement {
         transform: scale(0.95);
       }
       .text-primary {
-       text-color:'#009CB1'
+       text-color:${this.getAttribute('text-color')}
       }
       .text-waiting-mic-aprove {
-         color:#F43F5E;
+        text-color:${this.getAttribute('text-color')}
          font-weight: bold;
       }
       .button-primary {
@@ -169,7 +169,7 @@ class DaaiBadge extends HTMLElement {
     }
 
     .text-waiting-aprove-mic {
-      text-color:'#F43F5E'
+      text-color:${this.getAttribute('text-color')}
     }
 
     .animation-mic-test{
@@ -179,7 +179,7 @@ class DaaiBadge extends HTMLElement {
 
     <div class="container">
       <div class="recorder-box">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=" alt="daai-logo">
+      <img src="${this.getAttribute('icon') || 'default-icon.png'}" alt="Icon">
         <canvas class="audio-hide" id="audioCanvas"></canvas>
       </div>
     </div>
@@ -267,6 +267,7 @@ class DaaiBadge extends HTMLElement {
     this.loadDevices();
   }
 
+
   // metódo para criar os botões, definido o seu conteúdo
   createButton(type, iconClass, text, handler) {
     const button = document.createElement('button');
@@ -349,6 +350,72 @@ class DaaiBadge extends HTMLElement {
       }
     }
   }
+
+
+  connectedCallback() {
+    console.log('Elemento adicionado ao DOM');
+  }
+
+  static get observedAttributes() {
+    return ['icon', 'button-primary-color', 'button-recording-color', 'button-pause-color','button-resume-color' ,'border-badge-color', 'animation-recording-color','animation-paused-color', 'text-color'];
+  }
+
+  connectedCallback() {
+    if (!this.hasAttribute('icon')) this.setAttribute('icon', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=');
+    if (!this.hasAttribute('button-primary-color')) this.setAttribute('button-primary-color', '#009CB1');
+    if (!this.hasAttribute('button-recording-color')) this.setAttribute('button-recording-color', '#F43F5E');
+    if (!this.hasAttribute('button-pause-color')) this.setAttribute('button-pause-color', '#F43F5E');
+    if (!this.hasAttribute('button-resume-color')) this.setAttribute('button-resume-color', '#009CB1');
+    if (!this.hasAttribute('border-badge-color')) {
+      this.setAttribute('border-badge-color','#009CB1');
+    }
+    if (!this.hasAttribute('animation-recording-color')) this.setAttribute('animation-recording-color', '#F43F5E');
+    if (!this.hasAttribute('animation-paused-color')) this.setAttribute('animation-paused-color', '#009CB1');
+    if (!this.hasAttribute('text-color')) this.setAttribute('text-color', '#1cde02');
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    const shadowRoot = this.shadowRoot;
+    switch (name) {
+      case 'icon':
+        const img = shadowRoot.querySelector('img');
+        if (img) img.src = newValue;
+        break;
+      case 'button-primary-color':
+        const buttonPrimary = shadowRoot.querySelector('.button-primary');
+        if (buttonPrimary) buttonPrimary.style.backgroundColor = newValue;
+        break;
+      case 'button-recording-color':
+        const buttonRecording = shadowRoot.querySelector('.button-recording');
+        if (buttonRecording) buttonRecording.style.backgroundColor = newValue;
+        break;
+      case 'button-pause-color':
+        const buttonPause = shadowRoot.querySelector('.button-pause');
+        if (buttonPause) buttonPause.style.backgroundColor = newValue;
+        break;
+      case 'button-resume-color':
+        const buttonResume = shadowRoot.querySelector('.button-resume');
+        if (buttonResume) buttonResume.style.backgroundColor = newValue;
+        break;
+      case 'border-badge-color':
+        const recorderBox = shadowRoot.querySelector('.recorder-box');
+        if (recorderBox) recorderBox.style.borderColor = newValue;
+        break;
+      case 'animation-recording-color':
+        const animatedRecordingElement = shadowRoot.querySelector('.animated-recording-element');
+        if (animatedRecordingElement) animatedRecordingElement.style.animationColor = newValue;
+        break;
+      case 'animation-paused-color':
+        const animatedPausedElement = shadowRoot.querySelector('.animated-paused-element');
+        if (animatedPausedElement) animatedPausedElement.style.animationColor = newValue;
+        break;
+      case 'text-color':
+        const textColor = shadowRoot.querySelector('.text-color');
+        if (textColor) textColor.style.color = newValue;
+        break;
+    }
+  }
+
 
   async startAudioVisualizer() {
     try {
@@ -577,7 +644,7 @@ setupVisualizer(analyser, dataArray, bufferLength) {
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      const barColor = '#F43F5E';
+      const barColor = `${this.getAttribute('animation-recording-color')}`;
       ctx.strokeStyle = barColor;
       ctx.lineWidth = lineWidth;
 
@@ -612,10 +679,10 @@ setupVisualizer(analyser, dataArray, bufferLength) {
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      const dashLineColor = '#009CB1';
+      const dashLineColor = `${this.getAttribute('animation-paused-color')}`;
       ctx.strokeStyle = dashLineColor;
       ctx.lineWidth = lineWidth;
-      ctx.setLineDash([3, 5]);
+      ctx.setLineDash([3, 2]);
 
       const h = defaultCanvHeight;
       const centerY = defaultCanvHeight / 2;
