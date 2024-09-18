@@ -1,3 +1,6 @@
+import { StartAnimationMicTest, StartAnimationRecording } from "./utils/animations.js";
+
+
 class DaaiBadge extends HTMLElement {
   constructor() {
     super();
@@ -328,7 +331,7 @@ class DaaiBadge extends HTMLElement {
         this.canvas.className = 'animation-mic-test';
         this.status = 'micTest';
         this.statusText.textContent = 'Microfone';
-        this.startAudioVisualizer();
+        StartAnimationMicTest(this.canvas);
       } else {
         this.canvas.classList.add('hidden');
         this.status = 'waiting';
@@ -345,7 +348,7 @@ class DaaiBadge extends HTMLElement {
           this.canvas.className = 'animation-mic-test';
           this.status = 'micTest';
           this.statusText.textContent = 'Microfone';
-          this.startAudioVisualizer();
+          StartAnimationMicTest(this.canvas);
         } else {
           this.canvas.classList.add('hidden');
           this.status = 'waiting';
@@ -428,89 +431,6 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
-
-  async startAudioVisualizer() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          sampleRate: 44100,
-          channelCount: 1,
-          echoCancellation: false,
-          autoGainControl: true,
-          noiseSuppression: false,
-          latency: 0
-        }
-      });
-
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const source = audioContext.createMediaStreamSource(stream);
-      const analyser = audioContext.createAnalyser();
-
-      analyser.fftSize = 4096;
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
-      if (!this.canvas) {
-        console.error('Canvas não encontrado!');
-        return;
-      }
-
-      const canvasCtx = this.canvas.getContext('2d');
-      const WIDTH = this.canvas.width;
-      const HEIGHT = 100;
-
-      source.connect(analyser);
-
-      const barWidth = 20;
-      const barSpacing = 12;
-      const numberOfBars = 8;
-      const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
-      const startX = (WIDTH - totalWidth) / 2;
-
-      const barPositions = [];
-      for (let i = 0; i < numberOfBars; i++) {
-        barPositions.push(startX + i * (barWidth + barSpacing));
-      }
-
-      const draw = () => {
-        requestAnimationFrame(draw);
-
-        analyser.getByteFrequencyData(dataArray);
-
-        canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
-
-        barPositions.forEach((x, i) => {
-
-          const barIntensity = dataArray[i * Math.floor(bufferLength / numberOfBars)];
-          const normalizedIntensity = Math.min(barIntensity / 256, 1);
-
-          const isActive = normalizedIntensity > 0.05;
-
-          const color = isActive ? '#637381' : '#DFE4EA';
-
-          const barHeight = HEIGHT / 2;
-          const radius = 10;
-
-          canvasCtx.fillStyle = color;
-
-          canvasCtx.beginPath();
-          canvasCtx.moveTo(x + radius, HEIGHT / 2 - barHeight);
-          canvasCtx.arcTo(x + barWidth, HEIGHT / 2 - barHeight, x + barWidth, HEIGHT / 2, radius);
-          canvasCtx.arcTo(x + barWidth, HEIGHT / 2, x, HEIGHT / 2, radius);
-          canvasCtx.arcTo(x, HEIGHT / 2, x, HEIGHT / 2 - barHeight, radius);
-          canvasCtx.arcTo(x, HEIGHT / 2 - barHeight, x + radius, HEIGHT / 2 - barHeight, radius);
-          canvasCtx.closePath();
-          canvasCtx.fill();
-        });
-      };
-
-      draw();
-    } catch (error) {
-      console.error('Erro ao capturar o áudio:', error);
-    }
-  }
-
-
 // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
 updateButtons() {
   Object.keys(this.buttons).forEach(buttonType => {
@@ -592,129 +512,48 @@ updateButtons() {
     this.modal.classList.remove('active');
   }
 
+
+
 async startRecording() {
     this.statusText.textContent = '';
     try {
-        const constraints = { audio: { deviceId: this.currentDeviceId ? { exact: this.currentDeviceId } : undefined } };
-        this.stream = await navigator.mediaDevices.getUserMedia(constraints);
-        if (!this.audioContext) {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
+      const constraints = { audio: { deviceId: this.currentDeviceId ? { exact: this.currentDeviceId } : undefined } };
+      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-        const source = this.audioContext.createMediaStreamSource(this.stream);
-        this.analyser = this.audioContext.createAnalyser();
-        this.analyser.fftSize = 256;
-        const bufferLength = this.analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        this.gainNode = this.audioContext.createGain();
-        source.connect(this.analyser);
-        this.analyser.connect(this.gainNode);
-        this.gainNode.connect(this.audioContext.createBufferSource().context.destination);
-        this.mediaRecorder = new MediaRecorder(this.stream);
-        this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
-        this.status = 'recording';
-        this.mediaRecorder.onstop = () => this.handleStop();
-        this.mediaRecorder.start();
-        this.canvas.className = 'audio-visualizer';
-        this.updateButtons();
-        this.setupVisualizer(this.analyser, dataArray, bufferLength);
-
-      } catch (error) {
-        console.error('Erro ao acessar o microfone:', error);
-        this.statusText.textContent = 'Erro ao acessar o microfone';
-        this.status = 'waiting';
-        this.updateButtons();
-    }
-}
-
-setupVisualizer(analyser, dataArray, bufferLength) {
-  const canvas = this.canvas;
-  const ctx = canvas.getContext('2d');
-
-  const defaultCanvWidth = 250;
-  const defaultCanvHeight = 50;
-  const lineWidth = 0.5;
-  const frequLnum = 50;
-  const minBarHeight = 2;
-
-  const centerX = defaultCanvWidth / 2;
-
-  const draw = () => {
-    if (this.status === 'recording' || this.status === 'micTest') {
-      requestAnimationFrame(draw);
-
-      analyser.getByteFrequencyData(dataArray);
-
-      canvas.width = defaultCanvWidth;
-      canvas.height = defaultCanvHeight;
-
-      ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
-
-      const backgroundColor = '#FFF';
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
-
-      const barColor = `${this.getAttribute('animation-recording-color')}`;
-      ctx.strokeStyle = barColor;
-      ctx.lineWidth = lineWidth;
-
-      const h = defaultCanvHeight;
-
-      for (let i = 0; i < frequLnum; i++) {
-        const normalizedIndex = i / (frequLnum - 1) * 2 - 1;
-        const xOffset = normalizedIndex * (defaultCanvWidth / 2);
-        const distanceFromCenter = Math.abs(normalizedIndex);
-        const intensity = 1 - distanceFromCenter;
-        const barHeight = Math.max(dataArray[i] * intensity, minBarHeight);
-        const space = (h - barHeight) / 2 + 2;
-
-        ctx.beginPath();
-        ctx.moveTo(centerX + xOffset, space);
-        ctx.lineTo(centerX + xOffset, h - space);
-        ctx.stroke();
-
-        if (i > 0) {
-          ctx.beginPath();
-          ctx.moveTo(centerX - xOffset, space);
-          ctx.lineTo(centerX - xOffset, h - space);
-          ctx.stroke();
-        }
+      if (!this.audioContext) {
+          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
-    } else if (this.status === 'paused') {
-      requestAnimationFrame(draw);
 
-      ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+      const source = this.audioContext.createMediaStreamSource(this.stream);
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 256;
+      const bufferLength = this.analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      this.gainNode = this.audioContext.createGain();
+      source.connect(this.analyser);
+      this.analyser.connect(this.gainNode);
+      this.gainNode.connect(this.audioContext.destination);
+      this.mediaRecorder = new MediaRecorder(this.stream);
+      this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
+      this.status = 'recording';
+      this.mediaRecorder.onstop = () => this.handleStop();
+      this.mediaRecorder.start();
 
-      const backgroundColor = '#FFF';
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
+      if (!this.canvas) {
+          console.error('Canvas não encontrado!');
+          return;
+      }
 
-      const dashLineColor = `${this.getAttribute('animation-paused-color')}`;
-      ctx.strokeStyle = dashLineColor;
-      ctx.lineWidth = lineWidth;
-      ctx.setLineDash([3, 2]);
+      this.canvas.className = 'audio-visualizer';
+      this.updateButtons();
 
-      const h = defaultCanvHeight;
-      const centerY = defaultCanvHeight / 2;
+      StartAnimationRecording(this.analyser, dataArray, bufferLength, this.canvas, this.status);
 
-      ctx.beginPath();
-      ctx.moveTo(0, centerY);
-      ctx.lineTo(defaultCanvWidth, centerY);
-      ctx.stroke();
-
-      ctx.setLineDash([]);
-    } else {
-      canvas.width = 0;
-      canvas.height = 0;
-    }
-  };
-
-  if (this.status === 'waiting' || this.status === 'finished') {
-    canvas.classList.add('hidden');
-  } else {
-    canvas.classList.remove('hidden');
-    draw();
+  } catch (error) {
+      console.error('Erro ao acessar o microfone:', error);
+      this.statusText.textContent = 'Erro ao acessar o microfone';
+      this.status = 'waiting';
+      this.updateButtons();
   }
 }
 
@@ -766,22 +605,6 @@ setupVisualizer(analyser, dataArray, bufferLength) {
   handleStop() {
     this.recordingBlob = new Blob(this.chunks, { type: 'audio/wav' });
     this.chunks = [];
-  }
-
-  downloadRecording() {
-    if (this.recordingBlob) {
-      const url = URL.createObjectURL(this.recordingBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'recording.wav';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } else {
-      alert('Nenhuma gravação para download.');
-    }
-  }
-}
+  }}
 
 customElements.define('daai-badge', DaaiBadge);

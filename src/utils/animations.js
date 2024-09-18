@@ -1,44 +1,76 @@
-export async function startMicTestAnimation() {
+
+export async function StartAnimationMicTest(canvasElement) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        sampleRate: 44100,
+        channelCount: 1,
+        echoCancellation: false,
+        autoGainControl: true,
+        noiseSuppression: false,
+        latency: 0
+      }
+    });
+
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
 
-    analyser.fftSize = 2048;
+    analyser.fftSize = 4096;
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
 
-    if (!this.canvas) {
+    if (!canvasElement) {
       console.error('Canvas não encontrado!');
       return;
     }
 
-    const canvasCtx = this.canvas.getContext('2d');
-    const WIDTH = this.canvas.width;
-    const HEIGHT = 50;
+    const canvasCtx = canvasElement.getContext('2d');
+    const WIDTH = canvasElement.width;
+    const HEIGHT = 100;
+
     source.connect(analyser);
+
+    const barWidth = 20;
+    const barSpacing = 12;
+    const numberOfBars = 8;
+    const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
+    const startX = (WIDTH - totalWidth) / 2;
+
+    const barPositions = [];
+    for (let i = 0; i < numberOfBars; i++) {
+      barPositions.push(startX + i * (barWidth + barSpacing));
+    }
 
     const draw = () => {
       requestAnimationFrame(draw);
+
       analyser.getByteFrequencyData(dataArray);
+
       canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
-      const barWidth = 20;
-      const barSpacing = 12;
-      let barHeight;
-      const numberOfBars = 6;
-      const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
-      let x = (WIDTH - totalWidth) / 2;
+      barPositions.forEach((x, i) => {
+        const barIntensity = dataArray[i * Math.floor(bufferLength / numberOfBars)];
+        const normalizedIntensity = Math.min(barIntensity / 256, 1);
 
-      for (let i = 0; i < numberOfBars; i++) {
-        barHeight = dataArray[i];
+        const isActive = normalizedIntensity > 0.05;
 
-        canvasCtx.fillStyle = '#DFE4EA';
-        canvasCtx.fillRect(x, HEIGHT - barHeight / 2, barWidth, barHeight / 2);
+        const color = isActive ? '#637381' : '#DFE4EA';
 
-        x += barWidth + barSpacing;
-      }
+        const barHeight = HEIGHT / 2;
+        const radius = 10;
+
+        canvasCtx.fillStyle = color;
+
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(x + radius, HEIGHT / 2 - barHeight);
+        canvasCtx.arcTo(x + barWidth, HEIGHT / 2 - barHeight, x + barWidth, HEIGHT / 2, radius);
+        canvasCtx.arcTo(x + barWidth, HEIGHT / 2, x, HEIGHT / 2, radius);
+        canvasCtx.arcTo(x, HEIGHT / 2, x, HEIGHT / 2 - barHeight, radius);
+        canvasCtx.arcTo(x, HEIGHT / 2 - barHeight, x + radius, HEIGHT / 2 - barHeight, radius);
+        canvasCtx.closePath();
+        canvasCtx.fill();
+      });
     };
 
     draw();
@@ -48,9 +80,13 @@ export async function startMicTestAnimation() {
 }
 
 
-export async function StartAnimationRecording(analyser, dataArray, bufferLength, canvasElement, status) {
-  const canvas = canvasElement;
-  const ctx = canvas.getContext('2d');
+export function StartAnimationRecording(analyser, dataArray, bufferLength, canvasElement, status) {
+  if (!canvasElement) {
+    console.error('Canvas não encontrado!');
+    return;
+  }
+
+  const ctx = canvasElement.getContext('2d');
 
   const defaultCanvWidth = 250;
   const defaultCanvHeight = 50;
@@ -66,8 +102,8 @@ export async function StartAnimationRecording(analyser, dataArray, bufferLength,
 
       analyser.getByteFrequencyData(dataArray);
 
-      canvas.width = defaultCanvWidth;
-      canvas.height = defaultCanvHeight;
+      canvasElement.width = defaultCanvWidth;
+      canvasElement.height = defaultCanvHeight;
 
       ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
@@ -75,7 +111,7 @@ export async function StartAnimationRecording(analyser, dataArray, bufferLength,
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      const barColor = '#F43F5E';
+      const barColor = '#FF5733'; // Exemplo de cor para gravação, ajuste conforme necessário
       ctx.strokeStyle = barColor;
       ctx.lineWidth = lineWidth;
 
@@ -110,10 +146,10 @@ export async function StartAnimationRecording(analyser, dataArray, bufferLength,
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      const dashLineColor = '#009CB1';
+      const dashLineColor = '#FFCC00'; // Exemplo de cor para pausa, ajuste conforme necessário
       ctx.strokeStyle = dashLineColor;
       ctx.lineWidth = lineWidth;
-      ctx.setLineDash([3, 5]);
+      ctx.setLineDash([3, 2]);
 
       const h = defaultCanvHeight;
       const centerY = defaultCanvHeight / 2;
@@ -125,15 +161,15 @@ export async function StartAnimationRecording(analyser, dataArray, bufferLength,
 
       ctx.setLineDash([]);
     } else {
-      canvas.width = 0;
-      canvas.height = 0;
+      canvasElement.width = 0;
+      canvasElement.height = 0;
     }
   };
 
   if (status === 'waiting' || status === 'finished') {
-    canvas.classList.add('hidden');
+    canvasElement.classList.add('hidden');
   } else {
-    canvas.classList.remove('hidden');
+    canvasElement.classList.remove('hidden');
     draw();
   }
 }
