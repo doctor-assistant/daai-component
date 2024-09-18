@@ -42,6 +42,7 @@ class DaaiBadge extends HTMLElement {
         font-family: "Inter", sans-serif;
         font-weight: 500;
         position: relative;
+        color:${this.getAttribute('text-color')}
       }
       .recorder-box img {
         height: 40px;
@@ -59,17 +60,17 @@ class DaaiBadge extends HTMLElement {
         transform: scale(0.95);
       }
       .text-primary {
-       text-color:${this.getAttribute('text-color')}
+       color:${this.getAttribute('text-color')}
       }
       .text-waiting-mic-aprove {
-        text-color:${this.getAttribute('text-color')}
+        color:${this.getAttribute('text-color')}
          font-weight: bold;
       }
       .button-primary {
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
-        background-color: #009CB1;
+        background-color:${this.getAttribute('button-primary-color')};
         color: white;
       }
       .button-pause {
@@ -130,7 +131,7 @@ class DaaiBadge extends HTMLElement {
       }
       .close-button {
         width: 200px;
-        background-color: #009CB1;
+        background-color: ${this.getAttribute('button-primary-color')};
         border: none;
         border-radius: 4px;
         padding: 4px;
@@ -169,7 +170,7 @@ class DaaiBadge extends HTMLElement {
     }
 
     .text-waiting-aprove-mic {
-      text-color:${this.getAttribute('text-color')}
+      color:${this.getAttribute('text-color')}
     }
 
     .animation-mic-test{
@@ -193,12 +194,13 @@ class DaaiBadge extends HTMLElement {
       background-size: 16px;
       cursor: pointer;
   }
+  .modal-title{
+      color:${this.getAttribute('text-color')}
+  }
 
   .rounded-select:focus {
     border-color: #007bff;
   }
-
-
     <div class="container">
       <div class="recorder-box">
       <img src="${this.getAttribute('icon') || 'default-icon.png'}" alt="Icon">
@@ -206,7 +208,7 @@ class DaaiBadge extends HTMLElement {
       </div>
     </div>
     <div class="modal" id="microphone-modal">
-     <p>Escolha o Microfone</p>
+     <p class='modal-title'>Escolha o Microfone</p>
     <select id="microphone-select" class="rounded-select"></select>
     <button id="close-modal" class="close-button">Fechar</button>
     </div>
@@ -234,14 +236,6 @@ class DaaiBadge extends HTMLElement {
       this.canvas.className = 'audio-hide';
       this.recorderBox.appendChild(this.canvas);
 
-      // createText(type, iconClass, text) {
-      //   const textElement = document.createElement('p');
-      //   textElement.className = `text-${type}`;
-      //   textElement.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
-      //   return textElement;
-      // }
-
-
       this.textContent = {
         pause: this.createText('recording', '', 'Pausar Registro'),
         start: this.createText('recording', '', 'Iniciar Registro'),
@@ -249,11 +243,6 @@ class DaaiBadge extends HTMLElement {
         resume: this.createText('resume', '', 'Continuar Registro'),
         upload: this.createText('upload', 'fa-regular fa-circle-check', 'Relatório finalizado!')
       };
-
-      // Adiciona os elementos ao Shadow DOM
-      // Object.values(this.textContent).forEach(element => {
-      //   this.shadowRoot.appendChild(element);
-      // });
 
 
 // aqui vamos usar o createButton para criar esses botões com ícones e textos apropriados.
@@ -271,7 +260,7 @@ class DaaiBadge extends HTMLElement {
     this.modal = document.createElement('div');
     this.modal.className = 'modal';
     this.modal.innerHTML = `
-      <p>Escolha o Microfone</p>
+      <p class='modal-title'>Escolha o Microfone</p>
       <select id="microphone-select"></select>
       <button id="close-modal" class="close-button">Fechar</button>
     `;
@@ -380,7 +369,7 @@ class DaaiBadge extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['icon', 'button-primary-color', 'button-recording-color', 'button-pause-color','button-resume-color' ,'border-badge-color', 'animation-recording-color','animation-paused-color', 'text-color'];
+    return ['icon', 'button-primary-color', 'button-recording-color', 'button-pause-color','button-resume-color' ,'border-color', 'animation-recording-color','animation-paused-color', 'text-color'];
   }
 
   connectedCallback() {
@@ -389,8 +378,8 @@ class DaaiBadge extends HTMLElement {
     if (!this.hasAttribute('button-recording-color')) this.setAttribute('button-recording-color', '#F43F5E');
     if (!this.hasAttribute('button-pause-color')) this.setAttribute('button-pause-color', '#F43F5E');
     if (!this.hasAttribute('button-resume-color')) this.setAttribute('button-resume-color', '#009CB1');
-    if (!this.hasAttribute('border-badge-color')) {
-      this.setAttribute('border-badge-color','#009CB1');
+    if (!this.hasAttribute('border-color')) {
+      this.setAttribute('border-color','#009CB1');
     }
     if (!this.hasAttribute('animation-recording-color')) this.setAttribute('animation-recording-color', '#F43F5E');
     if (!this.hasAttribute('animation-paused-color')) this.setAttribute('animation-paused-color', '#009CB1');
@@ -420,7 +409,7 @@ class DaaiBadge extends HTMLElement {
         const buttonResume = shadowRoot.querySelector('.button-resume');
         if (buttonResume) buttonResume.style.backgroundColor = newValue;
         break;
-      case 'border-badge-color':
+      case 'border-color':
         const recorderBox = shadowRoot.querySelector('.recorder-box');
         if (recorderBox) recorderBox.style.borderColor = newValue;
         break;
@@ -499,7 +488,6 @@ class DaaiBadge extends HTMLElement {
 
           const color = isActive ? '#637381' : '#DFE4EA';
 
-          // Calcula a altura da barra
           const barHeight = HEIGHT / 2;
           const radius = 10;
 
