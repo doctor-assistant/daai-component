@@ -1,3 +1,4 @@
+import { DAAI_LOGO } from "./constants.js";
 import { StartAnimationMicTest, StartAnimationRecording } from "./utils/animations.js";
 
 
@@ -29,7 +30,6 @@ class DaaiBadge extends HTMLElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 100vh;
         width: 100vw;
       }
       .recorder-box {
@@ -43,7 +43,7 @@ class DaaiBadge extends HTMLElement {
         border-radius: 30px;
         background-color: #ffffff;
         height: 60px;
-        width: 600px;
+        width: 720px;
         font-family: "Inter", sans-serif;
         font-weight: 500;
         position: relative;
@@ -103,7 +103,6 @@ class DaaiBadge extends HTMLElement {
       }
       .modal {
         position: fixed;
-        top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         background-color: #fff;
@@ -113,7 +112,6 @@ class DaaiBadge extends HTMLElement {
         z-index: 1000;
         display: none;
         font-family: "Inter", sans-serif;
-
       }
       .modal.active {
         display: block;
@@ -136,7 +134,7 @@ class DaaiBadge extends HTMLElement {
       }
       .close-button {
         width: 200px;
-        background-color: ${this.getAttribute('button-primary-color')};
+        background-color:#525252;
         border: none;
         border-radius: 4px;
         padding: 4px;
@@ -202,22 +200,18 @@ class DaaiBadge extends HTMLElement {
   .modal-title{
       color:${this.getAttribute('text-color')}
   }
-
   .rounded-select:focus {
     border-color: #007bff;
   }
-    <div class="container">
-      <div class="recorder-box">
-      <img src="${this.getAttribute('icon') || 'default-icon.png'}" alt="Icon">
-        <canvas class="audio-hide" id="audioCanvas"></canvas>
-      </div>
-    </div>
-    <div class="modal" id="microphone-modal">
-     <p class='modal-title'>Escolha o Microfone</p>
-    <select id="microphone-select" class="rounded-select"></select>
-    <button id="close-modal" class="close-button">Fechar</button>
-    </div>
-    <div class="backdrop"></div>
+    .select-button {
+      border-radius: 10px;
+      width: 400px;
+      height: 50px;
+      text-align: center;
+      text-align-last: center;
+      font-family: "Inter", sans-serif;
+      font-weight: 500;
+  }
   `;
 
 
@@ -228,7 +222,7 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox.className = 'recorder-box';
 
     const logo = document.createElement('img');
-    logo.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=';
+    logo.src = DAAI_LOGO;
     logo.alt = 'daai-logo';
     this.recorderBox.appendChild(logo);
 
@@ -272,7 +266,7 @@ class DaaiBadge extends HTMLElement {
     this.modal.className = 'modal';
     this.modal.innerHTML = `
       <p class='modal-title'>Escolha o Microfone</p>
-      <select id="microphone-select"></select>
+      <select id="microphone-select" class='select-button'></select>
       <button id="close-modal" class="close-button">Fechar</button>
     `;
 
@@ -288,7 +282,6 @@ class DaaiBadge extends HTMLElement {
     this.updateButtons();
     this.loadDevices();
   }
-
 
   // metódo para criar os botões, definido o seu conteúdo
   createButton(type, iconClass, text, handler) {
@@ -386,7 +379,7 @@ class DaaiBadge extends HTMLElement {
   }
 
   connectedCallback() {
-    if (!this.hasAttribute('icon')) this.setAttribute('icon', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAmCAYAAADTGStiAAAACXBIWXMAABCcAAAQnAEmzTo0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAITSURBVHgB1ZdfTttAEMa/2fQA3ADfoOkN/F4JxScgKbRSn0pPEDhB6SukCj2Bm0p9rjkB6QkabhDekCA7zGxQICg46/U6iJ/keGNN/Hn+egO8Sn7kXQxGuwjgDUIY5luYtYZg7txf+YmKVBce5gms+QtwghqYStYnEtqZuQAjQU38PR6MjuXzCyKxXlhDq/kEp4hIufBJ3pZ85nXzuYrnc3z6+wAmTj79hVWU+BsaZHWoeVaA6Axe0BgB0GKlQ+EWbTTNx6x4EN5AaB8xgbUZzdvF/MdGocJIeBNsHE6rjcyIeApzIceZVMQkjp3XrJYb7Xd6bjmvhwtZbYXbzfHwmIrFspdNlr6X25X2t4fwo5eD9jpx28MuEbsEJRBO8xSkL/ZScckbaf+dw7R2ZefRfWIwleMQZK/El21Zd9fNeM/3MemN5CQBsnwkApms38oDJC6kbP+BWn2wSeFJ9a0Poe8yxJpTGXykITYJ3JP5E7bZc9zntJregpcaIFMjPmvZT7FReGyk50TU9nymTSTRAjfco6Vrgz/baJr995d6IoTgRiL1vWxJ0mikBV1kHwiraovU9bYPLMLX/B1P6qjpqp7gxr7DZ53dyzQoTL/QWi2q1BggZZoyt/d2jspMYgtLIVEHH3bO1xnGDPXY5dNDVInjMfEx9jpfq/ykrsfaIgdVRZUwjw0K6eVDzOwIn7KgvzB3l1a49sinti4AAAAASUVORK5CYII=');
+    if (!this.hasAttribute('icon')) this.setAttribute('icon', DAAI_LOGO);
     if (!this.hasAttribute('button-primary-color')) this.setAttribute('button-primary-color', '#009CB1');
     if (!this.hasAttribute('button-recording-color')) this.setAttribute('button-recording-color', '#F43F5E');
     if (!this.hasAttribute('button-pause-color')) this.setAttribute('button-pause-color', '#F43F5E');
