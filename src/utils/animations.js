@@ -80,6 +80,7 @@ export async function StartAnimationMicTest(canvasElement) {
 }
 
 
+
 export function StartAnimationRecording(analyser, dataArray, bufferLength, canvasElement, status) {
   if (!canvasElement) {
     console.error('Canvas não encontrado!');
@@ -111,7 +112,7 @@ export function StartAnimationRecording(analyser, dataArray, bufferLength, canva
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      const barColor = '#FF5733'; // Exemplo de cor para gravação, ajuste conforme necessário
+      const barColor = '#FF5733';
       ctx.strokeStyle = barColor;
       ctx.lineWidth = lineWidth;
 
@@ -146,7 +147,8 @@ export function StartAnimationRecording(analyser, dataArray, bufferLength, canva
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      const dashLineColor = '#FFCC00'; // Exemplo de cor para pausa, ajuste conforme necessário
+      const dashLineColor = '#009CB1';
+
       ctx.strokeStyle = dashLineColor;
       ctx.lineWidth = lineWidth;
       ctx.setLineDash([3, 2]);
@@ -173,3 +175,4 @@ export function StartAnimationRecording(analyser, dataArray, bufferLength, canva
     draw();
   }
 }
+

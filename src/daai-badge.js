@@ -13,6 +13,8 @@ class DaaiBadge extends HTMLElement {
     this.status = 'initial';
     this.devices = [];
     this.currentDeviceId = null;
+    this.recordingTime = 0;
+    this.intervalId = null;
 
     // Aqui criamos a shadow dom
     const shadow = this.attachShadow({ mode: 'open' });
@@ -239,6 +241,12 @@ class DaaiBadge extends HTMLElement {
       this.canvas.className = 'audio-hide';
       this.recorderBox.appendChild(this.canvas);
 
+      this.timerElement = document.createElement('div');
+      this.timerElement.className = 'timer';
+      this.timerElement.innerText = '00:00:00';
+      this.recorderBox.appendChild(this.timerElement);
+
+
       this.textContent = {
         pause: this.createText('recording', '', 'Pausar Registro'),
         start: this.createText('recording', '', 'Iniciar Registro'),
@@ -310,13 +318,15 @@ class DaaiBadge extends HTMLElement {
     return '';
   }
 
-  connectedCallback() {
-    this.checkMicrophonePermissions();
+ async connectedCallback() {
+   await this.checkMicrophonePermissions();
+   await this.loadDevices()
   }
 
   async checkMicrophonePermissions() {
     try {
       // Verificar o estado da permissão do microfone
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
 
       // Certifique-se de que o statusText e o canvas são válidos
@@ -487,6 +497,7 @@ updateButtons() {
         option.textContent = device.label || `Microfone ${device.deviceId}`;
         select.appendChild(option);
       });
+      this.currentDeviceId = this.devices[0].deviceId
       // adiciona o evento para ouvir caso mude e seta para o novo
       select.addEventListener('change', () => {
         this.currentDeviceId = select.value;
@@ -513,6 +524,13 @@ updateButtons() {
   }
 
 
+getFormattedRecordingTime() {
+    const hours = String(Math.floor(this.recordingTime / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((this.recordingTime % 3600) / 60)).padStart(2, "0");
+    const seconds = String(this.recordingTime % 60).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  }
+
 
 async startRecording() {
     this.statusText.textContent = '';
@@ -537,6 +555,13 @@ async startRecording() {
       this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
       this.status = 'recording';
       this.mediaRecorder.onstop = () => this.handleStop();
+      this.mediaRecorder.onstart = () => {
+
+      this.intervalId = setInterval(() => {
+          this.recordingTime++;
+          this.timerElement.innerText = this.getFormattedRecordingTime();
+          }, 1000)
+        }
       this.mediaRecorder.start();
 
       if (!this.canvas) {
@@ -557,27 +582,39 @@ async startRecording() {
   }
 }
 
-  pauseRecording() {
-    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-      this.mediaRecorder.pause();
-      this.status = 'paused';
+pauseRecording() {
+  if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+    this.mediaRecorder.pause();
+    this.status = 'paused';
 
-      if (this.gainNode) {
-        this.gainNode.gain.value = 0;
-      }
-      this.updateButtons();
+    clearInterval(this.intervalId)
+
+    if (this.gainNode) {
+      this.gainNode.gain.value = 0;
     }
+
+    StartAnimationRecording(this.analyser, new Uint8Array(this.analyser.frequencyBinCount), this.analyser.frequencyBinCount, this.canvas, this.status);
+
+    this.updateButtons();
   }
+}
+
 
   resumeRecording() {
     if (this.mediaRecorder && this.mediaRecorder.state === 'paused') {
       this.mediaRecorder.resume();
       this.status = 'recording';
 
+      this.intervalId = setInterval(() => {
+        this.recordingTime++;
+        this.timerElement.innerText = this.getFormattedRecordingTime();
+        }, 1000)
+
+
       if (this.gainNode) {
         this.gainNode.gain.value = 1;
       }
-
+      StartAnimationRecording(this.analyser, new Uint8Array(this.analyser.frequencyBinCount), this.analyser.frequencyBinCount, this.canvas, this.status);
       this.updateButtons();
     }
   }
