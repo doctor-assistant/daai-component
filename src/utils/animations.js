@@ -31,7 +31,7 @@ export async function StartAnimationMicTest(canvasElement) {
 
     source.connect(analyser);
 
-    const barWidth = 20;
+    const barWidth = 16;
     const barSpacing = 12;
     const numberOfBars = 8;
     const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
@@ -41,6 +41,9 @@ export async function StartAnimationMicTest(canvasElement) {
     for (let i = 0; i < numberOfBars; i++) {
       barPositions.push(startX + i * (barWidth + barSpacing));
     }
+
+    const previousIntensities = new Array(numberOfBars).fill(0);
+    const lerp = (a, b, t) => a + (b - a) * t;
 
     const draw = () => {
       requestAnimationFrame(draw);
@@ -53,7 +56,9 @@ export async function StartAnimationMicTest(canvasElement) {
         const barIntensity = dataArray[i * Math.floor(bufferLength / numberOfBars)];
         const normalizedIntensity = Math.min(barIntensity / 256, 1);
 
-        const isActive = normalizedIntensity > 0.05;
+        previousIntensities[i] = lerp(previousIntensities[i], normalizedIntensity, 0.1);
+
+        const isActive = previousIntensities[i] > 0.05;
 
         const color = isActive ? '#637381' : '#DFE4EA';
 
@@ -80,7 +85,6 @@ export async function StartAnimationMicTest(canvasElement) {
 }
 
 
-
 export function StartAnimationRecording(analyser, dataArray, bufferLength, canvasElement, status) {
   if (!canvasElement) {
     console.error('Canvas não encontrado!');
@@ -98,7 +102,7 @@ export function StartAnimationRecording(analyser, dataArray, bufferLength, canva
   const centerX = defaultCanvWidth / 2;
 
   const draw = () => {
-    if (status === 'recording' || status === 'micTest') {
+    if (status === 'recording' || status === 'micTest' || status === 'upload') {
       requestAnimationFrame(draw);
 
       analyser.getByteFrequencyData(dataArray);

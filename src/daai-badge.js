@@ -23,7 +23,7 @@ class DaaiBadge extends HTMLElement {
     const style = document.createElement('style');
 
     this.shadowRoot.innerHTML = `
-    <style>
+   <style>
        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
       @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
       .container {
@@ -35,22 +35,18 @@ class DaaiBadge extends HTMLElement {
       .recorder-box {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-around;
         text-items:center;
-        gap: 1rem;
         padding: 1rem;
         border: 3px solid;
         border-radius: 30px;
         background-color: #ffffff;
         height: 60px;
-        width: 720px;
+        width: 700px;
         font-family: "Inter", sans-serif;
         font-weight: 500;
         position: relative;
         color:${this.getAttribute('text-color')}
-      }
-      .recorder-box img {
-        height: 40px;
       }
       .recorder-box button {
         height: 50px;
@@ -75,11 +71,11 @@ class DaaiBadge extends HTMLElement {
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
-        background-color:${this.getAttribute('button-primary-color')};
+        background-color:#009CB1;
         color: white;
       }
       .button-pause {
-        width: 100px;
+        width: 60px;
         height: 50px;
         gap: 15px;
         opacity: 1;
@@ -87,7 +83,6 @@ class DaaiBadge extends HTMLElement {
         color:white;
       }
       .button-recording {
-        width: 300px;
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
@@ -150,7 +145,6 @@ class DaaiBadge extends HTMLElement {
         height: 13.26px;
       }
       .button-resume{
-        width:250px;
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
@@ -212,6 +206,10 @@ class DaaiBadge extends HTMLElement {
       font-family: "Inter", sans-serif;
       font-weight: 500;
   }
+    .timer {
+      font-weight: 600;
+    }
+  ;
   `;
 
 
@@ -226,7 +224,7 @@ class DaaiBadge extends HTMLElement {
     logo.alt = 'daai-logo';
     this.recorderBox.appendChild(logo);
 
-    this.status = 'waiting';
+     this.status = 'waiting';
      this.statusText = document.createElement('span');
      this.statusText.textContent = 'Aguardando autorização do microfone...';
      this.recorderBox.appendChild(this.statusText);
@@ -239,7 +237,6 @@ class DaaiBadge extends HTMLElement {
       this.timerElement.className = 'timer';
       this.timerElement.innerText = '00:00:00';
       this.recorderBox.appendChild(this.timerElement);
-
 
       this.textContent = {
         pause: this.createText('recording', '', 'Pausar Registro'),
@@ -278,9 +275,8 @@ class DaaiBadge extends HTMLElement {
     container.appendChild(this.recorderBox);
     shadow.appendChild(this.modal);
     shadow.appendChild(this.backdrop);
-    this.checkMicrophonePermissions()
+    this.checkPermissionsAndLoadDevices()
     this.updateButtons();
-    this.loadDevices();
   }
 
   // metódo para criar os botões, definido o seu conteúdo
@@ -312,45 +308,29 @@ class DaaiBadge extends HTMLElement {
   }
 
  async connectedCallback() {
-   await this.checkMicrophonePermissions();
-   await this.loadDevices()
+   await this.checkPermissionsAndLoadDevices();
   }
 
-  async checkMicrophonePermissions() {
+  async checkPermissionsAndLoadDevices() {
     try {
       // Verificar o estado da permissão do microfone
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
 
-      // Certifique-se de que o statusText e o canvas são válidos
+      // Certifique-se de que statusText e canvas são válidos
       if (!this.statusText || !this.canvas) {
         console.error('Elementos necessários não encontrados no DOM.');
         return;
       }
 
-      // Se a permissão for concedida, atualizar o status para 'micTest'
-      if (permissionStatus.state === 'granted') {
-        this.canvas.classList.remove('hidden');
-        this.canvas.className = 'animation-mic-test';
-        this.status = 'micTest';
-        this.statusText.textContent = 'Microfone';
-        StartAnimationMicTest(this.canvas);
-      } else {
-        this.canvas.classList.add('hidden');
-        this.status = 'waiting';
-        this.statusText.textContent = 'Aguardando autorização do microfone';
-        this.statusText.classList.remove('text-primary');
-        this.statusText.classList.add('text-waiting-mic-aprove');
-      }
-
-      this.updateButtons();
-
-      permissionStatus.onchange = () => {
-        if (permissionStatus.state === 'granted') {
+      // Verifica se a permissão foi concedida
+      const handlePermissionChange = (status) => {
+        if (status === 'granted') {
           this.canvas.classList.remove('hidden');
           this.canvas.className = 'animation-mic-test';
           this.status = 'micTest';
           this.statusText.textContent = 'Microfone';
+          this.statusText.className = 'mic-test-text'
           StartAnimationMicTest(this.canvas);
         } else {
           this.canvas.classList.add('hidden');
@@ -361,17 +341,53 @@ class DaaiBadge extends HTMLElement {
         }
         this.updateButtons();
       };
+
+      // Verificar a permissão inicial
+      handlePermissionChange(permissionStatus.state);
+
+      // Ouvir mudanças no status da permissão
+      permissionStatus.onchange = () => {
+        handlePermissionChange(permissionStatus.state);
+      };
+
+      // Carregar dispositivos de áudio (microfones)
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      this.devices = devices.filter(device => device.kind === 'audioinput');
+
+      // Verifica se há dispositivos de áudio disponíveis
+      if (this.devices.length > 0) {
+        const select = this.modal.querySelector('#microphone-select');
+        select.innerHTML = '';
+        this.devices.forEach(device => {
+          const option = document.createElement('option');
+          option.value = device.deviceId;
+          option.textContent = device.label || `Microfone ${device.deviceId}`;
+          select.appendChild(option);
+        });
+
+        // Configura o microfone padrão
+        this.currentDeviceId = this.devices[0].deviceId;
+
+        // Atualiza quando o dispositivo selecionado muda
+        select.addEventListener('change', () => {
+          this.currentDeviceId = select.value;
+        });
+
+        // Lógica para fechar o modal
+        const closeModal = this.modal.querySelector('#close-modal');
+        closeModal.addEventListener('click', () => {
+          this.closeMicrophoneModal();
+        });
+      } else {
+        console.warn('Nenhum dispositivo de áudio encontrado.');
+      }
     } catch (error) {
-      console.error('Erro ao verificar permissões do microfone:', error);
+      console.error('Erro ao verificar permissões ou carregar dispositivos:', error);
       if (this.statusText) {
-        this.statusText.textContent = 'Erro ao verificar permissões do microfone';
+        console.log(this.status,'status')
+        this.statusText.textContent = 'Erro ao verificar permissões ou carregar dispositivos';
       }
     }
-  }
-
-
-  connectedCallback() {
-    console.log('Elemento adicionado ao DOM');
   }
 
   static get observedAttributes() {
@@ -438,10 +454,12 @@ class DaaiBadge extends HTMLElement {
 updateButtons() {
   Object.keys(this.buttons).forEach(buttonType => {
     const button = this.buttons[buttonType];
-    if (this.status === 'finished') {
+    if (this.status === 'finished' || this.status === 'waiting' || this.status === 'upload') {
       this.canvas.classList.add('hidden');
+      this.timerElement.classList.add('hidden');
     } else {
       this.canvas.classList.remove('hidden');
+      this.timerElement.classList.remove('hidden');
     }
       switch (this.status) {
         case 'waiting':
@@ -475,35 +493,6 @@ updateButtons() {
     }
   });
 }
-
-// aqui nesse ele manipula os microfones
-  async loadDevices() {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      this.devices = devices.filter(device => device.kind === 'audioinput');
-      // aqui ele seleciona o microfone
-      const select = this.modal.querySelector('#microphone-select');
-      select.innerHTML = '';
-      this.devices.forEach(device => {
-        const option = document.createElement('option');
-        option.value = device.deviceId;
-        option.textContent = device.label || `Microfone ${device.deviceId}`;
-        select.appendChild(option);
-      });
-      this.currentDeviceId = this.devices[0].deviceId
-      // adiciona o evento para ouvir caso mude e seta para o novo
-      select.addEventListener('change', () => {
-        this.currentDeviceId = select.value;
-      });
-      // lógica para fechar o modal
-      const closeModal = this.modal.querySelector('#close-modal');
-      closeModal.addEventListener('click', () => {
-        this.closeMicrophoneModal();
-      });
-    } catch (error) {
-      console.error('Erro ao carregar dispositivos:', error);
-    }
-  }
 
   // abrir o modal de mudança de microfone
   openMicrophoneModal() {
