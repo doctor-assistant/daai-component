@@ -15,7 +15,8 @@
   "author": "vitoria.cst",
   "license": "MIT",
   "devDependencies": {
-    "lite-server": "^2.6.1"
+    "lite-server": "^2.6.1",
+    "prettier": "3.3.3"
   },
   "dependencies": {
     "daai-badge": "^1.0.0",

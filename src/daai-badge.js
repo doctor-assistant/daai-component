@@ -1,6 +1,8 @@
-import { DAAI_LOGO } from "./constants.js";
-import { StartAnimationMicTest, StartAnimationRecording } from "./utils/animations.js";
-
+import { DAAI_LOGO } from './constants.js';
+import {
+  StartAnimationMicTest,
+  StartAnimationRecording,
+} from './utils/animations.js';
 
 class DaaiBadge extends HTMLElement {
   constructor() {
@@ -44,9 +46,9 @@ class DaaiBadge extends HTMLElement {
         height: 60px;
         width: 700px;
         font-family: "Inter", sans-serif;
-        font-weight: 500;
+        font-weight: 600;
         position: relative;
-        color:${this.getAttribute('text-color')}
+        color: #009CB1;
       }
       .recorder-box button {
         height: 50px;
@@ -63,8 +65,18 @@ class DaaiBadge extends HTMLElement {
       .text-primary {
        color:${this.getAttribute('text-color')}
       }
+      .text-waiting-mic{
+        color:#F43F5E;
+      }
+      .text-finish {
+         color:${this.getAttribute('text-color')};
+         margin-right:120px
+       }
+        .text-upload {
+         color:#28A18C;
+       }
       .text-waiting-mic-aprove {
-        color:${this.getAttribute('text-color')}
+        color:#F43F5E;
          font-weight: bold;
       }
       .button-primary {
@@ -77,7 +89,6 @@ class DaaiBadge extends HTMLElement {
       .button-pause {
         width: 60px;
         height: 50px;
-        gap: 15px;
         opacity: 1;
         background-color: #F43F5E;
         color:white;
@@ -199,7 +210,7 @@ class DaaiBadge extends HTMLElement {
   }
     .select-button {
       border-radius: 10px;
-      width: 400px;
+      width: 600px;
       height: 50px;
       text-align: center;
       text-align-last: center;
@@ -208,10 +219,10 @@ class DaaiBadge extends HTMLElement {
   }
     .timer {
       font-weight: 600;
+      color: #000000;
     }
   ;
   `;
-
 
     const container = document.createElement('div');
     container.className = 'container';
@@ -224,40 +235,64 @@ class DaaiBadge extends HTMLElement {
     logo.alt = 'daai-logo';
     this.recorderBox.appendChild(logo);
 
-     this.status = 'waiting';
-     this.statusText = document.createElement('span');
-     this.statusText.textContent = 'Aguardando autorização do microfone...';
-     this.recorderBox.appendChild(this.statusText);
+    this.status = 'waiting';
+    this.statusText = document.createElement('span');
+    this.statusText.classList.add('text-waiting-mic-aprove');
+    this.statusText.textContent = 'Aguardando autorização do microfone...';
+    this.recorderBox.appendChild(this.statusText);
 
-      this.canvas = document.createElement('canvas');
-      this.canvas.className = 'audio-hide';
-      this.recorderBox.appendChild(this.canvas);
+    this.canvas = document.createElement('canvas');
+    this.canvas.className = 'audio-hide';
+    this.recorderBox.appendChild(this.canvas);
 
-      this.timerElement = document.createElement('div');
-      this.timerElement.className = 'timer';
-      this.timerElement.innerText = '00:00:00';
-      this.recorderBox.appendChild(this.timerElement);
+    this.timerElement = document.createElement('div');
+    this.timerElement.className = 'timer';
+    this.timerElement.innerText = '00:00:00';
+    this.recorderBox.appendChild(this.timerElement);
 
-      this.textContent = {
-        pause: this.createText('recording', '', 'Pausar Registro'),
-        start: this.createText('recording', '', 'Iniciar Registro'),
-        finish: this.createText('recording', '', 'Aguarde enquanto geramos o relatório final...'),
-        resume: this.createText('resume', '', 'Continuar Registro'),
-        upload: this.createText('upload', 'fa-regular fa-circle-check', 'Relatório finalizado!')
-      };
-
-
-// aqui vamos usar o createButton para criar esses botões com ícones e textos apropriados.
+    // aqui vamos usar o createButton para criar esses botões com ícones e textos apropriados.
     this.buttons = {
-      changeMicrophone: this.createButton('change', 'fas fa-gear fa-lg', '', this.openMicrophoneModal.bind(this)),
-      pause: this.createButton('pause', 'fa fa-pause', '', this.pauseRecording.bind(this)),
-      start: this.createButton('start', 'fa fa-microphone', 'Iniciar Registro', this.startRecording.bind(this)),
-      finish: this.createButton('finish', 'fa fa-check', 'Finalizar Registro', this.finishRecording.bind(this)),
-      resume: this.createButton('resume', 'fa fa-circle', 'Continuar Registro', this.resumeRecording.bind(this)),
-      upload: this.createButton('upload', 'fa fa-microphone', 'Iniciar novo registro', this.startRecording.bind(this))
+      changeMicrophone: this.createButton(
+        'change',
+        'fas fa-gear fa-lg',
+        '',
+        this.openMicrophoneModal.bind(this)
+      ),
+      pause: this.createButton(
+        'pause',
+        'fa fa-pause',
+        '',
+        this.pauseRecording.bind(this)
+      ),
+      start: this.createButton(
+        'start',
+        'fa fa-microphone',
+        'Iniciar Registro',
+        this.startRecording.bind(this)
+      ),
+      finish: this.createButton(
+        'finish',
+        'fa fa-check',
+        'Finalizar Registro',
+        this.finishRecording.bind(this)
+      ),
+      resume: this.createButton(
+        'resume',
+        'fa fa-circle',
+        'Continuar Registro',
+        this.resumeRecording.bind(this)
+      ),
+      upload: this.createButton(
+        'upload',
+        'fa fa-microphone',
+        'Iniciar novo registro',
+        this.startRecording.bind(this)
+      ),
     };
 
-    Object.values(this.buttons).forEach(button => this.recorderBox.appendChild(button));
+    Object.values(this.buttons).forEach((button) =>
+      this.recorderBox.appendChild(button)
+    );
     // aqui foi construido o modal para a troca de microfones
     this.modal = document.createElement('div');
     this.modal.className = 'modal';
@@ -275,7 +310,7 @@ class DaaiBadge extends HTMLElement {
     container.appendChild(this.recorderBox);
     shadow.appendChild(this.modal);
     shadow.appendChild(this.backdrop);
-    this.checkPermissionsAndLoadDevices()
+    this.checkPermissionsAndLoadDevices();
     this.updateButtons();
   }
 
@@ -288,7 +323,7 @@ class DaaiBadge extends HTMLElement {
     return button;
   }
   // metódo para criar os textos, definido o seu conteúdo
-  createText(type, iconClass,text, content) {
+  createText(type, iconClass, text, content) {
     const textElement = document.createElement('p');
     textElement.className = `text-${type}`;
     textElement.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
@@ -307,15 +342,17 @@ class DaaiBadge extends HTMLElement {
     return '';
   }
 
- async connectedCallback() {
-   await this.checkPermissionsAndLoadDevices();
+  async connectedCallback() {
+    await this.checkPermissionsAndLoadDevices();
   }
 
   async checkPermissionsAndLoadDevices() {
     try {
       // Verificar o estado da permissão do microfone
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+      const permissionStatus = await navigator.permissions.query({
+        name: 'microphone',
+      });
 
       // Certifique-se de que statusText e canvas são válidos
       if (!this.statusText || !this.canvas) {
@@ -330,14 +367,14 @@ class DaaiBadge extends HTMLElement {
           this.canvas.className = 'animation-mic-test';
           this.status = 'micTest';
           this.statusText.textContent = 'Microfone';
-          this.statusText.className = 'mic-test-text'
+          this.statusText.className = 'mic-test-text';
           StartAnimationMicTest(this.canvas);
         } else {
           this.canvas.classList.add('hidden');
           this.status = 'waiting';
+          this.statusText.classList.add('text-waiting-mic-aprove');
           this.statusText.textContent = 'Aguardando autorização do microfone';
           this.statusText.classList.remove('text-primary');
-          this.statusText.classList.add('text-waiting-mic-aprove');
         }
         this.updateButtons();
       };
@@ -352,13 +389,13 @@ class DaaiBadge extends HTMLElement {
 
       // Carregar dispositivos de áudio (microfones)
       const devices = await navigator.mediaDevices.enumerateDevices();
-      this.devices = devices.filter(device => device.kind === 'audioinput');
+      this.devices = devices.filter((device) => device.kind === 'audioinput');
 
       // Verifica se há dispositivos de áudio disponíveis
       if (this.devices.length > 0) {
         const select = this.modal.querySelector('#microphone-select');
         select.innerHTML = '';
-        this.devices.forEach(device => {
+        this.devices.forEach((device) => {
           const option = document.createElement('option');
           option.value = device.deviceId;
           option.textContent = device.label || `Microfone ${device.deviceId}`;
@@ -382,30 +419,52 @@ class DaaiBadge extends HTMLElement {
         console.warn('Nenhum dispositivo de áudio encontrado.');
       }
     } catch (error) {
-      console.error('Erro ao verificar permissões ou carregar dispositivos:', error);
+      console.error(
+        'Erro ao verificar permissões ou carregar dispositivos:',
+        error
+      );
       if (this.statusText) {
-        console.log(this.status,'status')
-        this.statusText.textContent = 'Erro ao verificar permissões ou carregar dispositivos';
+        console.log(this.status, 'status');
+        this.statusText.classList.add('text-waiting-mic-aprove');
+        this.statusText.textContent =
+          'Erro ao verificar permissões ou carregar dispositivos';
       }
     }
   }
 
   static get observedAttributes() {
-    return ['icon', 'button-primary-color', 'button-recording-color', 'button-pause-color','button-resume-color' ,'border-color', 'animation-recording-color','animation-paused-color', 'text-color'];
+    return [
+      'icon',
+      'button-primary-color',
+      'button-recording-color',
+      'button-pause-color',
+      'button-resume-color',
+      'border-color',
+      'animation-recording-color',
+      'animation-paused-color',
+      'text-color',
+    ];
   }
 
   connectedCallback() {
     if (!this.hasAttribute('icon')) this.setAttribute('icon', DAAI_LOGO);
-    if (!this.hasAttribute('button-primary-color')) this.setAttribute('button-primary-color', '#009CB1');
-    if (!this.hasAttribute('button-recording-color')) this.setAttribute('button-recording-color', '#F43F5E');
-    if (!this.hasAttribute('button-pause-color')) this.setAttribute('button-pause-color', '#F43F5E');
-    if (!this.hasAttribute('button-resume-color')) this.setAttribute('button-resume-color', '#009CB1');
+    if (!this.hasAttribute('button-primary-color'))
+      this.setAttribute('button-primary-color', '#009CB1');
+    if (!this.hasAttribute('button-recording-color'))
+      this.setAttribute('button-recording-color', '#F43F5E');
+    if (!this.hasAttribute('button-pause-color'))
+      this.setAttribute('button-pause-color', '#F43F5E');
+    if (!this.hasAttribute('button-resume-color'))
+      this.setAttribute('button-resume-color', '#009CB1');
     if (!this.hasAttribute('border-color')) {
-      this.setAttribute('border-color','#009CB1');
+      this.setAttribute('border-color', '#009CB1');
     }
-    if (!this.hasAttribute('animation-recording-color')) this.setAttribute('animation-recording-color', '#F43F5E');
-    if (!this.hasAttribute('animation-paused-color')) this.setAttribute('animation-paused-color', '#009CB1');
-    if (!this.hasAttribute('text-color')) this.setAttribute('text-color', '#1cde02');
+    if (!this.hasAttribute('animation-recording-color'))
+      this.setAttribute('animation-recording-color', '#F43F5E');
+    if (!this.hasAttribute('animation-paused-color'))
+      this.setAttribute('animation-paused-color', '#009CB1');
+    if (!this.hasAttribute('text-color'))
+      this.setAttribute('text-color', '#009CB1');
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -436,12 +495,18 @@ class DaaiBadge extends HTMLElement {
         if (recorderBox) recorderBox.style.borderColor = newValue;
         break;
       case 'animation-recording-color':
-        const animatedRecordingElement = shadowRoot.querySelector('.animated-recording-element');
-        if (animatedRecordingElement) animatedRecordingElement.style.animationColor = newValue;
+        const animatedRecordingElement = shadowRoot.querySelector(
+          '.animated-recording-element'
+        );
+        if (animatedRecordingElement)
+          animatedRecordingElement.style.animationColor = newValue;
         break;
       case 'animation-paused-color':
-        const animatedPausedElement = shadowRoot.querySelector('.animated-paused-element');
-        if (animatedPausedElement) animatedPausedElement.style.animationColor = newValue;
+        const animatedPausedElement = shadowRoot.querySelector(
+          '.animated-paused-element'
+        );
+        if (animatedPausedElement)
+          animatedPausedElement.style.animationColor = newValue;
         break;
       case 'text-color':
         const textColor = shadowRoot.querySelector('.text-color');
@@ -450,49 +515,65 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
-// aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
-updateButtons() {
-  Object.keys(this.buttons).forEach(buttonType => {
-    const button = this.buttons[buttonType];
-    if (this.status === 'finished' || this.status === 'waiting' || this.status === 'upload') {
-      this.canvas.classList.add('hidden');
-      this.timerElement.classList.add('hidden');
-    } else {
-      this.canvas.classList.remove('hidden');
-      this.timerElement.classList.remove('hidden');
-    }
+  // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
+  updateButtons() {
+    Object.keys(this.buttons).forEach((buttonType) => {
+      const button = this.buttons[buttonType];
+      if (
+        this.status === 'finished' ||
+        this.status === 'waiting' ||
+        this.status === 'upload'
+      ) {
+        this.canvas.classList.add('hidden');
+        this.timerElement.classList.add('hidden');
+      } else {
+        this.canvas.classList.remove('hidden');
+        this.timerElement.classList.remove('hidden');
+      }
       switch (this.status) {
         case 'waiting':
-            buttonType === 'start' ? button.classList.remove('hidden') : button.classList.add('hidden');
-            button.disabled = true;
-            this.canvas.classList.remove('hidden');
-            break;
-      case 'micTest':
-              buttonType === 'start' || buttonType === 'pause' || buttonType === 'changeMicrophone'
-                  ? button.classList.remove('hidden')
-                  : button.classList.add('hidden');
-              button.disabled = (buttonType === 'pause');
-              this.canvas.classList.remove('hidden');
-              break;
+          buttonType === 'start'
+            ? button.classList.remove('hidden')
+            : button.classList.add('hidden');
+          button.disabled = true;
+          this.canvas.classList.remove('hidden');
+          break;
+        case 'micTest':
+          buttonType === 'start' ||
+          buttonType === 'pause' ||
+          buttonType === 'changeMicrophone'
+            ? button.classList.remove('hidden')
+            : button.classList.add('hidden');
+          button.disabled = buttonType === 'pause';
+          this.canvas.classList.remove('hidden');
+          break;
         case 'paused':
-            buttonType === 'pause' || buttonType === 'resume' ? button.classList.remove('hidden') : button.classList.add('hidden');
-            button.disabled = (this.status === 'paused' && buttonType === 'pause');
-            break;
+          buttonType === 'pause' || buttonType === 'resume'
+            ? button.classList.remove('hidden')
+            : button.classList.add('hidden');
+          button.disabled = this.status === 'paused' && buttonType === 'pause';
+          break;
         case 'recording':
-            buttonType === 'pause' || buttonType === 'finish' ? button.classList.remove('hidden') : button.classList.add('hidden');
-            button.disabled = false;
-            break;
-        case 'finished':
-            buttonType === '' ? button.classList.remove('hidden') : button.classList.add('hidden');
-            button.disabled = false;
-            break;
-        case 'upload':
-          buttonType === 'upload' ? button.classList.remove('hidden') : button.classList.add('hidden');
+          buttonType === 'pause' || buttonType === 'finish'
+            ? button.classList.remove('hidden')
+            : button.classList.add('hidden');
           button.disabled = false;
           break;
-    }
-  });
-}
+        case 'finished':
+          buttonType === ''
+            ? button.classList.remove('hidden')
+            : button.classList.add('hidden');
+          button.disabled = false;
+          break;
+        case 'upload':
+          buttonType === 'upload'
+            ? button.classList.remove('hidden')
+            : button.classList.add('hidden');
+          button.disabled = false;
+          break;
+      }
+    });
+  }
 
   // abrir o modal de mudança de microfone
   openMicrophoneModal() {
@@ -505,23 +586,33 @@ updateButtons() {
     this.modal.classList.remove('active');
   }
 
-
-getFormattedRecordingTime() {
-    const hours = String(Math.floor(this.recordingTime / 3600)).padStart(2, "0");
-    const minutes = String(Math.floor((this.recordingTime % 3600) / 60)).padStart(2, "0");
-    const seconds = String(this.recordingTime % 60).padStart(2, "0");
+  getFormattedRecordingTime() {
+    const hours = String(Math.floor(this.recordingTime / 3600)).padStart(
+      2,
+      '0'
+    );
+    const minutes = String(
+      Math.floor((this.recordingTime % 3600) / 60)
+    ).padStart(2, '0');
+    const seconds = String(this.recordingTime % 60).padStart(2, '0');
     return `${hours}:${minutes}:${seconds}`;
   }
 
-
-async startRecording() {
+  async startRecording() {
     this.statusText.textContent = '';
     try {
-      const constraints = { audio: { deviceId: this.currentDeviceId ? { exact: this.currentDeviceId } : undefined } };
+      const constraints = {
+        audio: {
+          deviceId: this.currentDeviceId
+            ? { exact: this.currentDeviceId }
+            : undefined,
+        },
+      };
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       if (!this.audioContext) {
-          this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
       }
 
       const source = this.audioContext.createMediaStreamSource(this.stream);
@@ -534,53 +625,63 @@ async startRecording() {
       this.analyser.connect(this.gainNode);
       this.gainNode.connect(this.audioContext.destination);
       this.mediaRecorder = new MediaRecorder(this.stream);
-      this.mediaRecorder.ondataavailable = (event) => this.handleDataAvailable(event);
+      this.mediaRecorder.ondataavailable = (event) =>
+        this.handleDataAvailable(event);
       this.status = 'recording';
       this.mediaRecorder.onstop = () => this.handleStop();
       this.mediaRecorder.onstart = () => {
-
-      this.intervalId = setInterval(() => {
+        this.intervalId = setInterval(() => {
           this.recordingTime++;
           this.timerElement.innerText = this.getFormattedRecordingTime();
-          }, 1000)
-        }
+        }, 1000);
+      };
       this.mediaRecorder.start();
 
       if (!this.canvas) {
-          console.error('Canvas não encontrado!');
-          return;
+        console.error('Canvas não encontrado!');
+        return;
       }
 
       this.canvas.className = 'audio-visualizer';
       this.updateButtons();
 
-      StartAnimationRecording(this.analyser, dataArray, bufferLength, this.canvas, this.status);
-
-  } catch (error) {
+      StartAnimationRecording(
+        this.analyser,
+        dataArray,
+        bufferLength,
+        this.canvas,
+        this.status
+      );
+    } catch (error) {
       console.error('Erro ao acessar o microfone:', error);
       this.statusText.textContent = 'Erro ao acessar o microfone';
       this.status = 'waiting';
       this.updateButtons();
-  }
-}
-
-pauseRecording() {
-  if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-    this.mediaRecorder.pause();
-    this.status = 'paused';
-
-    clearInterval(this.intervalId)
-
-    if (this.gainNode) {
-      this.gainNode.gain.value = 0;
     }
-
-    StartAnimationRecording(this.analyser, new Uint8Array(this.analyser.frequencyBinCount), this.analyser.frequencyBinCount, this.canvas, this.status);
-
-    this.updateButtons();
   }
-}
 
+  pauseRecording() {
+    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+      this.mediaRecorder.pause();
+      this.status = 'paused';
+
+      clearInterval(this.intervalId);
+
+      if (this.gainNode) {
+        this.gainNode.gain.value = 0;
+      }
+
+      StartAnimationRecording(
+        this.analyser,
+        new Uint8Array(this.analyser.frequencyBinCount),
+        this.analyser.frequencyBinCount,
+        this.canvas,
+        this.status
+      );
+
+      this.updateButtons();
+    }
+  }
 
   resumeRecording() {
     if (this.mediaRecorder && this.mediaRecorder.state === 'paused') {
@@ -590,13 +691,18 @@ pauseRecording() {
       this.intervalId = setInterval(() => {
         this.recordingTime++;
         this.timerElement.innerText = this.getFormattedRecordingTime();
-        }, 1000)
-
+      }, 1000);
 
       if (this.gainNode) {
         this.gainNode.gain.value = 1;
       }
-      StartAnimationRecording(this.analyser, new Uint8Array(this.analyser.frequencyBinCount), this.analyser.frequencyBinCount, this.canvas, this.status);
+      StartAnimationRecording(
+        this.analyser,
+        new Uint8Array(this.analyser.frequencyBinCount),
+        this.analyser.frequencyBinCount,
+        this.canvas,
+        this.status
+      );
       this.updateButtons();
     }
   }
@@ -605,13 +711,16 @@ pauseRecording() {
     if (this.mediaRecorder) {
       this.mediaRecorder.stop();
       this.status = 'finished';
-      this.statusText.classList.add('text-primary');
-      this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
+      this.statusText.classList.add('text-finish');
+      this.statusText.textContent =
+        'Aguarde enquanto geramos o relatório final...';
       this.updateButtons();
 
       setTimeout(() => {
         this.status = 'upload';
-        this.statusText.textContent = 'Relatório finalizado!'
+        this.statusText.classList.remove('text-finish');
+        this.statusText.classList.add('text-upload');
+        this.statusText.textContent = 'Relatório finalizado!';
         this.updateButtons();
       }, 10000);
     }
@@ -624,6 +733,7 @@ pauseRecording() {
   handleStop() {
     this.recordingBlob = new Blob(this.chunks, { type: 'audio/wav' });
     this.chunks = [];
-  }}
+  }
+}
 
 customElements.define('daai-badge', DaaiBadge);
