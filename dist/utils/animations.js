@@ -1,3 +1,4 @@
+
 export async function StartAnimationMicTest(canvasElement) {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -7,12 +8,11 @@ export async function StartAnimationMicTest(canvasElement) {
         echoCancellation: false,
         autoGainControl: true,
         noiseSuppression: false,
-        latency: 0,
-      },
+        latency: 0
+      }
     });
 
-    const audioContext = new (window.AudioContext ||
-      window.webkitAudioContext)();
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const source = audioContext.createMediaStreamSource(stream);
     const analyser = audioContext.createAnalyser();
 
@@ -34,8 +34,7 @@ export async function StartAnimationMicTest(canvasElement) {
     const barWidth = 16;
     const barSpacing = 12;
     const numberOfBars = 8;
-    const totalWidth =
-      numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
+    const totalWidth = numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
     const startX = (WIDTH - totalWidth) / 2;
 
     const barPositions = [];
@@ -54,15 +53,10 @@ export async function StartAnimationMicTest(canvasElement) {
       canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
       barPositions.forEach((x, i) => {
-        const barIntensity =
-          dataArray[i * Math.floor(bufferLength / numberOfBars)];
+        const barIntensity = dataArray[i * Math.floor(bufferLength / numberOfBars)];
         const normalizedIntensity = Math.min(barIntensity / 256, 1);
 
-        previousIntensities[i] = lerp(
-          previousIntensities[i],
-          normalizedIntensity,
-          0.1
-        );
+        previousIntensities[i] = lerp(previousIntensities[i], normalizedIntensity, 0.1);
 
         const isActive = previousIntensities[i] > 0.05;
 
@@ -75,22 +69,10 @@ export async function StartAnimationMicTest(canvasElement) {
 
         canvasCtx.beginPath();
         canvasCtx.moveTo(x + radius, HEIGHT / 2 - barHeight);
-        canvasCtx.arcTo(
-          x + barWidth,
-          HEIGHT / 2 - barHeight,
-          x + barWidth,
-          HEIGHT / 2,
-          radius
-        );
+        canvasCtx.arcTo(x + barWidth, HEIGHT / 2 - barHeight, x + barWidth, HEIGHT / 2, radius);
         canvasCtx.arcTo(x + barWidth, HEIGHT / 2, x, HEIGHT / 2, radius);
         canvasCtx.arcTo(x, HEIGHT / 2, x, HEIGHT / 2 - barHeight, radius);
-        canvasCtx.arcTo(
-          x,
-          HEIGHT / 2 - barHeight,
-          x + radius,
-          HEIGHT / 2 - barHeight,
-          radius
-        );
+        canvasCtx.arcTo(x, HEIGHT / 2 - barHeight, x + radius, HEIGHT / 2 - barHeight, radius);
         canvasCtx.closePath();
         canvasCtx.fill();
       });
@@ -102,15 +84,8 @@ export async function StartAnimationMicTest(canvasElement) {
   }
 }
 
-export function StartAnimationRecording(
-  analyser,
-  dataArray,
-  bufferLength,
-  canvasElement,
-  status,
-  animationRecordingColor,
-  animationPausedColor
-) {
+
+export function StartAnimationRecording(analyser, dataArray, bufferLength, canvasElement, status) {
   if (!canvasElement) {
     console.error('Canvas não encontrado!');
     return;
@@ -141,13 +116,14 @@ export function StartAnimationRecording(
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      ctx.strokeStyle = animationRecordingColor;
+      const barColor = '#FF5733';
+      ctx.strokeStyle = barColor;
       ctx.lineWidth = lineWidth;
 
       const h = defaultCanvHeight;
 
       for (let i = 0; i < frequLnum; i++) {
-        const normalizedIndex = (i / (frequLnum - 1)) * 2 - 1;
+        const normalizedIndex = i / (frequLnum - 1) * 2 - 1;
         const xOffset = normalizedIndex * (defaultCanvWidth / 2);
         const distanceFromCenter = Math.abs(normalizedIndex);
         const intensity = 1 - distanceFromCenter;
@@ -175,7 +151,7 @@ export function StartAnimationRecording(
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
-      const dashLineColor = animationPausedColor;
+      const dashLineColor = '#009CB1';
 
       ctx.strokeStyle = dashLineColor;
       ctx.lineWidth = lineWidth;
@@ -203,3 +179,4 @@ export function StartAnimationRecording(
     draw();
   }
 }
+

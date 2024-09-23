@@ -1,10 +1,10 @@
 {
-  "name": "daai-badge",
-  "version": "1.0.2",
+  "name": "@doctorassistant/daai-badge",
+  "version": "1.0.7",
   "description": "A custom web component for a recording badge.",
   "main": "dist/daai-badge.js",
   "scripts": {
-    "build": "mkdir -p dist && cp src/daai-badge.js dist/daai-badge.js",
+    "build": "mkdir -p dist/utils && cp src/daai-badge.js dist/daai-badge.js && cp src/utils/animations.js dist/utils/animations.js && cp src/constants.js dist/constants.js",
     "start": "lite-server"
   },
   "keywords": [
@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "daai-badge": "^1.0.0",
+    "font-awesome": "^4.7.0",
     "vue-audio-visual": "^3.0.8"
   },
   "type": "module"

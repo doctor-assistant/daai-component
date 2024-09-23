@@ -1,4 +1,11 @@
-import { DAAI_LOGO } from './constants.js';
+import {
+  DAAI_LOGO,
+  GEAR,
+  MICROPHONE_ICON,
+  PAUSE_ICON,
+  RECORDING_ICON,
+  RESUME_ICON,
+} from './constants.js';
 import {
   StartAnimationMicTest,
   StartAnimationRecording,
@@ -26,13 +33,13 @@ class DaaiBadge extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
    <style>
-       @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css');
       @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
       .container {
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100vw;
+        margin-top:20px
       }
       .recorder-box {
         display: flex;
@@ -48,7 +55,7 @@ class DaaiBadge extends HTMLElement {
         font-family: "Inter", sans-serif;
         font-weight: 600;
         position: relative;
-        color: #009CB1;
+        color:#009CB1
       }
       .recorder-box button {
         height: 50px;
@@ -62,18 +69,15 @@ class DaaiBadge extends HTMLElement {
       .recorder-box button:active {
         transform: scale(0.95);
       }
-      .text-primary {
-       color:${this.getAttribute('text-color')}
-      }
       .text-waiting-mic{
         color:#F43F5E;
       }
       .text-finish {
-         color:${this.getAttribute('text-color')};
+         color:#009CB1;
          margin-right:120px
        }
-        .text-upload {
-         color:#28A18C;
+      .text-upload {
+          color:#009CB1;
        }
       .text-waiting-mic-aprove {
         color:#F43F5E;
@@ -83,8 +87,12 @@ class DaaiBadge extends HTMLElement {
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
-        background-color:#009CB1;
+        background-color:${this.getAttribute('button-primary-color')};
         color: white;
+        display: flex;
+        justify-content:center;
+        align-items:center;
+        gap:2px;
       }
       .button-pause {
         width: 60px;
@@ -159,7 +167,7 @@ class DaaiBadge extends HTMLElement {
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
-        background-color: #009CB1;
+        background-color: ${this.getAttribute('button-resume-color')};
         color: white;
       }
     .audio-visualizer {
@@ -178,7 +186,7 @@ class DaaiBadge extends HTMLElement {
     }
 
     .text-waiting-aprove-mic {
-      color:${this.getAttribute('text-color')}
+      color:#009CB1
     }
 
     .animation-mic-test{
@@ -203,7 +211,7 @@ class DaaiBadge extends HTMLElement {
       cursor: pointer;
   }
   .modal-title{
-      color:${this.getAttribute('text-color')}
+      color:#000000
   }
   .rounded-select:focus {
     border-color: #007bff;
@@ -254,37 +262,37 @@ class DaaiBadge extends HTMLElement {
     this.buttons = {
       changeMicrophone: this.createButton(
         'change',
-        'fas fa-gear fa-lg',
+        GEAR,
         '',
         this.openMicrophoneModal.bind(this)
       ),
       pause: this.createButton(
         'pause',
-        'fa fa-pause',
+        PAUSE_ICON,
         '',
         this.pauseRecording.bind(this)
       ),
       start: this.createButton(
         'start',
-        'fa fa-microphone',
+        MICROPHONE_ICON,
         'Iniciar Registro',
         this.startRecording.bind(this)
       ),
       finish: this.createButton(
         'finish',
-        'fa fa-check',
+        RECORDING_ICON,
         'Finalizar Registro',
         this.finishRecording.bind(this)
       ),
       resume: this.createButton(
         'resume',
-        'fa fa-circle',
+        RESUME_ICON,
         'Continuar Registro',
         this.resumeRecording.bind(this)
       ),
       upload: this.createButton(
         'upload',
-        'fa fa-microphone',
+        MICROPHONE_ICON,
         'Iniciar novo registro',
         this.startRecording.bind(this)
       ),
@@ -315,20 +323,12 @@ class DaaiBadge extends HTMLElement {
   }
 
   // metódo para criar os botões, definido o seu conteúdo
-  createButton(type, iconClass, text, handler) {
+  createButton(type, imageUrl, text, handler) {
     const button = document.createElement('button');
     button.className = `button ${this.getButtonClass(type)}`;
-    button.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
+    button.innerHTML = `<img src="${imageUrl}" alt="${text}" class="button-icon"> ${text}`;
     button.addEventListener('click', handler);
     return button;
-  }
-  // metódo para criar os textos, definido o seu conteúdo
-  createText(type, iconClass, text, content) {
-    const textElement = document.createElement('p');
-    textElement.className = `text-${type}`;
-    textElement.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${text}`;
-    textElement.textContent = content;
-    return textElement;
   }
 
   // setando as classes de acordo com o status
@@ -374,7 +374,6 @@ class DaaiBadge extends HTMLElement {
           this.status = 'waiting';
           this.statusText.classList.add('text-waiting-mic-aprove');
           this.statusText.textContent = 'Aguardando autorização do microfone';
-          this.statusText.classList.remove('text-primary');
         }
         this.updateButtons();
       };
@@ -442,7 +441,7 @@ class DaaiBadge extends HTMLElement {
       'border-color',
       'animation-recording-color',
       'animation-paused-color',
-      'text-color',
+      'text-badge-color',
     ];
   }
 
@@ -461,10 +460,10 @@ class DaaiBadge extends HTMLElement {
     }
     if (!this.hasAttribute('animation-recording-color'))
       this.setAttribute('animation-recording-color', '#F43F5E');
+    if (!this.hasAttribute('text-badge-color'))
+      this.setAttribute('text-badge-color', '#009CB1');
     if (!this.hasAttribute('animation-paused-color'))
       this.setAttribute('animation-paused-color', '#009CB1');
-    if (!this.hasAttribute('text-color'))
-      this.setAttribute('text-color', '#009CB1');
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -508,8 +507,8 @@ class DaaiBadge extends HTMLElement {
         if (animatedPausedElement)
           animatedPausedElement.style.animationColor = newValue;
         break;
-      case 'text-color':
-        const textColor = shadowRoot.querySelector('.text-color');
+      case 'text-badge-color':
+        const textColor = shadowRoot.querySelector('.text-badge-color');
         if (textColor) textColor.style.color = newValue;
         break;
     }
@@ -645,12 +644,18 @@ class DaaiBadge extends HTMLElement {
       this.canvas.className = 'audio-visualizer';
       this.updateButtons();
 
+      const animationRecordingColor = this.getAttribute(
+        'animation-recording-color'
+      );
+      const animationPausedColor = this.getAttribute('animation-paused-color');
       StartAnimationRecording(
         this.analyser,
         dataArray,
         bufferLength,
         this.canvas,
-        this.status
+        this.status,
+        animationRecordingColor,
+        animationPausedColor
       );
     } catch (error) {
       console.error('Erro ao acessar o microfone:', error);
@@ -671,12 +676,19 @@ class DaaiBadge extends HTMLElement {
         this.gainNode.gain.value = 0;
       }
 
+      const animationRecordingColor = this.getAttribute(
+        'animation-recording-color'
+      );
+      const animationPausedColor = this.getAttribute('animation-paused-color');
+
       StartAnimationRecording(
         this.analyser,
         new Uint8Array(this.analyser.frequencyBinCount),
         this.analyser.frequencyBinCount,
         this.canvas,
-        this.status
+        this.status,
+        animationRecordingColor,
+        animationPausedColor
       );
 
       this.updateButtons();
@@ -696,12 +708,20 @@ class DaaiBadge extends HTMLElement {
       if (this.gainNode) {
         this.gainNode.gain.value = 1;
       }
+
+      const animationRecordingColor = this.getAttribute(
+        'animation-recording-color'
+      );
+      const animationPausedColor = this.getAttribute('animation-paused-color');
+
       StartAnimationRecording(
         this.analyser,
         new Uint8Array(this.analyser.frequencyBinCount),
         this.analyser.frequencyBinCount,
         this.canvas,
-        this.status
+        this.status,
+        animationRecordingColor,
+        animationPausedColor
       );
       this.updateButtons();
     }
