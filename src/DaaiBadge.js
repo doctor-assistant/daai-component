@@ -5,11 +5,13 @@ import {
   PAUSE_ICON,
   RECORDING_ICON,
   RESUME_ICON,
-} from './constants.js';
+} from './Constants.js';
 import {
   StartAnimationMicTest,
   StartAnimationRecording,
-} from './utils/animations.js';
+} from './utils/Animations.js';
+import { getFormattedRecordingTime } from './utils/Clock.js';
+import { createButton } from './utils/CreateButtons.js';
 
 class DaaiBadge extends HTMLElement {
   constructor() {
@@ -260,37 +262,37 @@ class DaaiBadge extends HTMLElement {
 
     // aqui vamos usar o createButton para criar esses botões com ícones e textos apropriados.
     this.buttons = {
-      changeMicrophone: this.createButton(
+      changeMicrophone: createButton(
         'change',
         GEAR,
         '',
         this.openMicrophoneModal.bind(this)
       ),
-      pause: this.createButton(
+      pause: createButton(
         'pause',
         PAUSE_ICON,
         '',
         this.pauseRecording.bind(this)
       ),
-      start: this.createButton(
+      start: createButton(
         'start',
         MICROPHONE_ICON,
         'Iniciar Registro',
         this.startRecording.bind(this)
       ),
-      finish: this.createButton(
+      finish: createButton(
         'finish',
         RECORDING_ICON,
         'Finalizar Registro',
         this.finishRecording.bind(this)
       ),
-      resume: this.createButton(
+      resume: createButton(
         'resume',
         RESUME_ICON,
         'Continuar Registro',
         this.resumeRecording.bind(this)
       ),
-      upload: this.createButton(
+      upload: createButton(
         'upload',
         MICROPHONE_ICON,
         'Iniciar novo registro',
@@ -320,26 +322,6 @@ class DaaiBadge extends HTMLElement {
     shadow.appendChild(this.backdrop);
     this.checkPermissionsAndLoadDevices();
     this.updateButtons();
-  }
-
-  // metódo para criar os botões, definido o seu conteúdo
-  createButton(type, imageUrl, text, handler) {
-    const button = document.createElement('button');
-    button.className = `button ${this.getButtonClass(type)}`;
-    button.innerHTML = `<img src="${imageUrl}" alt="${text}" class="button-icon"> ${text}`;
-    button.addEventListener('click', handler);
-    return button;
-  }
-
-  // setando as classes de acordo com o status
-  getButtonClass(type) {
-    if (type === 'start') return 'button-primary';
-    if (type === 'pause') return 'button-pause';
-    if (type === 'finish') return 'button-recording';
-    if (type === 'resume') return 'button-resume';
-    if (type === 'upload') return 'button-primary';
-    if (type === 'change') return 'button-change';
-    return '';
   }
 
   async connectedCallback() {
@@ -585,20 +567,14 @@ class DaaiBadge extends HTMLElement {
     this.modal.classList.remove('active');
   }
 
-  getFormattedRecordingTime() {
-    const hours = String(Math.floor(this.recordingTime / 3600)).padStart(
-      2,
-      '0'
-    );
-    const minutes = String(
-      Math.floor((this.recordingTime % 3600) / 60)
-    ).padStart(2, '0');
-    const seconds = String(this.recordingTime % 60).padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
-  }
-
   async startRecording() {
-    this.statusText.textContent = '';
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+
+    this.recordingTime = 0;
+    this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
+
     try {
       const constraints = {
         audio: {
@@ -607,47 +583,65 @@ class DaaiBadge extends HTMLElement {
             : undefined,
         },
       };
+
       this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext ||
-          window.webkitAudioContext)();
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
 
+      // Cria a fonte de áudio a partir do stream
       const source = this.audioContext.createMediaStreamSource(this.stream);
+
+      // Configura o analisador para a visualização de áudio
       this.analyser = this.audioContext.createAnalyser();
       this.analyser.fftSize = 256;
       const bufferLength = this.analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
+
+      // Cria um nó de ganho e ajusta o ganho para 0 para evitar a reprodução
       this.gainNode = this.audioContext.createGain();
+      this.gainNode.gain.value = 0;
+
       source.connect(this.analyser);
       this.analyser.connect(this.gainNode);
       this.gainNode.connect(this.audioContext.destination);
+
+      // Inicializa o MediaRecorder para gravar o áudio
       this.mediaRecorder = new MediaRecorder(this.stream);
       this.mediaRecorder.ondataavailable = (event) =>
         this.handleDataAvailable(event);
       this.status = 'recording';
+
       this.mediaRecorder.onstop = () => this.handleStop();
       this.mediaRecorder.onstart = () => {
+        this.statusText.textContent = '';
+        this.recordingTime = 0;
+
+        // Inicia o contador
         this.intervalId = setInterval(() => {
           this.recordingTime++;
-          this.timerElement.innerText = this.getFormattedRecordingTime();
+          this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
         }, 1000);
       };
+
       this.mediaRecorder.start();
 
+      // Verifica se o canvas está presente para a visualização
       if (!this.canvas) {
         console.error('Canvas não encontrado!');
         return;
       }
 
+      // Adiciona uma classe ao canvas para a visualização
       this.canvas.className = 'audio-visualizer';
       this.updateButtons();
 
-      const animationRecordingColor = this.getAttribute(
-        'animation-recording-color'
-      );
+      // Obtém as cores de animação
+      const animationRecordingColor = this.getAttribute('animation-recording-color');
       const animationPausedColor = this.getAttribute('animation-paused-color');
+
+      // Inicia a animação de gravação com as cores definidas
       StartAnimationRecording(
         this.analyser,
         dataArray,
@@ -700,18 +694,18 @@ class DaaiBadge extends HTMLElement {
       this.mediaRecorder.resume();
       this.status = 'recording';
 
+      // Reinicia o timer
       this.intervalId = setInterval(() => {
         this.recordingTime++;
-        this.timerElement.innerText = this.getFormattedRecordingTime();
+        this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
       }, 1000);
 
+      // Mantém o ganho em 0 para não reproduzir o áudio
       if (this.gainNode) {
-        this.gainNode.gain.value = 1;
+        this.gainNode.gain.value = 0;
       }
 
-      const animationRecordingColor = this.getAttribute(
-        'animation-recording-color'
-      );
+      const animationRecordingColor = this.getAttribute('animation-recording-color');
       const animationPausedColor = this.getAttribute('animation-paused-color');
 
       StartAnimationRecording(
@@ -727,32 +721,44 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
+
   finishRecording() {
-    if (this.mediaRecorder) {
+      if (this.mediaRecorder) {
       this.mediaRecorder.stop();
       this.status = 'finished';
-      this.statusText.classList.add('text-finish');
-      this.statusText.textContent =
-        'Aguarde enquanto geramos o relatório final...';
-      this.updateButtons();
 
-      setTimeout(() => {
-        this.status = 'upload';
-        this.statusText.classList.remove('text-finish');
-        this.statusText.classList.add('text-upload');
-        this.statusText.textContent = 'Relatório finalizado!';
+      let audioChunks = [];
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+      this.mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        console.log(audioBlob, 'Generated audio blob');
+
+        // criando uma URL para o blob
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+        console.log(audio, 'audio gerado');
+
+        this.statusText.classList.add('text-finish');
+        this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
         this.updateButtons();
-      }, 10000);
+
+        setTimeout(() => {
+          this.status = 'upload';
+          this.statusText.classList.remove('text-finish');
+          this.statusText.classList.add('text-upload');
+          this.statusText.textContent = 'Relatório finalizado!';
+          this.recordingTime = 0;
+          getFormattedRecordingTime(this.recordingTime)
+          this.updateButtons();
+        }, 10000);
+      };
     }
-  }
-
-  handleDataAvailable(event) {
-    this.chunks.push(event.data);
-  }
-
-  handleStop() {
-    this.recordingBlob = new Blob(this.chunks, { type: 'audio/wav' });
-    this.chunks = [];
   }
 }
 
