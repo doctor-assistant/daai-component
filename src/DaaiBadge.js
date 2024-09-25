@@ -1,3 +1,4 @@
+import { uploadAudio } from './api/Api.js';
 import {
   DAAI_LOGO,
   GEAR,
@@ -5,7 +6,7 @@ import {
   PAUSE_ICON,
   RECORDING_ICON,
   RESUME_ICON,
-} from './Constants.js';
+} from './icons/icons.js';
 import {
   StartAnimationMicTest,
   StartAnimationRecording,
@@ -723,43 +724,47 @@ class DaaiBadge extends HTMLElement {
 
 
   finishRecording() {
-      if (this.mediaRecorder) {
-      this.mediaRecorder.stop();
-      this.status = 'finished';
+    if (this.mediaRecorder) {
+        this.mediaRecorder.stop();
+        this.status = 'finished';
 
-      let audioChunks = [];
-      this.mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.push(event.data);
-        }
-      };
+        let audioChunks = [];
+        this.mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                audioChunks.push(event.data);
+            }
+        };
 
-      this.mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        console.log(audioBlob, 'Generated audio blob');
+        this.mediaRecorder.onstop = () => {
+            // Combina os chunks em um blob
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            console.log(audioBlob, 'Generated audio blob');
 
-        // criando uma URL para o blob
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        audio.play();
-        console.log(audio, 'audio gerado');
+            // Cria uma URL para o blob
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
 
-        this.statusText.classList.add('text-finish');
-        this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
-        this.updateButtons();
+            uploadAudio(audioBlob, '123', '123', '123');
 
-        setTimeout(() => {
-          this.status = 'upload';
-          this.statusText.classList.remove('text-finish');
-          this.statusText.classList.add('text-upload');
-          this.statusText.textContent = 'Relatório finalizado!';
-          this.recordingTime = 0;
-          getFormattedRecordingTime(this.recordingTime)
-          this.updateButtons();
-        }, 10000);
-      };
+            audio.play();
+            console.log(audio, 'audio gerado');
+
+            this.statusText.classList.add('text-finish');
+            this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
+            this.updateButtons();
+
+            setTimeout(() => {
+                this.status = 'upload';
+                this.statusText.classList.remove('text-finish');
+                this.statusText.classList.add('text-upload');
+                this.statusText.textContent = 'Relatório finalizado!';
+                this.recordingTime = 0;
+                getFormattedRecordingTime(this.recordingTime);
+                this.updateButtons();
+            }, 10000);
+        };
     }
-  }
+}
 }
 
 customElements.define('daai-badge', DaaiBadge);
