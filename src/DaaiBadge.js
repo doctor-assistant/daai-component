@@ -5,7 +5,7 @@ import {
   MICROPHONE_ICON,
   PAUSE_ICON,
   RECORDING_ICON,
-  RESUME_ICON,
+  RESUME_ICON
 } from './icons/icons.js';
 import {
   StartAnimationMicTest,
@@ -13,6 +13,7 @@ import {
 } from './utils/Animations.js';
 import { getFormattedRecordingTime } from './utils/Clock.js';
 import { createButton } from './utils/CreateButtons.js';
+
 
 class DaaiBadge extends HTMLElement {
   constructor() {
@@ -28,6 +29,7 @@ class DaaiBadge extends HTMLElement {
     this.currentDeviceId = null;
     this.recordingTime = 0;
     this.intervalId = null;
+    this.easterEggTimeoutId = null;
 
     // Aqui criamos a shadow dom
     const shadow = this.attachShadow({ mode: 'open' });
@@ -48,7 +50,6 @@ class DaaiBadge extends HTMLElement {
         display: flex;
         align-items: center;
         justify-content: space-around;
-        text-items:center;
         padding: 1rem;
         border: 3px solid;
         border-radius: 30px;
@@ -58,7 +59,7 @@ class DaaiBadge extends HTMLElement {
         font-family: "Inter", sans-serif;
         font-weight: 600;
         position: relative;
-        color:#009CB1
+        color: var(--text-badge-color, #009CB1);
       }
       .recorder-box button {
         height: 50px;
@@ -76,7 +77,6 @@ class DaaiBadge extends HTMLElement {
         color:#F43F5E;
       }
       .text-finish {
-         color:#009CB1;
          margin-right:120px
        }
       .text-upload {
@@ -232,6 +232,10 @@ class DaaiBadge extends HTMLElement {
       font-weight: 600;
       color: #000000;
     }
+    .icons {
+      width: 50px;
+      height: 60px;
+    }
   ;
   `;
 
@@ -241,10 +245,11 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox = document.createElement('div');
     this.recorderBox.className = 'recorder-box';
 
-    const logo = document.createElement('img');
-    logo.src = DAAI_LOGO;
-    logo.alt = 'daai-logo';
-    this.recorderBox.appendChild(logo);
+    this.logo = document.createElement('img');
+    this.logo.src = DAAI_LOGO;
+    this.logo.alt = 'daai-logo';
+    this.logo.classList.add('icons');
+    this.recorderBox.appendChild(this.logo);
 
     this.status = 'waiting';
     this.statusText = document.createElement('span');
@@ -328,6 +333,24 @@ class DaaiBadge extends HTMLElement {
   async connectedCallback() {
     await this.checkPermissionsAndLoadDevices();
   }
+
+  initializeEasterEgg() {
+    const logoElement = this.shadowRoot.querySelector('img');
+    const originalIcon = DAAI_LOGO;
+    const easterEggIcon = 'src/icons/animation.gif';
+    const intervalDuration = 5400000
+    const randomNumber = Math.random();
+    logoElement.src = originalIcon;
+    setInterval(() => {
+      if (logoElement && randomNumber < 0.8) {
+        logoElement.src = easterEggIcon;
+        setTimeout(() => {
+          logoElement.src = originalIcon;
+        }, 5000);
+      }
+    }, intervalDuration);
+  }
+
 
   async checkPermissionsAndLoadDevices() {
     try {
@@ -428,8 +451,9 @@ class DaaiBadge extends HTMLElement {
     ];
   }
 
+
   connectedCallback() {
-    if (!this.hasAttribute('icon')) this.setAttribute('icon', DAAI_LOGO);
+    if (!this.hasAttribute('icon')) this.setAttribute('icon', '');
     if (!this.hasAttribute('button-primary-color'))
       this.setAttribute('button-primary-color', '#009CB1');
     if (!this.hasAttribute('button-recording-color'))
@@ -447,6 +471,7 @@ class DaaiBadge extends HTMLElement {
       this.setAttribute('text-badge-color', '#009CB1');
     if (!this.hasAttribute('animation-paused-color'))
       this.setAttribute('animation-paused-color', '#009CB1');
+    this.initializeEasterEgg();
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -490,10 +515,9 @@ class DaaiBadge extends HTMLElement {
         if (animatedPausedElement)
           animatedPausedElement.style.animationColor = newValue;
         break;
-      case 'text-badge-color':
-        const textColor = shadowRoot.querySelector('.text-badge-color');
-        if (textColor) textColor.style.color = newValue;
-        break;
+        case 'text-badge-color':
+          this.style.setProperty('--text-badge-color', newValue);
+          break;
     }
   }
 
