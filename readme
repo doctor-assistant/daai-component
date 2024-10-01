@@ -1,0 +1,36 @@
+# Daai-badge
+
+### Visão Geral
+Daai-badge é um web component construido pela doctor assistant.ai
+
+### Sumário
+1. [Introdução](#introdução)
+2. [Construção do componente](#construção)
+3. [Instalação](#instalação)
+4. [Uso do componente](#uso)
+5. [Exemplos](#exemplos)
+6. [Configuração](#configuração)
+
+
+## Introdução
+Explicação mais detalhada do propósito do projeto e do problema que ele resolve.
+
+## construção
+Lista de ferramentas e bibliotecas necessárias para rodar o projeto.
+
+- `Node.js` >= 14.0.0
+- `npm` >= 6.0.0
+- Outras dependências...
+
+## Instalação
+Passos para instalar o projeto localmente.
+
+```bash
+# Clone o repositório
+git clone https://github.com/usuario/projeto-xyz.git
+
+# Entre no diretório do projeto
+cd projeto-xyz
+
+# Instale as dependências
+npm install
