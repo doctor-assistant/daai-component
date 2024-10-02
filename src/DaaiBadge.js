@@ -80,7 +80,7 @@ class DaaiBadge extends HTMLElement {
          margin-right:120px
        }
       .text-upload {
-          color:#009CB1;
+          color: var(--text-badge-color, #009CB1);
        }
       .text-waiting-mic-aprove {
         color:#F43F5E;
@@ -90,7 +90,7 @@ class DaaiBadge extends HTMLElement {
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
-        background-color:${this.getAttribute('button-primary-color')};
+        background-color:var(--button-primary-color, #009CB1);
         color: white;
         display: flex;
         justify-content:center;
@@ -189,7 +189,7 @@ class DaaiBadge extends HTMLElement {
     }
 
     .text-waiting-aprove-mic {
-      color:#009CB1
+      color: var(--text-badge-color, #009CB1);
     }
 
     .animation-mic-test{
@@ -246,7 +246,7 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox.className = 'recorder-box';
 
     this.logo = document.createElement('img');
-    this.logo.src = DAAI_LOGO;
+    this.recorderBox.appendChild(this.logo);
     this.logo.alt = 'daai-logo';
     this.logo.classList.add('icons');
     this.recorderBox.appendChild(this.logo);
@@ -349,6 +349,8 @@ class DaaiBadge extends HTMLElement {
         }, 5000);
       }
     }, intervalDuration);
+
+    return originalIcon
   }
 
 
@@ -453,7 +455,8 @@ class DaaiBadge extends HTMLElement {
 
 
   connectedCallback() {
-    if (!this.hasAttribute('icon')) this.setAttribute('icon', '');
+    if (!this.hasAttribute('icon')) this.setAttribute('icon', this.initializeEasterEgg());
+      // this.initializeEasterEgg();
     if (!this.hasAttribute('button-primary-color'))
       this.setAttribute('button-primary-color', '#009CB1');
     if (!this.hasAttribute('button-recording-color'))
@@ -471,7 +474,6 @@ class DaaiBadge extends HTMLElement {
       this.setAttribute('text-badge-color', '#009CB1');
     if (!this.hasAttribute('animation-paused-color'))
       this.setAttribute('animation-paused-color', '#009CB1');
-    this.initializeEasterEgg();
   }
 
   attributeChangedCallback(name, oldValue, newValue) {

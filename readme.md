@@ -43,4 +43,7 @@ Após instalar o pacote no seu projeto, basta adicionar a tag <daai-badge> no lo
 ``` html
 <daai-badge></daai-badge>
 ```
+onde ele for chamado vai ser renderizado nesse modelo:
+
+![alt text](image.png)
 
