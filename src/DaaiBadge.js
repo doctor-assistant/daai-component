@@ -30,6 +30,7 @@ class DaaiBadge extends HTMLElement {
     this.recordingTime = 0;
     this.intervalId = null;
     this.easterEggTimeoutId = null;
+    this.blockPageReload = this.blockPageReload.bind(this);
 
     // Aqui criamos a shadow dom
     const shadow = this.attachShadow({ mode: 'open' });
@@ -354,6 +355,8 @@ class DaaiBadge extends HTMLElement {
   }
 
 
+
+
   async checkPermissionsAndLoadDevices() {
     try {
       // Verificar o estado da permissão do microfone
@@ -523,6 +526,16 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
+  blockPageReload() {
+    window.onbeforeunload = function (e) {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+  }
+
+
+
+
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
   updateButtons() {
     Object.keys(this.buttons).forEach((buttonType) => {
@@ -595,6 +608,7 @@ class DaaiBadge extends HTMLElement {
   }
 
   async startRecording() {
+    this.blockPageReload()
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
