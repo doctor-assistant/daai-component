@@ -49,10 +49,32 @@ onde ele for chamado vai ser renderizado nesse modelo:
  animation-paused-color,
  text-badge-color,
   ```
+
+### 🖌️ exemplo de uso da customização:
+
+```html
+ <daai-badge
+    icon="seu ícone aqui"
+    button-start-recording-color="#007BFF"
+    button-recording-color="#FF3B30"
+    button-pause-color="#C0392B"
+    button-resume-color="#28A745"
+    border-color="#007BFF"
+    animation-recording-color="#FF3B30"
+    animation-paused-color="#95A5A6"
+    text-badge-color="#007BFF">
+  </daai-badge>
+```
+
+### 📎 Sugestões:
+- As cores podem ser em `hexadecimal` mas você também pode usar o nome da cor ex: 'yellow'.
+- O ícone pode ser adicionado como Base64.
+
 ### 🔎 definição de cada propriedade:
 
  #### icon
  ícone que vai ser renderizado na badge.
+
  #### button-start-recording-color
  Essa propriedade é capaz de alterar a cor do botão de `inciar registro`.
 
