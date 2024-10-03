@@ -54,7 +54,7 @@ onde ele for chamado vai ser renderizado nesse modelo:
 
 ```html
  <daai-badge
-    icon="seu ícone aqui"
+    icon="caminho/para/seu/icone.png"
     button-start-recording-color="#007BFF"
     button-recording-color="#FF3B30"
     button-pause-color="#C0392B"
@@ -66,11 +66,12 @@ onde ele for chamado vai ser renderizado nesse modelo:
   </daai-badge>
 ```
 
+
+### 🔎 definição de cada propriedade:
+
 ### 📎 Sugestões:
 - As cores podem ser em `hexadecimal` mas você também pode usar o nome da cor ex: 'yellow'.
 - O ícone pode ser adicionado como Base64.
-
-### 🔎 definição de cada propriedade:
 
  #### icon
  ícone que vai ser renderizado na badge.
