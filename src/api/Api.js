@@ -2,11 +2,11 @@ export async function uploadAudio(audioBlob) {
   const url = 'NÃO TEMOS';
 
   const base64Audio = await blobToBase64(audioBlob);
-
+// formData - audio ( recording )
+// external_id
+// provide_id e o token - header x-daai-api-key
   const requestBody = {
       id: '123',
-      token: '123',
-      provide_id: '4,5,6',
       audio: base64Audio
   };
 
@@ -15,6 +15,7 @@ export async function uploadAudio(audioBlob) {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'
+              // x-daai-api-key
           },
           body: JSON.stringify(requestBody)
       });

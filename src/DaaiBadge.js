@@ -91,7 +91,7 @@ class DaaiBadge extends HTMLElement {
         height: 50px;
         font-size: 30px;
         border-radius: 8px;
-        background-color:var(--button-primary-color, #009CB1);
+        background-color:var(--button-start-recording-color, #009CB1);
         color: white;
         display: flex;
         justify-content:center;
@@ -445,7 +445,7 @@ class DaaiBadge extends HTMLElement {
   static get observedAttributes() {
     return [
       'icon',
-      'button-primary-color',
+      'button-start-recording-color',
       'button-recording-color',
       'button-pause-color',
       'button-resume-color',
@@ -460,8 +460,8 @@ class DaaiBadge extends HTMLElement {
   connectedCallback() {
     if (!this.hasAttribute('icon')) this.setAttribute('icon', this.initializeEasterEgg());
       // this.initializeEasterEgg();
-    if (!this.hasAttribute('button-primary-color'))
-      this.setAttribute('button-primary-color', '#009CB1');
+    if (!this.hasAttribute('button-start-recording-color'))
+      this.setAttribute('button-start-recording-color', '#009CB1');
     if (!this.hasAttribute('button-recording-color'))
       this.setAttribute('button-recording-color', '#F43F5E');
     if (!this.hasAttribute('button-pause-color'))
@@ -486,7 +486,7 @@ class DaaiBadge extends HTMLElement {
         const img = shadowRoot.querySelector('img');
         if (img) img.src = newValue;
         break;
-      case 'button-primary-color':
+      case 'button-start-recording-color':
         const buttonPrimary = shadowRoot.querySelector('.button-primary');
         if (buttonPrimary) buttonPrimary.style.backgroundColor = newValue;
         break;
@@ -762,12 +762,25 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
+  // useIndexDB(dbName, version){
+  //   return new Promise((resolve, reject) => {
+  //     const request = indexedDB.open(dbName, version);
+  //     request.onerror = function(event) {
+  //       reject('indexDB ', event.target.errorCode);
+  //     };
+  //     request.onsuccess = function(event) {
+  //       resolve(event.target.result);
+  //     };
+  //   });
+  // }
+
 
   finishRecording() {
     if (this.mediaRecorder) {
         this.mediaRecorder.stop();
         this.status = 'finished';
-
+        // const formData = new FormData();
+        // formData.append("file", file);
         let audioChunks = [];
         this.mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0) {
