@@ -5,7 +5,9 @@ import {
   RECORDING_ICON,
   RESUME_ICON
 } from './icons/icons.js';
+import { blockPageReload } from './utils/blockPageReload.js';
 import { checkPermissionsAndLoadDevices } from './utils/CheckPermissions.js';
+import { applyThemeAttributes, parseThemeAttribute } from './utils/ComponentProps.js';
 import { createButton } from './utils/CreateButtons.js';
 import { initializeEasterEgg } from './utils/EasterEgg.js';
 import { finishRecording, pauseRecording, resumeRecording, startRecording } from './utils/RecorderUtils.js';
@@ -26,7 +28,7 @@ class DaaiBadge extends HTMLElement {
     this.recordingTime = 0;
     this.intervalId = null;
     this.easterEggTimeoutId = null;
-    this.blockPageReload = this.blockPageReload.bind(this);
+    blockPageReload()
 
     // Aqui criamos a shadow dom
     const shadow = this.attachShadow({ mode: 'open' });
@@ -320,8 +322,6 @@ class DaaiBadge extends HTMLElement {
     shadow.appendChild(this.backdrop);
     this.updateButtons();
     checkPermissionsAndLoadDevices(this);
-
-
   }
 
   connectedCallback() {
@@ -335,144 +335,27 @@ class DaaiBadge extends HTMLElement {
   connectedCallback() {
     const logoElement = this.shadowRoot.querySelector('img');
     const defaultTheme = {
-        icon:this.getAttribute('icon') || initializeEasterEgg(logoElement),
-        buttonStartRecordingColor: '#009CB1',
-        buttonRecordingColor: '#F43F5E',
-        buttonPauseColor: '#F43F5E',
-        buttonResumeColor: '#009CB1',
-        borderColor: '#009CB1',
-        animationRecordingColor: '#F43F5E',
-        animationPausedColor: '#009CB1',
-        textBadgeColor: '#009CB1',
+      icon: this.getAttribute('icon') || initializeEasterEgg(logoElement),
+      buttonStartRecordingColor: '#009CB1',
+      buttonRecordingColor: '#F43F5E',
+      buttonPauseColor: '#F43F5E',
+      buttonResumeColor: '#009CB1',
+      borderColor: '#009CB1',
+      animationRecordingColor: '#F43F5E',
+      animationPausedColor: '#009CB1',
+      textBadgeColor: '#009CB1',
     };
 
     const themeAttr = this.getAttribute('theme');
     if (themeAttr) {
-        this.theme = { ...defaultTheme, ...this.parseThemeAttribute(themeAttr) };
+      this.theme = { ...defaultTheme, ...parseThemeAttribute(themeAttr) };
     } else {
-        this.theme = defaultTheme;
+      this.theme = defaultTheme;
     }
-    this.applyThemeAttributes();
-}
 
-  parseThemeAttribute(themeAttr) {
-    try {
-      return JSON.parse(themeAttr);
-    } catch (e) {
-      console.error('Erro ao analisar o atributo `theme`:', e);
-      return {};
-    }
+    // Passa o contexto `this` para a função `applyThemeAttributes`
+    applyThemeAttributes(this.theme, this);
   }
-
-  applyThemeAttributes() {
-    Object.keys(this.theme).forEach((key) => {
-        const attributeKey = this.toKebabCase(key);
-        if (!this.hasAttribute(attributeKey)) {
-            this.setAttribute(attributeKey, this.theme[key]);
-        }
-        const attributeToElementMap = {
-            'icon': (value) => {
-                const img = this.shadowRoot.querySelector('img');
-                if (img) img.src = value;
-            },
-            'button-start-recording-color': (value) => {
-                const buttonPrimary = this.shadowRoot.querySelector('.button-primary');
-                if (buttonPrimary) buttonPrimary.style.backgroundColor = value;
-            },
-            'button-recording-color': (value) => {
-                const buttonRecording = this.shadowRoot.querySelector('.button-recording');
-                if (buttonRecording) buttonRecording.style.backgroundColor = value;
-            },
-            'button-pause-color': (value) => {
-                const buttonPause = this.shadowRoot.querySelector('.button-pause');
-                if (buttonPause) buttonPause.style.backgroundColor = value;
-            },
-            'button-resume-color': (value) => {
-                const buttonResume = this.shadowRoot.querySelector('.button-resume');
-                if (buttonResume) buttonResume.style.backgroundColor = value;
-            },
-            'border-color': (value) => {
-                const recorderBox = this.shadowRoot.querySelector('.recorder-box');
-                if (recorderBox) recorderBox.style.borderColor = value;
-            },
-            'animation-recording-color': (value) => {
-                const animatedRecordingElement = this.shadowRoot.querySelector('.animated-recording-element');
-                if (animatedRecordingElement) animatedRecordingElement.style.animationColor = value;
-            },
-            'animation-paused-color': (value) => {
-                const animatedPausedElement = this.shadowRoot.querySelector('.animated-paused-element');
-                if (animatedPausedElement) animatedPausedElement.style.animationColor = value;
-            },
-            'text-badge-color': (value) => {
-                this.style.setProperty('--text-badge-color', value);
-            },
-        };
-        if (attributeToElementMap[attributeKey]) {
-            attributeToElementMap[attributeKey](this.theme[key]);
-        }
-    });
-}
-
-  toKebabCase(camelCase) {
-    return camelCase.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    console.log(`Atributo modificado: ${name}, Novo valor: ${newValue}`);
-    if (name === 'theme') {
-      this.theme = this.parseThemeAttribute(newValue);
-      this.applyThemeAttributes();
-      return;
-    }
-    const attributeToElementMap = {
-      icon: (value) => {
-        const img = this.shadowRoot.querySelector('img');
-        if (img) img.src = value;
-      },
-      'button-start-recording-color': (value) => {
-        const buttonPrimary = this.shadowRoot.querySelector('.button-primary');
-        if (buttonPrimary) buttonPrimary.style.backgroundColor = value;
-      },
-      'button-recording-color': (value) => {
-        const buttonRecording = this.shadowRoot.querySelector('.button-recording');
-        if (buttonRecording) buttonRecording.style.backgroundColor = value;
-      },
-      'button-pause-color': (value) => {
-        const buttonPause = this.shadowRoot.querySelector('.button-pause');
-        if (buttonPause) buttonPause.style.backgroundColor = value;
-      },
-      'button-resume-color': (value) => {
-        const buttonResume = this.shadowRoot.querySelector('.button-resume');
-        if (buttonResume) buttonResume.style.backgroundColor = value;
-      },
-      'border-color': (value) => {
-        const recorderBox = this.shadowRoot.querySelector('.recorder-box');
-        if (recorderBox) recorderBox.style.borderColor = value;
-      },
-      'animation-recording-color': (value) => {
-        const animatedRecordingElement = this.shadowRoot.querySelector('.animated-recording-element');
-        if (animatedRecordingElement) animatedRecordingElement.style.animationColor = value;
-      },
-      'animation-paused-color': (value) => {
-        const animatedPausedElement = this.shadowRoot.querySelector('.animated-paused-element');
-        if (animatedPausedElement) animatedPausedElement.style.animationColor = value;
-      },
-      'text-badge-color': (value) => {
-        this.style.setProperty('--text-badge-color', value);
-      },
-    };
-    if (attributeToElementMap[name]) {
-      attributeToElementMap[name](newValue);
-    }
-  }
-
-  blockPageReload() {
-    window.onbeforeunload = function (e) {
-      e.preventDefault();
-      e.returnValue = '';
-    };
-  }
-
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
   updateButtons() {
     Object.keys(this.buttons).forEach((buttonType) => {

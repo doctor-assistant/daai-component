@@ -1,9 +1,10 @@
 import { StartAnimationRecording } from "./Animations.js";
+import { blockPageReload } from "./blockPageReload.js";
 import { getFormattedRecordingTime } from "./Clock.js";
 import { saveAudioToIndexDB, useIndexDB } from "./SaveAudio.js";
 
 export async function startRecording() {
-  this.blockPageReload()
+  blockPageReload()
   if (this.intervalId) {
     clearInterval(this.intervalId);
   }
