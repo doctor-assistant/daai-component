@@ -233,10 +233,6 @@ class DaaiBadge extends HTMLElement {
       font-weight: 600;
       color: #000000;
     }
-    .icons {
-      width: 50px;
-      height: 60px;
-    }
   ;
   `;
 
@@ -249,7 +245,6 @@ class DaaiBadge extends HTMLElement {
     this.logo = document.createElement('img');
     this.recorderBox.appendChild(this.logo);
     this.logo.alt = 'daai-logo';
-    this.logo.classList.add('icons');
     this.recorderBox.appendChild(this.logo);
 
     this.status = 'waiting';
@@ -342,8 +337,9 @@ class DaaiBadge extends HTMLElement {
     const intervalDuration = 5400000
     const randomNumber = Math.random();
     logoElement.src = originalIcon;
+
     setInterval(() => {
-      if (logoElement && randomNumber < 0.8) {
+      if (logoElement && randomNumber < 0.1) {
         logoElement.src = easterEggIcon;
         setTimeout(() => {
           logoElement.src = originalIcon;
@@ -353,9 +349,6 @@ class DaaiBadge extends HTMLElement {
 
     return originalIcon
   }
-
-
-
 
   async checkPermissionsAndLoadDevices() {
     try {
@@ -419,7 +412,6 @@ class DaaiBadge extends HTMLElement {
         select.addEventListener('change', () => {
           this.currentDeviceId = select.value;
         });
-
         // Lógica para fechar o modal
         const closeModal = this.modal.querySelector('#close-modal');
         closeModal.addEventListener('click', () => {
@@ -443,88 +435,148 @@ class DaaiBadge extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return [
-      'icon',
-      'button-start-recording-color',
-      'button-recording-color',
-      'button-pause-color',
-      'button-resume-color',
-      'border-color',
-      'animation-recording-color',
-      'animation-paused-color',
-      'text-badge-color',
-    ];
+    return ['theme', 'onSucess', 'onError', 'ApiKey'];
   }
 
-
   connectedCallback() {
-    if (!this.hasAttribute('icon')) this.setAttribute('icon', this.initializeEasterEgg());
-      // this.initializeEasterEgg();
-    if (!this.hasAttribute('button-start-recording-color'))
-      this.setAttribute('button-start-recording-color', '#009CB1');
-    if (!this.hasAttribute('button-recording-color'))
-      this.setAttribute('button-recording-color', '#F43F5E');
-    if (!this.hasAttribute('button-pause-color'))
-      this.setAttribute('button-pause-color', '#F43F5E');
-    if (!this.hasAttribute('button-resume-color'))
-      this.setAttribute('button-resume-color', '#009CB1');
-    if (!this.hasAttribute('border-color')) {
-      this.setAttribute('border-color', '#009CB1');
+    const defaultTheme = {
+        icon:this.getAttribute('icon') || this.initializeEasterEgg(),
+        buttonStartRecordingColor: '#009CB1',
+        buttonRecordingColor: '#F43F5E',
+        buttonPauseColor: '#F43F5E',
+        buttonResumeColor: '#009CB1',
+        borderColor: '#009CB1',
+        animationRecordingColor: '#F43F5E',
+        animationPausedColor: '#009CB1',
+        textBadgeColor: '#009CB1',
+    };
+
+    const themeAttr = this.getAttribute('theme');
+    if (themeAttr) {
+        this.theme = { ...defaultTheme, ...this.parseThemeAttribute(themeAttr) };
+    } else {
+        this.theme = defaultTheme;
     }
-    if (!this.hasAttribute('animation-recording-color'))
-      this.setAttribute('animation-recording-color', '#F43F5E');
-    if (!this.hasAttribute('text-badge-color'))
-      this.setAttribute('text-badge-color', '#009CB1');
-    if (!this.hasAttribute('animation-paused-color'))
-      this.setAttribute('animation-paused-color', '#009CB1');
+    this.applyThemeAttributes();
+}
+
+  parseThemeAttribute(themeAttr) {
+    try {
+      return JSON.parse(themeAttr);
+    } catch (e) {
+      console.error('Erro ao analisar o atributo `theme`:', e);
+      return {};
+    }
+  }
+
+  applyThemeAttributes() {
+    Object.keys(this.theme).forEach((key) => {
+        const attributeKey = this.toKebabCase(key);
+        if (!this.hasAttribute(attributeKey)) {
+            this.setAttribute(attributeKey, this.theme[key]);
+        }
+        // Aplique o estilo correspondente, se houver um elemento
+        const attributeToElementMap = {
+            'icon': (value) => {
+                const img = this.shadowRoot.querySelector('img');
+                if (img) img.src = value;
+            },
+            'button-start-recording-color': (value) => {
+                const buttonPrimary = this.shadowRoot.querySelector('.button-primary');
+                if (buttonPrimary) buttonPrimary.style.backgroundColor = value;
+            },
+            'button-recording-color': (value) => {
+                const buttonRecording = this.shadowRoot.querySelector('.button-recording');
+                if (buttonRecording) buttonRecording.style.backgroundColor = value;
+            },
+            'button-pause-color': (value) => {
+                const buttonPause = this.shadowRoot.querySelector('.button-pause');
+                if (buttonPause) buttonPause.style.backgroundColor = value;
+            },
+            'button-resume-color': (value) => {
+                const buttonResume = this.shadowRoot.querySelector('.button-resume');
+                if (buttonResume) buttonResume.style.backgroundColor = value;
+            },
+            'border-color': (value) => {
+                const recorderBox = this.shadowRoot.querySelector('.recorder-box');
+                if (recorderBox) recorderBox.style.borderColor = value;
+            },
+            'animation-recording-color': (value) => {
+                const animatedRecordingElement = this.shadowRoot.querySelector('.animated-recording-element');
+                if (animatedRecordingElement) animatedRecordingElement.style.animationColor = value;
+            },
+            'animation-paused-color': (value) => {
+                const animatedPausedElement = this.shadowRoot.querySelector('.animated-paused-element');
+                if (animatedPausedElement) animatedPausedElement.style.animationColor = value;
+            },
+            'text-badge-color': (value) => {
+                this.style.setProperty('--text-badge-color', value);
+            },
+        };
+
+        // Verifique se o atributo está no mapa e aplique
+        if (attributeToElementMap[attributeKey]) {
+            attributeToElementMap[attributeKey](this.theme[key]);
+        }
+    });
+}
+
+  toKebabCase(camelCase) {
+    return camelCase.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    const shadowRoot = this.shadowRoot;
-    switch (name) {
-      case 'icon':
-        const img = shadowRoot.querySelector('img');
-        if (img) img.src = newValue;
-        break;
-      case 'button-start-recording-color':
-        const buttonPrimary = shadowRoot.querySelector('.button-primary');
-        if (buttonPrimary) buttonPrimary.style.backgroundColor = newValue;
-        break;
-      case 'button-recording-color':
-        const buttonRecording = shadowRoot.querySelector('.button-recording');
-        if (buttonRecording) buttonRecording.style.backgroundColor = newValue;
-        break;
-      case 'button-pause-color':
-        const buttonPause = shadowRoot.querySelector('.button-pause');
-        if (buttonPause) buttonPause.style.backgroundColor = newValue;
-        break;
-      case 'button-resume-color':
-        const buttonResume = shadowRoot.querySelector('.button-resume');
-        if (buttonResume) buttonResume.style.backgroundColor = newValue;
-        break;
-      case 'border-color':
-        const recorderBox = shadowRoot.querySelector('.recorder-box');
-        if (recorderBox) recorderBox.style.borderColor = newValue;
-        break;
-      case 'animation-recording-color':
-        const animatedRecordingElement = shadowRoot.querySelector(
-          '.animated-recording-element'
-        );
-        if (animatedRecordingElement)
-          animatedRecordingElement.style.animationColor = newValue;
-        break;
-      case 'animation-paused-color':
-        const animatedPausedElement = shadowRoot.querySelector(
-          '.animated-paused-element'
-        );
-        if (animatedPausedElement)
-          animatedPausedElement.style.animationColor = newValue;
-        break;
-        case 'text-badge-color':
-          this.style.setProperty('--text-badge-color', newValue);
-          break;
+    console.log(`Atributo modificado: ${name}, Novo valor: ${newValue}`);
+    if (name === 'theme') {
+      this.theme = this.parseThemeAttribute(newValue);
+      this.applyThemeAttributes();
+      return;
+    }
+    // Mapeamento de atributos para elementos e estilos
+    const attributeToElementMap = {
+      icon: (value) => {
+        const img = this.shadowRoot.querySelector('img');
+        if (img) img.src = value;
+      },
+      'button-start-recording-color': (value) => {
+        const buttonPrimary = this.shadowRoot.querySelector('.button-primary');
+        if (buttonPrimary) buttonPrimary.style.backgroundColor = value;
+      },
+      'button-recording-color': (value) => {
+        const buttonRecording = this.shadowRoot.querySelector('.button-recording');
+        if (buttonRecording) buttonRecording.style.backgroundColor = value;
+      },
+      'button-pause-color': (value) => {
+        const buttonPause = this.shadowRoot.querySelector('.button-pause');
+        if (buttonPause) buttonPause.style.backgroundColor = value;
+      },
+      'button-resume-color': (value) => {
+        const buttonResume = this.shadowRoot.querySelector('.button-resume');
+        if (buttonResume) buttonResume.style.backgroundColor = value;
+      },
+      'border-color': (value) => {
+        const recorderBox = this.shadowRoot.querySelector('.recorder-box');
+        if (recorderBox) recorderBox.style.borderColor = value;
+      },
+      'animation-recording-color': (value) => {
+        const animatedRecordingElement = this.shadowRoot.querySelector('.animated-recording-element');
+        if (animatedRecordingElement) animatedRecordingElement.style.animationColor = value;
+      },
+      'animation-paused-color': (value) => {
+        const animatedPausedElement = this.shadowRoot.querySelector('.animated-paused-element');
+        if (animatedPausedElement) animatedPausedElement.style.animationColor = value;
+      },
+      'text-badge-color': (value) => {
+        this.style.setProperty('--text-badge-color', value);
+      },
+    };
+
+    // Executa a função associada ao atributo modificado, se existir
+    if (attributeToElementMap[name]) {
+      attributeToElementMap[name](newValue);
     }
   }
+
 
   blockPageReload() {
     window.onbeforeunload = function (e) {
@@ -532,9 +584,6 @@ class DaaiBadge extends HTMLElement {
       e.returnValue = '';
     };
   }
-
-
-
 
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
   updateButtons() {
@@ -762,17 +811,17 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
-  // useIndexDB(dbName, version){
-  //   return new Promise((resolve, reject) => {
-  //     const request = indexedDB.open(dbName, version);
-  //     request.onerror = function(event) {
-  //       reject('indexDB ', event.target.errorCode);
-  //     };
-  //     request.onsuccess = function(event) {
-  //       resolve(event.target.result);
-  //     };
-  //   });
-  // }
+   useIndexDB(dbName, version){
+     return new Promise((resolve, reject) => {
+       const request = indexedDB.open(dbName, version);
+       request.onerror = function(event) {
+         reject('indexDB ', event.target.errorCode);
+       };
+       request.onsuccess = function(event) {
+         resolve(event.target.result);
+       };
+     });
+   }
 
 
   finishRecording() {
@@ -797,7 +846,7 @@ class DaaiBadge extends HTMLElement {
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
 
-            uploadAudio(audioBlob, '123', '123', '123');
+            uploadAudio(audioBlob);
 
             audio.play();
             console.log(audio, 'audio gerado');

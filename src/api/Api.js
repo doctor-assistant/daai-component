@@ -6,7 +6,6 @@ export async function uploadAudio(audioBlob) {
 // external_id
 // provide_id e o token - header x-daai-api-key
   const requestBody = {
-      id: '123',
       audio: base64Audio
   };
 
