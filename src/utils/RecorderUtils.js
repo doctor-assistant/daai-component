@@ -2,8 +2,6 @@ import { StartAnimationRecording } from "./Animations.js";
 import { getFormattedRecordingTime } from "./Clock.js";
 import { saveAudioToIndexDB, useIndexDB } from "./SaveAudio.js";
 
-
-
 export async function startRecording() {
   this.blockPageReload()
   if (this.intervalId) {
