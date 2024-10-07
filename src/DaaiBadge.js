@@ -1,6 +1,4 @@
-import { uploadAudio } from './api/Api.js';
 import {
-  DAAI_LOGO,
   GEAR,
   MICROPHONE_ICON,
   PAUSE_ICON,
@@ -13,6 +11,7 @@ import {
 } from './utils/Animations.js';
 import { getFormattedRecordingTime } from './utils/Clock.js';
 import { createButton } from './utils/CreateButtons.js';
+import { initializeEasterEgg } from './utils/EasterEgg.js';
 
 
 class DaaiBadge extends HTMLElement {
@@ -330,26 +329,6 @@ class DaaiBadge extends HTMLElement {
     await this.checkPermissionsAndLoadDevices();
   }
 
-  initializeEasterEgg() {
-    const logoElement = this.shadowRoot.querySelector('img');
-    const originalIcon = DAAI_LOGO;
-    const easterEggIcon = 'src/icons/animation.gif';
-    const intervalDuration = 5400000
-    const randomNumber = Math.random();
-    logoElement.src = originalIcon;
-
-    setInterval(() => {
-      if (logoElement && randomNumber < 0.1) {
-        logoElement.src = easterEggIcon;
-        setTimeout(() => {
-          logoElement.src = originalIcon;
-        }, 5000);
-      }
-    }, intervalDuration);
-
-    return originalIcon
-  }
-
   async checkPermissionsAndLoadDevices() {
     try {
       // Verificar o estado da permissão do microfone
@@ -435,12 +414,13 @@ class DaaiBadge extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['theme', 'onSucess', 'onError', 'ApiKey'];
+    return ['theme', 'onSuccess', 'onError', 'ApiKey'];
   }
 
   connectedCallback() {
+    const logoElement = this.shadowRoot.querySelector('img');
     const defaultTheme = {
-        icon:this.getAttribute('icon') || this.initializeEasterEgg(),
+        icon:this.getAttribute('icon') || initializeEasterEgg(logoElement),
         buttonStartRecordingColor: '#009CB1',
         buttonRecordingColor: '#F43F5E',
         buttonPauseColor: '#F43F5E',
@@ -475,7 +455,6 @@ class DaaiBadge extends HTMLElement {
         if (!this.hasAttribute(attributeKey)) {
             this.setAttribute(attributeKey, this.theme[key]);
         }
-        // Aplique o estilo correspondente, se houver um elemento
         const attributeToElementMap = {
             'icon': (value) => {
                 const img = this.shadowRoot.querySelector('img');
@@ -513,8 +492,6 @@ class DaaiBadge extends HTMLElement {
                 this.style.setProperty('--text-badge-color', value);
             },
         };
-
-        // Verifique se o atributo está no mapa e aplique
         if (attributeToElementMap[attributeKey]) {
             attributeToElementMap[attributeKey](this.theme[key]);
         }
@@ -532,7 +509,6 @@ class DaaiBadge extends HTMLElement {
       this.applyThemeAttributes();
       return;
     }
-    // Mapeamento de atributos para elementos e estilos
     const attributeToElementMap = {
       icon: (value) => {
         const img = this.shadowRoot.querySelector('img');
@@ -570,8 +546,6 @@ class DaaiBadge extends HTMLElement {
         this.style.setProperty('--text-badge-color', value);
       },
     };
-
-    // Executa a função associada ao atributo modificado, se existir
     if (attributeToElementMap[name]) {
       attributeToElementMap[name](newValue);
     }
@@ -811,60 +785,99 @@ class DaaiBadge extends HTMLElement {
     }
   }
 
-   useIndexDB(dbName, version){
-     return new Promise((resolve, reject) => {
-       const request = indexedDB.open(dbName, version);
-       request.onerror = function(event) {
-         reject('indexDB ', event.target.errorCode);
-       };
-       request.onsuccess = function(event) {
-         resolve(event.target.result);
-       };
-     });
-   }
+  useIndexDB(dbName, version) {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(dbName, version);
 
+      request.onerror = function(event) {
+        reject('Erro ao abrir o IndexedDB:', event.target.errorCode);
+  };
 
-  finishRecording() {
+      request.onsuccess = function(event) {
+        resolve(event.target.result);
+      };
+
+      request.onupgradeneeded = function(event) {
+        const db = event.target.result;
+        // Criação de um object store (se ainda não existir)
+        if (!db.objectStoreNames.contains('audioFiles')) {
+          db.createObjectStore('audioFiles', { keyPath: 'id', autoIncrement: true });
+        }
+      };
+    });
+  }
+
+  saveAudioToIndexDB(db, audioBlob) {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['audioFiles'], 'readwrite');
+      const objectStore = transaction.objectStore('audioFiles');
+
+      const audioData = {
+        blob: audioBlob,
+        date: new Date().toISOString(),
+        name: `Audio-${new Date().toISOString()}`
+      };
+
+      const request = objectStore.add(audioData);
+
+      request.onsuccess = () => {
+        console.log('Áudio salvo no IndexedDB com sucesso!');
+        resolve(request.result);
+      };
+
+      request.onerror = (event) => {
+        console.error('Erro ao salvar o áudio no IndexedDB:', event.target.errorCode);
+        reject(event.target.errorCode);
+      };
+    });
+  }
+
+finishRecording() {
     if (this.mediaRecorder) {
-        this.mediaRecorder.stop();
-        this.status = 'finished';
-        // const formData = new FormData();
-        // formData.append("file", file);
-        let audioChunks = [];
-        this.mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                audioChunks.push(event.data);
-            }
-        };
+      this.mediaRecorder.stop();
+      this.status = 'finished';
+      let audioChunks = [];
 
-        this.mediaRecorder.onstop = () => {
-            // Combina os chunks em um blob
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            console.log(audioBlob, 'Generated audio blob');
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
 
-            // Cria uma URL para o blob
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
+      this.mediaRecorder.onstop = async () => {
+        // Combina os chunks em um blob
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        console.log(audioBlob, 'Generated audio blob');
 
-            uploadAudio(audioBlob);
+        // Cria uma URL para o blob
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+        console.log(audio, 'audio gerado');
 
-            audio.play();
-            console.log(audio, 'audio gerado');
+        // Conectando ao banco de dados e salvando o áudio
+        try {
+          const db = await this.useIndexDB('AudioDatabase', 1);
+          await this.saveAudioToIndexDB(db, audioBlob);
+          console.log('chegouu')
+        } catch (error) {
+          console.error('Erro ao salvar áudio no IndexedDB:', error);
+        }
 
-            this.statusText.classList.add('text-finish');
-            this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
-            this.updateButtons();
+        this.statusText.classList.add('text-finish');
+        this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
+        this.updateButtons();
 
-            setTimeout(() => {
-                this.status = 'upload';
-                this.statusText.classList.remove('text-finish');
-                this.statusText.classList.add('text-upload');
-                this.statusText.textContent = 'Relatório finalizado!';
-                this.recordingTime = 0;
-                getFormattedRecordingTime(this.recordingTime);
-                this.updateButtons();
-            }, 10000);
-        };
+        setTimeout(() => {
+          this.status = 'upload';
+          this.statusText.classList.remove('text-finish');
+          this.statusText.classList.add('text-upload');
+          this.statusText.textContent = 'Relatório finalizado!';
+          this.recordingTime = 0;
+          getFormattedRecordingTime(this.recordingTime);
+          this.updateButtons();
+        }, 10000);
+      };
     }
 }
 }
