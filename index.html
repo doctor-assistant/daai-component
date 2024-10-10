@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daai</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
 </head>
 
 <!-- theme='{"icon": "path/to/icon.png", "buttonStartRecordingColor": "#0600b1", "buttonRecordingColor": "#0600b1",
@@ -13,10 +14,7 @@
 "#0600b1", "animationPausedColor": "#0600b1", "textBadgeColor": "#0600b1"}' -->
 
 <body>
-  <daai-badge onSuccess={} onError={} theme='{"icon": "path/to/icon.png", "buttonStartRecordingColor": "#0600b1", "buttonRecordingColor": "#0600b1",
-  "buttonPauseColor": "#0600b1", "buttonResumeColor": "#0600b1", "borderColor": "#0600b1", "animationRecordingColor":
-  "#0600b1", "animationPausedColor": "#0600b1", "textBadgeColor": "#0600b1"}'></daai-badge>
-
+  <daai-badge onSuccess={} onError={}  apiKey='123456'></daai-badge>
   <script type="module" src="src/DaaiBadge.js"></script>
 </body>
 

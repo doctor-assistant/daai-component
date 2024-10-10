@@ -1,10 +1,15 @@
-import { StartAnimationRecording } from "./Animations.js";
-import { blockPageReload } from "./blockPageReload.js";
-import { getFormattedRecordingTime } from "./Clock.js";
-import { saveAudioToIndexDB, useIndexDB } from "./SaveAudio.js";
+import { uploadAudio } from '../api/Api.js';
+import { StartAnimationRecording } from './Animations.js';
+import { blockPageReload } from './BlockPageReload.js';
+import { getFormattedRecordingTime } from './Clock.js';
+import {
+  getAudioFromIndexDB,
+  saveAudioToIndexDB,
+  useIndexDB,
+} from './SaveAudio.js';
 
 export async function startRecording() {
-  blockPageReload()
+  blockPageReload();
   if (this.intervalId) {
     clearInterval(this.intervalId);
   }
@@ -24,7 +29,8 @@ export async function startRecording() {
     this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      this.audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
     }
 
     // Cria a fonte de áudio a partir do stream
@@ -58,7 +64,9 @@ export async function startRecording() {
       // Inicia o contador
       this.intervalId = setInterval(() => {
         this.recordingTime++;
-        this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
+        this.timerElement.innerText = getFormattedRecordingTime(
+          this.recordingTime
+        );
       }, 1000);
     };
 
@@ -75,7 +83,9 @@ export async function startRecording() {
     this.updateButtons();
 
     // Obtém as cores de animação
-    const animationRecordingColor = this.getAttribute('animation-recording-color');
+    const animationRecordingColor = this.getAttribute(
+      'animation-recording-color'
+    );
     const animationPausedColor = this.getAttribute('animation-paused-color');
 
     // Inicia a animação de gravação com as cores definidas
@@ -126,12 +136,13 @@ export function pauseRecording() {
   }
 }
 
-
 export function finishRecording() {
   if (this.mediaRecorder) {
     this.mediaRecorder.stop();
     this.status = 'finished';
     let audioChunks = [];
+
+    console.log('apiKey', this.apikey);
 
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -144,23 +155,40 @@ export function finishRecording() {
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
       console.log(audioBlob, 'Generated audio blob');
 
-      // Cria uma URL para o blob
+      // Cria uma URL para o blob e reproduz o áudio
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       audio.play();
       console.log(audio, 'audio gerado');
 
-      // Conectando ao banco de dados e salvando o áudio
       try {
+        // Conectando ao banco de dados e salvando o áudio
         const db = await useIndexDB('AudioDatabase', 1);
         await saveAudioToIndexDB(db, audioBlob);
-        console.log('chegouu')
+
+        // Recupera os áudios armazenados após salvar o novo
+        const storedAudios = await getAudioFromIndexDB(db);
+        console.log('Áudios armazenados no IndexedDB:', storedAudios);
+
+        // Reproduz os áudios recuperados (apenas como exemplo)
+        storedAudios.forEach((storedAudio) => {
+          console.log(`Nome: ${storedAudio.name}, Data: ${storedAudio.date}`);
+          const storedAudioElement = new Audio(storedAudio.url);
+
+          console.log('#### storedAudioElement ###', storedAudioElement);
+
+          storedAudioElement.play();
+
+          uploadAudio(storedAudioElement, this.apiKey);
+        });
       } catch (error) {
-        console.error('Erro ao salvar áudio no IndexedDB:', error);
+        console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }
 
+      // Atualização de status da interface e botões
       this.statusText.classList.add('text-finish');
-      this.statusText.textContent = 'Aguarde enquanto geramos o relatório final...';
+      this.statusText.textContent =
+        'Aguarde enquanto geramos o relatório final...';
       this.updateButtons();
 
       setTimeout(() => {
@@ -173,37 +201,41 @@ export function finishRecording() {
         this.updateButtons();
       }, 10000);
     };
-  }}
-
-
-  export function resumeRecording() {
-    if (this.mediaRecorder && this.mediaRecorder.state === 'paused') {
-      this.mediaRecorder.resume();
-      this.status = 'recording';
-
-      // Reinicia o timer
-      this.intervalId = setInterval(() => {
-        this.recordingTime++;
-        this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
-      }, 1000);
-
-      // Mantém o ganho em 0 para não reproduzir o áudio
-      if (this.gainNode) {
-        this.gainNode.gain.value = 0;
-      }
-
-      const animationRecordingColor = this.getAttribute('animation-recording-color');
-      const animationPausedColor = this.getAttribute('animation-paused-color');
-
-      StartAnimationRecording(
-        this.analyser,
-        new Uint8Array(this.analyser.frequencyBinCount),
-        this.analyser.frequencyBinCount,
-        this.canvas,
-        this.status,
-        animationRecordingColor,
-        animationPausedColor
-      );
-      this.updateButtons();
-    }
   }
+}
+
+export function resumeRecording() {
+  if (this.mediaRecorder && this.mediaRecorder.state === 'paused') {
+    this.mediaRecorder.resume();
+    this.status = 'recording';
+
+    // Reinicia o timer
+    this.intervalId = setInterval(() => {
+      this.recordingTime++;
+      this.timerElement.innerText = getFormattedRecordingTime(
+        this.recordingTime
+      );
+    }, 1000);
+
+    // Mantém o ganho em 0 para não reproduzir o áudio
+    if (this.gainNode) {
+      this.gainNode.gain.value = 0;
+    }
+
+    const animationRecordingColor = this.getAttribute(
+      'animation-recording-color'
+    );
+    const animationPausedColor = this.getAttribute('animation-paused-color');
+
+    StartAnimationRecording(
+      this.analyser,
+      new Uint8Array(this.analyser.frequencyBinCount),
+      this.analyser.frequencyBinCount,
+      this.canvas,
+      this.status,
+      animationRecordingColor,
+      animationPausedColor
+    );
+    this.updateButtons();
+  }
+}

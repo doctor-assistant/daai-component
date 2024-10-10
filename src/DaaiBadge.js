@@ -3,14 +3,22 @@ import {
   MICROPHONE_ICON,
   PAUSE_ICON,
   RECORDING_ICON,
-  RESUME_ICON
+  RESUME_ICON,
 } from './icons/icons.js';
-import { blockPageReload } from './utils/blockPageReload.js';
-import { checkPermissionsAndLoadDevices } from './utils/CheckPermissions.js';
-import { applyThemeAttributes, parseThemeAttribute } from './utils/ComponentProps.js';
-import { createButton } from './utils/CreateButtons.js';
-import { initializeEasterEgg } from './utils/EasterEgg.js';
-import { finishRecording, pauseRecording, resumeRecording, startRecording } from './utils/RecorderUtils.js';
+import { blockPageReload } from './scripts/BlockPageReload.js';
+import { checkPermissionsAndLoadDevices } from './scripts/CheckPermissions.js';
+import {
+  applyThemeAttributes,
+  parseThemeAttribute,
+} from './scripts/ComponentProps.js';
+import { createButton } from './scripts/CreateButtons.js';
+import { initializeEasterEgg } from './scripts/EasterEgg.js';
+import {
+  finishRecording,
+  pauseRecording,
+  resumeRecording,
+  startRecording,
+} from './scripts/RecorderUtils.js';
 
 class DaaiBadge extends HTMLElement {
   constructor() {
@@ -27,7 +35,8 @@ class DaaiBadge extends HTMLElement {
     this.recordingTime = 0;
     this.intervalId = null;
     this.easterEggTimeoutId = null;
-    blockPageReload()
+    this.apiKey = '';
+    this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
     const shadow = this.attachShadow({ mode: 'open' });
     // Aqui criamos o style
@@ -73,12 +82,7 @@ class DaaiBadge extends HTMLElement {
         '',
         this.openMicrophoneModal.bind(this)
       ),
-      pause: createButton(
-        'pause',
-        PAUSE_ICON,
-        '',
-        pauseRecording.bind(this)
-      ),
+      pause: createButton('pause', PAUSE_ICON, '', pauseRecording.bind(this)),
       start: createButton(
         'start',
         MICROPHONE_ICON,
@@ -134,7 +138,7 @@ class DaaiBadge extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['theme', 'onSuccess', 'onError', 'ApiKey'];
+    return ['theme', 'onSuccess', 'onError', 'apiKey'];
   }
 
   connectedCallback() {
@@ -158,6 +162,16 @@ class DaaiBadge extends HTMLElement {
       this.theme = defaultTheme;
     }
     applyThemeAttributes(this.theme, this);
+    this.apiKey = this.getAttribute('apikey');
+    this.onSuccess = this.getAttribute('onSuccess')
+      ? new Function('return ' + this.getAttribute('onSuccess'))()
+      : null;
+    this.onError = this.getAttribute('onError')
+      ? new Function('return ' + this.getAttribute('onError'))()
+      : null;
+
+    console.log('Função de sucesso definida:', this.onSuccess);
+    console.log('Função de erro definida:', this.onError);
   }
 
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
