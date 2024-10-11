@@ -1,4 +1,4 @@
-import { StartAnimationMicTest } from "./Animations.js";
+import { StartAnimationMicTest } from './Animations.js';
 
 export async function checkPermissionsAndLoadDevices(context) {
   try {
@@ -8,7 +8,6 @@ export async function checkPermissionsAndLoadDevices(context) {
       name: 'microphone',
     });
 
-    // Certifique-se de que statusText e canvas são válidos
     if (!context.statusText || !context.canvas) {
       console.error('Elementos necessários não encontrados no DOM.');
       return;
@@ -71,7 +70,10 @@ export async function checkPermissionsAndLoadDevices(context) {
       console.warn('Nenhum dispositivo de áudio encontrado.');
     }
   } catch (error) {
-    console.error('Erro ao verificar permissões ou carregar dispositivos:', error);
+    console.error(
+      'Erro ao verificar permissões ou carregar dispositivos:',
+      error
+    );
     if (context.statusText) {
       context.statusText.classList.add('text-waiting-mic-aprove');
       context.statusText.textContent =

@@ -12,7 +12,6 @@ export function useIndexDB(dbName, version) {
 
     request.onupgradeneeded = function (event) {
       const db = event.target.result;
-      // Criação de um object store (se ainda não existir)
       if (!db.objectStoreNames.contains('audioFiles')) {
         db.createObjectStore('audioFiles', {
           keyPath: 'id',
@@ -29,7 +28,6 @@ export function saveAudioToIndexDB(db, audioBlob) {
     const partSize = Math.ceil(audioBlob.size / numberOfParts);
     const audioParts = [];
 
-    // Dividindo o audioBlob em 4 partes iguais
     for (let i = 0; i < numberOfParts; i++) {
       const start = i * partSize;
       const end = Math.min(start + partSize, audioBlob.size);
@@ -37,17 +35,15 @@ export function saveAudioToIndexDB(db, audioBlob) {
       audioParts.push(audioPart);
     }
 
-    // Transação para acessar o object store e remover as últimas 4 gravações
     const transaction = db.transaction(['audioFiles'], 'readwrite');
     const objectStore = transaction.objectStore('audioFiles');
 
-    // Passo 1: Remover as últimas quatro gravações
     const deleteOldRecords = new Promise((resolve, reject) => {
       const request = objectStore.getAll();
 
       request.onsuccess = () => {
         const allRecords = request.result;
-        const recordsToDelete = allRecords.slice(-4); // Seleciona as últimas quatro gravações
+        const recordsToDelete = allRecords.slice(-4);
 
         let deletePromises = recordsToDelete.map((record) => {
           return new Promise((resolve, reject) => {
@@ -77,7 +73,6 @@ export function saveAudioToIndexDB(db, audioBlob) {
       };
     });
 
-    // Passo 2: Inserir as novas partes de áudio
     deleteOldRecords
       .then(() => {
         let savePromises = [];
@@ -139,9 +134,8 @@ export function getAudioFromIndexDB(db) {
         return;
       }
 
-      // Agrupar os áudios por data (presume que partes da mesma gravação possuem a mesma data)
       const groupedByDate = allAudioFiles.reduce((acc, record) => {
-        const dateKey = record.date.split('T')[0]; // Usa apenas a data como chave (ignora o horário)
+        const dateKey = record.date.split('T')[0];
         if (!acc[dateKey]) {
           acc[dateKey] = [];
         }
@@ -149,12 +143,9 @@ export function getAudioFromIndexDB(db) {
         return acc;
       }, {});
 
-      // Combina as partes de cada gravação em um único blob
       const combinedAudios = Object.values(groupedByDate).map((audioParts) => {
-        // Ordena as partes por nome para garantir a ordem correta
         audioParts.sort((a, b) => a.name.localeCompare(b.name));
 
-        // Combina os blobs das partes de áudio em um único blob
         const combinedBlob = new Blob(
           audioParts.map((part) => part.blob),
           { type: 'audio/webm' }
@@ -165,7 +156,7 @@ export function getAudioFromIndexDB(db) {
           name: `Combined-Audio-${audioParts[0].date}`,
           date: audioParts[0].date,
           blob: combinedBlob,
-          url: URL.createObjectURL(combinedBlob), // Cria um URL temporário para playback
+          url: URL.createObjectURL(combinedBlob),
         };
       });
 

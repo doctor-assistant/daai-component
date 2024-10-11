@@ -36,6 +36,9 @@ class DaaiBadge extends HTMLElement {
     this.intervalId = null;
     this.easterEggTimeoutId = null;
     this.apiKey = '';
+    this.onError = '';
+    this.onSuccess = '';
+
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
     const shadow = this.attachShadow({ mode: 'open' });
@@ -166,6 +169,7 @@ class DaaiBadge extends HTMLElement {
     this.onSuccess = this.getAttribute('onSuccess')
       ? new Function('return ' + this.getAttribute('onSuccess'))()
       : null;
+
     this.onError = this.getAttribute('onError')
       ? new Function('return ' + this.getAttribute('onError'))()
       : null;
@@ -176,60 +180,36 @@ class DaaiBadge extends HTMLElement {
 
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
   updateButtons() {
+    const buttonVisibilityMap = {
+      waiting: { visible: ['start'], disabled: ['start'] },
+      micTest: {
+        visible: ['start', 'pause', 'changeMicrophone'],
+        disabled: ['pause'],
+      },
+      paused: { visible: ['pause', 'resume'], disabled: ['pause'] },
+      recording: { visible: ['pause', 'finish'], disabled: [] },
+      finished: { visible: [], disabled: [] },
+      upload: { visible: ['upload'], disabled: [] },
+    };
+
+    const { visible = [], disabled = [] } =
+      buttonVisibilityMap[this.status] || {};
+
     Object.keys(this.buttons).forEach((buttonType) => {
       const button = this.buttons[buttonType];
-      if (
-        this.status === 'finished' ||
-        this.status === 'waiting' ||
-        this.status === 'upload'
-      ) {
+
+      if (visible.includes(buttonType)) {
+        button.classList.remove('hidden');
+      } else {
+        button.classList.add('hidden');
+      }
+      button.disabled = disabled.includes(buttonType);
+      if (['finished', 'waiting', 'upload'].includes(this.status)) {
         this.canvas.classList.add('hidden');
         this.timerElement.classList.add('hidden');
       } else {
         this.canvas.classList.remove('hidden');
         this.timerElement.classList.remove('hidden');
-      }
-      switch (this.status) {
-        case 'waiting':
-          buttonType === 'start'
-            ? button.classList.remove('hidden')
-            : button.classList.add('hidden');
-          button.disabled = true;
-          this.canvas.classList.remove('hidden');
-          break;
-        case 'micTest':
-          buttonType === 'start' ||
-          buttonType === 'pause' ||
-          buttonType === 'changeMicrophone'
-            ? button.classList.remove('hidden')
-            : button.classList.add('hidden');
-          button.disabled = buttonType === 'pause';
-          this.canvas.classList.remove('hidden');
-          break;
-        case 'paused':
-          buttonType === 'pause' || buttonType === 'resume'
-            ? button.classList.remove('hidden')
-            : button.classList.add('hidden');
-          button.disabled = this.status === 'paused' && buttonType === 'pause';
-          break;
-        case 'recording':
-          buttonType === 'pause' || buttonType === 'finish'
-            ? button.classList.remove('hidden')
-            : button.classList.add('hidden');
-          button.disabled = false;
-          break;
-        case 'finished':
-          buttonType === ''
-            ? button.classList.remove('hidden')
-            : button.classList.add('hidden');
-          button.disabled = false;
-          break;
-        case 'upload':
-          buttonType === 'upload'
-            ? button.classList.remove('hidden')
-            : button.classList.add('hidden');
-          button.disabled = false;
-          break;
       }
     });
   }

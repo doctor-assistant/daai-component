@@ -1,9 +1,9 @@
-import { DAAI_LOGO } from "../icons/icons.js";
+import { DAAI_LOGO } from '../icons/icons.js';
 
 export function initializeEasterEgg(logoElement) {
   const originalIcon = DAAI_LOGO;
   const easterEggIcon = 'src/icons/animation.gif';
-  const intervalDuration = 5400000
+  const intervalDuration = 5400000;
   const randomNumber = Math.random();
   logoElement.src = originalIcon;
 
@@ -16,5 +16,5 @@ export function initializeEasterEgg(logoElement) {
     }
   }, intervalDuration);
 
-  return originalIcon
+  return originalIcon;
 }
