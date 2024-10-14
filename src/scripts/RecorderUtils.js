@@ -2,6 +2,7 @@ import { uploadAudio } from '../api/Api.js';
 import { StartAnimationRecording } from './Animations.js';
 import { blockPageReload } from './BlockPageReload.js';
 import { getFormattedRecordingTime } from './Clock.js';
+import { professionalDb } from './IndexDb.js';
 
 export async function startRecording() {
   blockPageReload();
@@ -13,6 +14,10 @@ export async function startRecording() {
   this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
 
   try {
+    await professionalDb.professional_info.add({
+      professionalId: this.professionalId,
+      specialty: this.specialty,
+    });
     const constraints = {
       audio: {
         deviceId: this.currentDeviceId
@@ -138,8 +143,7 @@ export function finishRecording() {
     let audioChunks = [];
 
     console.log('apiKey', this.apikey);
-    console.log('onSuccess', this.onSuccess);
-    console.log('onError', this.onError);
+    console.log('professionalId', this.professionalId);
 
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -151,6 +155,10 @@ export function finishRecording() {
       // Combina os chunks em um blob
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
       console.log(audioBlob, 'Generated audio blob');
+      await professionalDb.audio.add({
+        professionalId: this.professionalId,
+        audio: audioBlob,
+      });
 
       // Cria uma URL para o blob e reproduz o áudio
       const audioUrl = URL.createObjectURL(audioBlob);

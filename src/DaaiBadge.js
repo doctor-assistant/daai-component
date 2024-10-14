@@ -36,8 +36,10 @@ class DaaiBadge extends HTMLElement {
     this.intervalId = null;
     this.easterEggTimeoutId = null;
     this.apiKey = '';
-    this.onError = '';
-    this.onSuccess = '';
+    this.onSuccess = null;
+    this.onError = null;
+    this.professionalId = '';
+    this.specialty = 'neurologista';
 
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
@@ -47,7 +49,7 @@ class DaaiBadge extends HTMLElement {
 
     const linkElement = document.createElement('link');
     linkElement.setAttribute('rel', 'stylesheet');
-    linkElement.setAttribute('href', 'src/style.css');
+    linkElement.setAttribute('href', 'dist/style.css');
 
     shadow.appendChild(linkElement);
 
@@ -141,10 +143,18 @@ class DaaiBadge extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['theme', 'onSuccess', 'onError', 'apiKey'];
+    return ['theme', 'onSuccess', 'onError', 'apiKey', 'professionalId'];
   }
 
   connectedCallback() {
+    const successAttr = this.getAttribute('onSuccess');
+    const errorAttr = this.getAttribute('onError');
+    if (successAttr && typeof window[successAttr] === 'function') {
+      this.onSuccess = window[successAttr].bind(this);
+    }
+    if (errorAttr && typeof window[errorAttr] === 'function') {
+      this.onError = window[errorAttr].bind(this);
+    }
     const logoElement = this.shadowRoot.querySelector('img');
     const defaultTheme = {
       icon: this.getAttribute('icon') || initializeEasterEgg(logoElement),
@@ -166,6 +176,7 @@ class DaaiBadge extends HTMLElement {
     }
     applyThemeAttributes(this.theme, this);
     this.apiKey = this.getAttribute('apikey');
+    this.professionalId = this.getAttribute('professionalId');
     this.onSuccess = this.getAttribute('onSuccess')
       ? new Function('return ' + this.getAttribute('onSuccess'))()
       : null;
@@ -175,17 +186,17 @@ class DaaiBadge extends HTMLElement {
       : null;
   }
 
-  triggerSuccess() {
+  triggerSuccess(...params) {
     if (typeof this.onSuccess === 'function') {
-      console.log('Função de sucesso definida:', this.onSuccess);
-      this.onSuccess();
+      console.log('Função de sucesso executada com parâmetros:', params);
+      this.onSuccess(...params);
     }
   }
 
-  triggerError() {
+  triggerError(...params) {
     if (typeof this.onError === 'function') {
-      console.log('Função de erro definida:', this.onError);
-      this.onError();
+      console.log('Função de erro executada com parâmetros:', params);
+      this.onError(...params);
     }
   }
 
