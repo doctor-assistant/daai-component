@@ -1,10 +1,10 @@
 {
   "name": "@doctorassistant/daai-badge",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A custom web component for a recording badge.",
-  "main": "dist/daai-badge.js",
+  "main": "dist/DaaiBadge.js",
   "scripts": {
-    "build": "mkdir -p dist/utils && cp src/daai-badge.js dist/daai-badge.js && cp src/utils/animations.js dist/utils/animations.js && cp src/constants.js dist/constants.js",
+    "build": "cp -r src/* dist/",
     "start": "lite-server"
   },
   "keywords": [

@@ -2,11 +2,6 @@ import { uploadAudio } from '../api/Api.js';
 import { StartAnimationRecording } from './Animations.js';
 import { blockPageReload } from './BlockPageReload.js';
 import { getFormattedRecordingTime } from './Clock.js';
-import {
-  getAudioFromIndexDB,
-  saveAudioToIndexDB,
-  useIndexDB,
-} from './SaveAudio.js';
 
 export async function startRecording() {
   blockPageReload();
@@ -143,6 +138,8 @@ export function finishRecording() {
     let audioChunks = [];
 
     console.log('apiKey', this.apikey);
+    console.log('onSuccess', this.onSuccess);
+    console.log('onError', this.onError);
 
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -162,25 +159,7 @@ export function finishRecording() {
       console.log(audio, 'audio gerado');
 
       try {
-        // Conectando ao banco de dados e salvando o áudio
-        const db = await useIndexDB('AudioDatabase', 1);
-        await saveAudioToIndexDB(db, audioBlob);
-
-        // Recupera os áudios armazenados após salvar o novo
-        const storedAudios = await getAudioFromIndexDB(db);
-        console.log('Áudios armazenados no IndexedDB:', storedAudios);
-
-        // Reproduz os áudios recuperados (apenas como exemplo)
-        storedAudios.forEach((storedAudio) => {
-          console.log(`Nome: ${storedAudio.name}, Data: ${storedAudio.date}`);
-          const storedAudioElement = new Audio(storedAudio.url);
-
-          console.log('#### storedAudioElement ###', storedAudioElement);
-
-          storedAudioElement.play();
-
-          uploadAudio(storedAudioElement, this.apiKey);
-        });
+        uploadAudio(audioBlob, this.apiKey, this.onSuccess, this.onError);
       } catch (error) {
         console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }
