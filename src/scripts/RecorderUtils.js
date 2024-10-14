@@ -138,6 +138,8 @@ export function finishRecording() {
     let audioChunks = [];
 
     console.log('apiKey', this.apikey);
+    console.log('onSuccess', this.onSuccess);
+    console.log('onError', this.onError);
 
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
@@ -157,7 +159,7 @@ export function finishRecording() {
       console.log(audio, 'audio gerado');
 
       try {
-        uploadAudio(audioBlob, this.apiKey);
+        uploadAudio(audioBlob, this.apiKey, this.onSuccess, this.onError);
       } catch (error) {
         console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }

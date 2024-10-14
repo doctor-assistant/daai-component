@@ -3,6 +3,8 @@ export async function uploadAudio(audioBlob, apikey, onError, onSuccess) {
     'https://apim.doctorassistant.ai/api/sandbox/integration/consultations';
   console.log('api api');
   console.log(apikey, 'apikey');
+  console.log(onError, 'onError');
+  console.log(onSuccess, 'onSuccess');
 
   const formData = new FormData();
   formData.append('recording', audioBlob);
@@ -10,8 +12,6 @@ export async function uploadAudio(audioBlob, apikey, onError, onSuccess) {
   try {
     const response = await fetch(url, {
       method: 'POST',
-      // mode: 'no-cors',
-      // redirect: 'follow',
       headers: {
         'x-daai-api-key': apikey,
       },
@@ -20,10 +20,12 @@ export async function uploadAudio(audioBlob, apikey, onError, onSuccess) {
 
     if (response.ok) {
       const jsonResponse = await response.json();
-      // onSuccess(jsonResponse);
+      onSuccess;
+      console.log(onSuccess, 'sucesso na api');
       console.log('Resposta da API:', jsonResponse);
     } else {
-      // onError();
+      console.log(onSuccess, 'erro na api');
+      onError;
       console.error(
         'Erro na requisição:',
         response.status,

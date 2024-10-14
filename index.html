@@ -7,6 +7,17 @@
   <title>Daai</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
+  <script>
+  let myVariable = 0;
+
+  console.log(myVariable,'#### myVariable ####')
+
+function generateRandomNumber() {
+  const randomNumber = Math.floor(Math.random() * 100);
+  myVariable = randomNumber;
+  return randomNumber;
+}
+  </script>
 </head>
 
 <!-- theme='{"icon": "path/to/icon.png", "buttonStartRecordingColor": "#0600b1", "buttonRecordingColor": "#0600b1",
@@ -14,7 +25,12 @@
 "#0600b1", "animationPausedColor": "#0600b1", "textBadgeColor": "#0600b1"}' -->
 
 <body>
-  <daai-badge onSuccess='console.log' onError="()=> console.log('errorr')"  apiKey='afe16d81-8037-4228-9f3e-4f422ba804cf'><daai-badge>
+  <daai-badge
+  onSuccess="generateRandomNumber()"
+  onError="generateRandomNumber()"
+  apiKey='afe16d81-8037-4228-9f3e-4f422ba804cf'>
+</daai-badge>
+
   <script type="module" src="src/DaaiBadge.js"></script>
 </body>
 

@@ -173,9 +173,20 @@ class DaaiBadge extends HTMLElement {
     this.onError = this.getAttribute('onError')
       ? new Function('return ' + this.getAttribute('onError'))()
       : null;
+  }
 
-    console.log('Função de sucesso definida:', this.onSuccess);
-    console.log('Função de erro definida:', this.onError);
+  triggerSuccess() {
+    if (typeof this.onSuccess === 'function') {
+      console.log('Função de sucesso definida:', this.onSuccess);
+      this.onSuccess();
+    }
+  }
+
+  triggerError() {
+    if (typeof this.onError === 'function') {
+      console.log('Função de erro definida:', this.onError);
+      this.onError();
+    }
   }
 
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
