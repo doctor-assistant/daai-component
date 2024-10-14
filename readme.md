@@ -39,7 +39,7 @@ Após instalar o pacote no seu projeto, basta adicionar a tag <daai-badge> no lo
 ```
 
 onde ele for chamado vai ser renderizado nesse modelo:
-![alt text](readme_component_layout.png)
+![readme_component_layout.png](https://raw.githubusercontent.com/doctor-assistant/daai-component/main/readme_component_layout.png)
 
 ## Customização
 
