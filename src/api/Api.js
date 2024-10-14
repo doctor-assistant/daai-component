@@ -22,9 +22,7 @@ export async function uploadAudio(audioBlob, apikey, onError, onSuccess) {
       const jsonResponse = await response.json();
       onSuccess;
       console.log(onSuccess, 'sucesso na api');
-      console.log('Resposta da API:', jsonResponse);
     } else {
-      console.log(onSuccess, 'erro na api');
       onError;
       console.error(
         'Erro na requisição:',
