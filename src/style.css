@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100vw;
+  width: 90vw;
   margin-top: 20px
 }
 
@@ -17,7 +17,7 @@
   border-radius: 30px;
   background-color: #ffffff;
   height: 60px;
-  width: 700px;
+  width: 760px;
   font-family: "Inter", sans-serif;
   font-weight: 600;
   position: relative;
@@ -221,4 +221,10 @@
   color: #000000;
 }
 
-;
+.button-specialty{
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  border:2px #64748B solid;
+  color: white;
+}

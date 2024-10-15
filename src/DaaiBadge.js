@@ -4,6 +4,7 @@ import {
   PAUSE_ICON,
   RECORDING_ICON,
   RESUME_ICON,
+  SPECIALTY_ICON,
 } from './icons/icons.js';
 import { blockPageReload } from './scripts/BlockPageReload.js';
 import { checkPermissionsAndLoadDevices } from './scripts/CheckPermissions.js';
@@ -39,7 +40,7 @@ class DaaiBadge extends HTMLElement {
     this.onSuccess = null;
     this.onError = null;
     this.professionalId = '';
-    this.specialty = 'neurologista';
+    this.specialty = '';
 
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
@@ -84,6 +85,12 @@ class DaaiBadge extends HTMLElement {
       changeMicrophone: createButton(
         'change',
         GEAR,
+        '',
+        this.openMicrophoneModal.bind(this)
+      ),
+      chooseSpecialty: createButton(
+        'specialty',
+        SPECIALTY_ICON,
         '',
         this.openMicrophoneModal.bind(this)
       ),
@@ -205,7 +212,7 @@ class DaaiBadge extends HTMLElement {
     const buttonVisibilityMap = {
       waiting: { visible: ['start'], disabled: ['start'] },
       micTest: {
-        visible: ['start', 'pause', 'changeMicrophone'],
+        visible: ['start', 'pause', 'changeMicrophone', 'chooseSpecialty'],
         disabled: ['pause'],
       },
       paused: { visible: ['pause', 'resume'], disabled: ['pause'] },
@@ -228,6 +235,9 @@ class DaaiBadge extends HTMLElement {
       button.disabled = disabled.includes(buttonType);
       if (['finished', 'waiting', 'upload'].includes(this.status)) {
         this.canvas.classList.add('hidden');
+        this.timerElement.classList.add('hidden');
+      }
+      if (['micTest'].includes(this.status)) {
         this.timerElement.classList.add('hidden');
       } else {
         this.canvas.classList.remove('hidden');

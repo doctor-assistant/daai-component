@@ -7,6 +7,7 @@ export function getButtonClass(type) {
     resume: 'button-resume',
     upload: 'button-primary',
     change: 'button-change',
+    specialty: 'button-specialty',
   };
   return classesMap[type] || '';
 }
@@ -14,7 +15,11 @@ export function getButtonClass(type) {
 export function createButton(type, imageUrl, text, handler) {
   const button = document.createElement('button');
   button.className = `button ${getButtonClass(type)}`;
-  button.innerHTML = `<img src="${imageUrl}" alt="${text}" class="button-icon"> ${text}`;
+  const icon = imageUrl
+    ? `<img src="${imageUrl}" alt="${text}" class="button-icon">`
+    : '';
+  button.innerHTML = `${icon} ${text}`;
   button.addEventListener('click', handler);
+
   return button;
 }
