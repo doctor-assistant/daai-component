@@ -1,3 +1,4 @@
+import { chooseSpeciality } from './api/Speciality.js';
 import {
   GEAR,
   MICROPHONE_ICON,
@@ -16,6 +17,7 @@ import { createButton } from './scripts/CreateButtons.js';
 import { initializeEasterEgg } from './scripts/EasterEgg.js';
 import {
   finishRecording,
+  newRecording,
   pauseRecording,
   resumeRecording,
   startRecording,
@@ -40,7 +42,7 @@ class DaaiBadge extends HTMLElement {
     this.onSuccess = null;
     this.onError = null;
     this.professionalId = '';
-    this.specialty = '';
+    this.specialty = 'generic';
 
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
@@ -92,7 +94,7 @@ class DaaiBadge extends HTMLElement {
         'specialty',
         SPECIALTY_ICON,
         '',
-        this.openMicrophoneModal.bind(this)
+        this.openSpecialityModal.bind(this)
       ),
       pause: createButton('pause', PAUSE_ICON, '', pauseRecording.bind(this)),
       start: createButton(
@@ -117,7 +119,7 @@ class DaaiBadge extends HTMLElement {
         'upload',
         MICROPHONE_ICON,
         'Iniciar novo registro',
-        startRecording.bind(this)
+        newRecording.bind(this)
       ),
     };
 
@@ -125,28 +127,44 @@ class DaaiBadge extends HTMLElement {
       this.recorderBox.appendChild(button)
     );
     // aqui foi construido o modal para a troca de microfones
-    this.modal = document.createElement('div');
-    this.modal.className = 'modal';
-    this.modal.innerHTML = `
-      <p class='modal-title'>Escolha o Microfone</p>
-      <select id="microphone-select" class='select-button'></select>
-      <button id="close-modal" class="close-button">Fechar</button>
-    `;
+    this.microphoneModal = document.createElement('div');
+    this.microphoneModal.className = 'modal microphone-modal';
+    this.microphoneModal.innerHTML = `
+  <p class='modal-title'>Escolha o Microfone</p>
+  <select id="microphone-select" class='select-button'></select>
+  <button id="close-microphone-modal" class="close-button">Fechar</button>
+`;
 
-    this.backdrop = document.createElement('div');
-    this.backdrop.className = 'backdrop';
+    this.microphoneBackdrop = document.createElement('div');
+    this.microphoneBackdrop.className = 'backdrop microphone-backdrop';
+
+    // Modal para a escolha de especialidades
+    this.specialityModal = document.createElement('div');
+    this.specialityModal.className = 'modal speciality-modal';
+    this.specialityModal.innerHTML = `
+  <p class='modal-title'>Escolha o Modelo do Relatório</p>
+  <select id="speciality-select" class='select-button'></select>
+  <button id="close-speciality-modal" class="close-button">Fechar</button>
+`;
+
+    this.specialityBackdrop = document.createElement('div');
+    this.specialityBackdrop.className = 'backdrop speciality-backdrop';
 
     shadow.appendChild(style);
     shadow.appendChild(container);
     container.appendChild(this.recorderBox);
-    shadow.appendChild(this.modal);
-    shadow.appendChild(this.backdrop);
+    shadow.appendChild(this.specialityModal);
+    shadow.appendChild(this.microphoneModal);
+    shadow.appendChild(this.specialityBackdrop);
+    shadow.appendChild(this.microphoneBackdrop);
     this.updateButtons();
     checkPermissionsAndLoadDevices(this);
+    chooseSpeciality(this);
   }
 
   connectedCallback() {
     checkPermissionsAndLoadDevices(this);
+    chooseSpeciality(this);
   }
 
   static get observedAttributes() {
@@ -154,6 +172,7 @@ class DaaiBadge extends HTMLElement {
   }
 
   connectedCallback() {
+    console.log('### speciality', this.specialty);
     const successAttr = this.getAttribute('onSuccess');
     const errorAttr = this.getAttribute('onError');
     if (successAttr && typeof window[successAttr] === 'function') {
@@ -219,42 +238,56 @@ class DaaiBadge extends HTMLElement {
       recording: { visible: ['pause', 'finish'], disabled: [] },
       finished: { visible: [], disabled: [] },
       upload: { visible: ['upload'], disabled: [] },
+      micError: { visible: ['start'], disabled: ['start'] },
     };
 
     const { visible = [], disabled = [] } =
       buttonVisibilityMap[this.status] || {};
 
+    console.log('this.status', this.status);
+
+    // Atualiza visibilidade e estado dos botões
     Object.keys(this.buttons).forEach((buttonType) => {
       const button = this.buttons[buttonType];
-
-      if (visible.includes(buttonType)) {
-        button.classList.remove('hidden');
-      } else {
-        button.classList.add('hidden');
-      }
+      button.classList.toggle('hidden', !visible.includes(buttonType));
       button.disabled = disabled.includes(buttonType);
-      if (['finished', 'waiting', 'upload'].includes(this.status)) {
-        this.canvas.classList.add('hidden');
-        this.timerElement.classList.add('hidden');
-      }
-      if (['micTest'].includes(this.status)) {
-        this.timerElement.classList.add('hidden');
-      } else {
-        this.canvas.classList.remove('hidden');
-        this.timerElement.classList.remove('hidden');
-      }
     });
+
+    // Lógica para exibir ou ocultar canvas e timerElement
+    if (['finished', 'upload', 'resume'].includes(this.status)) {
+      this.canvas.classList.add('hidden');
+      this.timerElement.classList.add('hidden');
+    } else if (['micError', 'waiting'].includes(this.status)) {
+      this.canvas.classList.add('hidden');
+      this.timerElement.classList.add('hidden');
+    } else if (['micTest'].includes(this.status)) {
+      this.timerElement.classList.add('hidden');
+    } else {
+      this.canvas.classList.remove('hidden');
+      this.timerElement.classList.remove('hidden');
+    }
   }
 
   // abrir o modal de mudança de microfone
   openMicrophoneModal() {
-    this.backdrop.classList.add('active');
-    this.modal.classList.add('active');
+    this.microphoneBackdrop.classList.add('active');
+    this.microphoneModal.classList.add('active');
   }
 
   closeMicrophoneModal() {
-    this.backdrop.classList.remove('active');
-    this.modal.classList.remove('active');
+    this.microphoneBackdrop.classList.remove('active');
+    this.microphoneModal.classList.remove('active');
+  }
+
+  // abrir o modal de mudança de especialidade
+  openSpecialityModal() {
+    this.specialityBackdrop.classList.add('active');
+    this.specialityModal.classList.add('active');
+  }
+
+  closeSpecialityModal() {
+    this.specialityBackdrop.classList.remove('active');
+    this.specialityModal.classList.remove('active');
   }
 }
 

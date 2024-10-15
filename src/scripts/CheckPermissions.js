@@ -2,18 +2,19 @@ import { StartAnimationMicTest } from './Animations.js';
 
 export async function checkPermissionsAndLoadDevices(context) {
   try {
-    // Verificar o estado da permissão do microfone
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const permissionStatus = await navigator.permissions.query({
-      name: 'microphone',
-    });
-
     if (!context.statusText || !context.canvas) {
       console.error('Elementos necessários não encontrados no DOM.');
       return;
     }
 
-    // Verifica se a permissão foi concedida
+    // Tenta acessar o microfone
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    // Verifica o status da permissão do microfone
+    const permissionStatus = await navigator.permissions.query({
+      name: 'microphone',
+    });
+
     const handlePermissionChange = (status) => {
       if (status === 'granted') {
         context.canvas.classList.remove('hidden');
@@ -23,61 +24,74 @@ export async function checkPermissionsAndLoadDevices(context) {
         context.statusText.className = 'mic-test-text';
         StartAnimationMicTest(context.canvas);
       } else {
-        context.canvas.classList.add('hidden');
-        context.status = 'waiting';
-        context.statusText.classList.add('text-waiting-mic-aprove');
-        context.statusText.textContent = 'Aguardando autorização do microfone';
+        setMicWaitingState(context);
       }
       context.updateButtons();
     };
 
-    // Verificar a permissão inicial
+    // Verificar a permissão inicial e configurar evento para mudanças no status
     handlePermissionChange(permissionStatus.state);
-
-    // Ouvir mudanças no status da permissão
-    permissionStatus.onchange = () => {
+    permissionStatus.onchange = () =>
       handlePermissionChange(permissionStatus.state);
-    };
 
-    // Carregar dispositivos de áudio (microfones)
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    context.devices = devices.filter((device) => device.kind === 'audioinput');
-
-    // Verifica se há dispositivos de áudio disponíveis
-    if (context.devices.length > 0) {
-      const select = context.modal.querySelector('#microphone-select');
-      select.innerHTML = '';
-      context.devices.forEach((device) => {
-        const option = document.createElement('option');
-        option.value = device.deviceId;
-        option.textContent = device.label || `Microfone ${device.deviceId}`;
-        select.appendChild(option);
-      });
-
-      // Configura o microfone padrão
-      context.currentDeviceId = context.devices[0].deviceId;
-
-      // Atualiza quando o dispositivo selecionado muda
-      select.addEventListener('change', () => {
-        context.currentDeviceId = select.value;
-      });
-      // Lógica para fechar o modal
-      const closeModal = context.modal.querySelector('#close-modal');
-      closeModal.addEventListener('click', () => {
-        context.closeMicrophoneModal();
-      });
-    } else {
-      console.warn('Nenhum dispositivo de áudio encontrado.');
-    }
+    // Carrega dispositivos de áudio e configura o seletor
+    await loadAudioDevices(context);
   } catch (error) {
-    console.error(
-      'Erro ao verificar permissões ou carregar dispositivos:',
-      error
+    handleMicError(context, error);
+  }
+}
+
+// Define o estado de espera de permissão do microfone
+function setMicWaitingState(context) {
+  context.canvas.classList.add('hidden');
+  context.status = 'waiting';
+  context.statusText.classList.add('text-waiting-mic-aprove');
+  context.statusText.textContent = 'Aguardando autorização do microfone';
+}
+
+// Lida com erros de permissão ou dispositivos indisponíveis
+function handleMicError(context, error) {
+  context.status = 'micError';
+  console.error(
+    'Erro ao verificar permissões ou carregar dispositivos:',
+    error
+  );
+
+  if (context.statusText) {
+    context.statusText.classList.add('text-waiting-mic-aprove');
+    context.statusText.textContent =
+      'Erro ao verificar permissões ou carregar dispositivos';
+  }
+  context.updateButtons();
+}
+
+// Carrega dispositivos de áudio e configura o seletor no modal
+async function loadAudioDevices(context) {
+  const devices = await navigator.mediaDevices.enumerateDevices();
+  context.devices = devices.filter((device) => device.kind === 'audioinput');
+
+  if (context.devices.length > 0) {
+    const select = context.microphoneModal.querySelector('#microphone-select');
+    select.innerHTML = '';
+
+    context.devices.forEach((device) => {
+      const option = document.createElement('option');
+      option.value = device.deviceId;
+      option.textContent = device.label || `Microfone ${device.deviceId}`;
+      select.appendChild(option);
+    });
+
+    // Configura o microfone padrão e eventos de mudança
+    context.currentDeviceId = context.devices[0].deviceId;
+    select.addEventListener('change', () => {
+      context.currentDeviceId = select.value;
+    });
+
+    const closeModal = context.microphoneModal.querySelector(
+      '#close-microphone-modal'
     );
-    if (context.statusText) {
-      context.statusText.classList.add('text-waiting-mic-aprove');
-      context.statusText.textContent =
-        'Erro ao verificar permissões ou carregar dispositivos';
-    }
+    closeModal.addEventListener('click', () => context.closeMicrophoneModal());
+  } else {
+    console.warn('Nenhum dispositivo de áudio encontrado.');
   }
 }

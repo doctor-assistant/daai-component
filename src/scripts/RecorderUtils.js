@@ -1,5 +1,8 @@
 import { uploadAudio } from '../api/Api.js';
-import { StartAnimationRecording } from './Animations.js';
+import {
+  StartAnimationMicTest,
+  StartAnimationRecording,
+} from './Animations.js';
 import { blockPageReload } from './BlockPageReload.js';
 import { getFormattedRecordingTime } from './Clock.js';
 import { professionalDb } from './IndexDb.js';
@@ -10,6 +13,7 @@ export async function startRecording() {
     clearInterval(this.intervalId);
   }
 
+  console.log(this.specialty, 'this.specialty');
   this.recordingTime = 0;
   this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
 
@@ -18,6 +22,7 @@ export async function startRecording() {
       professionalId: this.professionalId,
       specialty: this.specialty,
     });
+
     const constraints = {
       audio: {
         deviceId: this.currentDeviceId
@@ -25,6 +30,7 @@ export async function startRecording() {
           : undefined,
       },
     };
+    console.log(constraints, 'constraints');
 
     this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
@@ -163,7 +169,6 @@ export function finishRecording() {
       // Cria uma URL para o blob e reproduz o áudio
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      audio.play();
       console.log(audio, 'audio gerado');
 
       try {
@@ -225,4 +230,14 @@ export function resumeRecording() {
     );
     this.updateButtons();
   }
+}
+
+export function newRecording() {
+  this.canvas.classList.remove('hidden');
+  this.canvas.className = 'animation-mic-test-resume';
+  this.status = 'micTest';
+  this.statusText.textContent = 'Microfone';
+  this.statusText.className = 'mic-test-text';
+  StartAnimationMicTest(this.canvas);
+  this.updateButtons();
 }

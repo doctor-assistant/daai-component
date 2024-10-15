@@ -31,9 +31,9 @@ export async function StartAnimationMicTest(canvasElement) {
 
     source.connect(analyser);
 
-    const barWidth = 16;
-    const barSpacing = 12;
-    const numberOfBars = 8;
+    const barWidth = 14;
+    const barSpacing = 16;
+    const numberOfBars = 10;
     const totalWidth =
       numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
     const startX = (WIDTH - totalWidth) / 2;
