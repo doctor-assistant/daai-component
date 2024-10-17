@@ -157,19 +157,20 @@ export function finishRecording() {
     this.mediaRecorder.onstop = async () => {
       // Combina os chunks em um blob
       const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      console.log(audioBlob, 'Generated audio blob');
+      // aqui vamos passar para o indexDB
       await professionalDb.audio.add({
         professionalId: this.professionalId,
         audio: audioBlob,
       });
 
-      // Cria uma URL para o blob e reproduz o áudio
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      console.log(audio, 'audio gerado');
-
       try {
-        uploadAudio(audioBlob, this.apiKey, this.onSuccess, this.onError);
+        uploadAudio(
+          audioBlob,
+          this.apiKey,
+          this.onSuccess,
+          this.onError,
+          this.specialty
+        );
       } catch (error) {
         console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }

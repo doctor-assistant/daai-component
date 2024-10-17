@@ -3,7 +3,7 @@ export async function uploadAudio(
   apikey,
   onError,
   onSuccess,
-  speciality
+  specialty
 ) {
   const url =
     'https://apim.doctorassistant.ai/api/sandbox/integration/consultations';
@@ -11,9 +11,13 @@ export async function uploadAudio(
   console.log(apikey, 'apikey');
 
   console.log('audio', audioBlob);
+  console.log('specialty', specialty);
 
   const formData = new FormData();
-  formData.append('recording', audioBlob, 'speciality', speciality);
+  formData.append('recording', audioBlob);
+  formData.append('specialty', specialty);
+
+  console.log(formData, 'formData');
 
   try {
     const response = await fetch(url, {
