@@ -1,4 +1,4 @@
-import { chooseSpeciality } from './api/Speciality.js';
+import { getSpeciality } from './api/Speciality.js';
 import {
   GEAR,
   MICROPHONE_ICON,
@@ -25,6 +25,223 @@ import {
 
 class DaaiBadge extends HTMLElement {
   constructor() {
+    `
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90vw;
+  margin-top: 20px
+}
+
+.recorder-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 1rem;
+  border: 3px solid;
+  border-radius: 30px;
+  background-color: #ffffff;
+  height: 60px;
+  width: 760px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  position: relative;
+  color: var(--text-badge-color, #009CB1);
+}
+
+.recorder-box button:active {
+  transform: scale(0.95);
+}
+
+.text-waiting-mic {
+  color: #F43F5E;
+}
+
+.text-finish {
+  margin-right: 120px
+}
+
+.text-upload {
+  color: var(--text-badge-color, #009CB1);
+}
+
+.text-waiting-mic-aprove {
+  color: #F43F5E;
+  font-weight: bold;
+}
+
+.button-recording {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color: #F43F5E;
+  color: white;
+  border:none;c
+}
+
+.button-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  z-index: 1000;
+  display: none;
+  font-family: "Inter", sans-serif;
+}
+
+.modal.active {
+  display: block;
+}
+
+.modal button {
+  margin-top: 1rem;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  display: none;
+  border-radius: 20px;
+}
+
+.backdrop.active {
+  display: block;
+}
+
+.close-button {
+  width: 100px;
+  height: 40px;
+  background-color: #525252;
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  color: #FFFFFF;
+}
+
+.button-change {
+  background-color: #525252;
+  font-size: 30px;
+  border: none;
+  padding: 4px;
+  color: #64748B;
+  width: 12.66px;
+  height: 13.26px;
+}
+
+.button-resume {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color: var(--button-resume-color, #009CB1);
+  color: white;
+}
+
+.audio-visualizer {
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.audio-hide {
+  width: 0px;
+  height: 0px
+}
+
+.button[disabled] {
+  cursor: not-allowed;
+  background-color: #A6AFC366;
+  opacity: 0.5;
+}
+
+.text-waiting-aprove-mic {
+  color: var(--text-badge-color, #009CB1);
+}
+
+.animation-mic-test {
+  width: 130px;
+  margin-top: 40px;
+}
+
+.rounded-select {
+  font-size: 18px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 16px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+.modal-title {
+  color: #000000
+}
+
+.rounded-select:focus {
+  border-color: #007bff;
+}
+
+.select-button {
+  border-radius: 10px;
+  width: 400px;
+  height: 50px;
+  text-align: center;
+  text-align-last: center;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+}
+
+.timer {
+  font-weight: 600;
+  color: #000000;
+}
+
+.timer {
+  font-weight: 600;
+  color: #000000;
+}
+
+.button-specialty {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  border: 2px #64748B solid;
+  color: white;
+  background:transparent;
+}
+.button-specialty-select{
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  border:2px #64748B solid;
+  color: white;
+  background-color: var(--button-resume-color, #009CB1);
+}
+`;
     super();
     this.mediaRecorder = null;
     this.chunks = [];
@@ -50,11 +267,232 @@ class DaaiBadge extends HTMLElement {
     // Aqui criamos o style
     const style = document.createElement('style');
 
-    const linkElement = document.createElement('link');
-    linkElement.setAttribute('rel', 'stylesheet');
-    linkElement.setAttribute('href', 'dist/style.css');
+    style.textContent = `
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-    shadow.appendChild(linkElement);
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90vw;
+  margin-top: 20px
+}
+
+.recorder-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 1rem;
+  border: 3px solid;
+  border-radius: 30px;
+  background-color: #ffffff;
+  height: 60px;
+  width: 760px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  position: relative;
+  color: var(--text-badge-color, #009CB1);
+}
+
+.recorder-box button {
+  height: 50px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.15s ease-in-out;
+  background: transparent;
+  border:none
+}
+
+.recorder-box button:active {
+  transform: scale(0.95);
+}
+
+.text-waiting-mic {
+  color: #F43F5E;
+}
+
+.text-finish {
+  margin-right: 120px
+}
+
+.text-upload {
+  color: var(--text-badge-color, #009CB1);
+}
+
+.text-waiting-mic-aprove {
+  color: #F43F5E;
+  font-weight: bold;
+}
+
+.button-primary {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color: var(--button-start-recording-color, #009CB1);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  border: none;
+}
+
+.button-pause {
+  width: 60px;
+  height: 50px;
+  opacity: 1;
+  background-color: #F43F5E;
+  color: white;
+  border: none;
+}
+
+.button-success {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  z-index: 1000;
+  display: none;
+  font-family: "Inter", sans-serif;
+}
+
+.modal.active {
+  display: block;
+}
+
+.modal button {
+  margin-top: 1rem;
+  border: none;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  display: none;
+  border-radius: 20px;
+}
+
+.backdrop.active {
+  display: block;
+}
+
+.close-button {
+  width: 100px;
+  height: 40px;
+  background-color: #525252;
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  color: #FFFFFF;
+}
+
+.button-change {
+  background-color: transparent;
+  font-size: 30px;
+  border: none;
+  padding: 4px;
+  color: #64748B;
+  width: 12.66px;
+  height: 13.26px;
+}
+
+.button-resume {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color: var(--button-resume-color, #009CB1);
+  color: white;
+  border: none;
+}
+
+.audio-visualizer {
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.audio-hide {
+  width: 0px;
+  height: 0px
+}
+
+.button[disabled] {
+  cursor: not-allowed;
+  background-color: #A6AFC366;
+  opacity: 0.5;
+  border: none;
+}
+
+.text-waiting-aprove-mic {
+  color: var(--text-badge-color, #009CB1);
+}
+
+.animation-mic-test {
+  width: 130px;
+  margin-top: 40px;
+}
+
+.rounded-select {
+  font-size: 18px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 16px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+.modal-title {
+  color: #000000
+}
+
+.rounded-select:focus {
+  border-color: #007bff;
+}
+
+.select-button {
+  border-radius: 10px;
+  width: 400px;
+  height: 50px;
+  text-align: center;
+  text-align-last: center;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+}
+
+.timer {
+  font-weight: 600;
+  color: #000000;
+}
+.animation-mic-test-resume{
+  width: 130px;
+}
+  `;
 
     const container = document.createElement('div');
     container.className = 'container';
@@ -94,32 +532,37 @@ class DaaiBadge extends HTMLElement {
         'specialty',
         SPECIALTY_ICON,
         '',
-        this.openSpecialityModal.bind(this)
+        this.openSpecialityModal.bind(this),
+        this.specialty
       ),
       pause: createButton('pause', PAUSE_ICON, '', pauseRecording.bind(this)),
       start: createButton(
         'start',
         MICROPHONE_ICON,
         'Iniciar Registro',
-        startRecording.bind(this)
+        startRecording.bind(this),
+        this.specialty
       ),
       finish: createButton(
         'finish',
         RECORDING_ICON,
         'Finalizar Registro',
-        finishRecording.bind(this)
+        finishRecording.bind(this),
+        this.specialty
       ),
       resume: createButton(
         'resume',
         RESUME_ICON,
         'Continuar Registro',
-        resumeRecording.bind(this)
+        resumeRecording.bind(this),
+        this.specialty
       ),
       upload: createButton(
         'upload',
         MICROPHONE_ICON,
         'Iniciar novo registro',
-        newRecording.bind(this)
+        newRecording.bind(this),
+        this.specialty
       ),
     };
 
@@ -159,12 +602,10 @@ class DaaiBadge extends HTMLElement {
     shadow.appendChild(this.microphoneBackdrop);
     this.updateButtons();
     checkPermissionsAndLoadDevices(this);
-    chooseSpeciality(this);
   }
 
   connectedCallback() {
     checkPermissionsAndLoadDevices(this);
-    chooseSpeciality(this);
   }
 
   static get observedAttributes() {
@@ -175,6 +616,9 @@ class DaaiBadge extends HTMLElement {
     console.log('### speciality', this.specialty);
     const successAttr = this.getAttribute('onSuccess');
     const errorAttr = this.getAttribute('onError');
+    const key = this.getAttribute('apikey');
+
+    getSpeciality(key, this);
     if (successAttr && typeof window[successAttr] === 'function') {
       this.onSuccess = window[successAttr].bind(this);
     }

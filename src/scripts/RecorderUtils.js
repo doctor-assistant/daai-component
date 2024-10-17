@@ -148,9 +148,6 @@ export function finishRecording() {
     this.status = 'finished';
     let audioChunks = [];
 
-    console.log('apiKey', this.apikey);
-    console.log('professionalId', this.professionalId);
-
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         audioChunks.push(event.data);
