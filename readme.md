@@ -1,4 +1,4 @@
-# Daai-badge
+# Daai
 
 ### Sumário
 
@@ -35,6 +35,8 @@ npm i @doctorassistant/daai
 Após instalar o pacote no seu projeto, basta adicionar a tag <daai> no local onde deseja que o componente seja renderizado:
 
 ```html
+import '@doctorassistant/daai';
+
 <daai></daai>
 ```
 
@@ -51,6 +53,9 @@ professionalId =
 
 // ⚠️ A propriedade apiKet é obrigatória, sem ela o componente não irá fazer requisições a api
 apikey = 'aqui você deve passar a chave da api para realizar as requisições';
+
+// ⚠️ A propriedade modeApi é obrigatória para definir se você deseja utilizar o ambiente de teste você deve passar o valor 'dev', caso você queira testar o ambiente de produção você deve passar o valor 'prod', caso você não passe essa propriedade, o componente não irá fazer requisições.
+modeApi = 'dev';
 ```
 
 ## Propriedades de customização
@@ -105,7 +110,7 @@ theme: {
 
 #### icon
 
-ícone que vai ser renderizado na badge.
+ícone que vai ser renderizado no componente.
 
 #### button-start-recording-color
 

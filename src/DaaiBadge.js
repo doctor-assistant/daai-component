@@ -417,7 +417,7 @@ class DaaiBadge extends HTMLElement {
       'onError',
       'apiKey',
       'professionalId',
-      'mode',
+      'modeApi',
     ];
   }
 
