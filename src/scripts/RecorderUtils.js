@@ -1,7 +1,11 @@
 import { uploadAudio } from '../api/Api.js';
-import { StartAnimationRecording } from './Animations.js';
+import {
+  StartAnimationMicTest,
+  StartAnimationRecording,
+} from './Animations.js';
 import { blockPageReload } from './BlockPageReload.js';
 import { getFormattedRecordingTime } from './Clock.js';
+import { deleteAllAudios, professionalDb } from './IndexDb.js';
 
 export async function startRecording() {
   blockPageReload();
@@ -13,6 +17,11 @@ export async function startRecording() {
   this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
 
   try {
+    await professionalDb.professional_info.add({
+      professionalId: this.professionalId,
+      specialty: this.specialty,
+    });
+
     const constraints = {
       audio: {
         deviceId: this.currentDeviceId
@@ -137,10 +146,7 @@ export function finishRecording() {
     this.status = 'finished';
     let audioChunks = [];
 
-    console.log('apiKey', this.apikey);
-    console.log('onSuccess', this.onSuccess);
-    console.log('onError', this.onError);
-
+    // Coleta os chunks de áudio disponíveis.
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         audioChunks.push(event.data);
@@ -148,27 +154,31 @@ export function finishRecording() {
     };
 
     this.mediaRecorder.onstop = async () => {
-      // Combina os chunks em um blob
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      console.log(audioBlob, 'Generated audio blob');
-
-      // Cria uma URL para o blob e reproduz o áudio
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      audio.play();
-      console.log(audio, 'audio gerado');
-
       try {
-        uploadAudio(audioBlob, this.apiKey, this.onSuccess, this.onError);
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+        uploadAudio(
+          audioBlob,
+          this.apiKey,
+          this.onSuccess,
+          this.onError,
+          this.specialty,
+          this.modeApi
+        );
+        await professionalDb.audio.add({
+          professionalId: this.professionalId,
+          audioData: audioBlob,
+        });
       } catch (error) {
         console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }
 
-      // Atualização de status da interface e botões
       this.statusText.classList.add('text-finish');
       this.statusText.textContent =
         'Aguarde enquanto geramos o relatório final...';
       this.updateButtons();
+
+      audioChunks.length = 0;
 
       setTimeout(() => {
         this.status = 'upload';
@@ -217,4 +227,15 @@ export function resumeRecording() {
     );
     this.updateButtons();
   }
+}
+
+export function newRecording() {
+  this.canvas.classList.remove('hidden');
+  this.canvas.className = 'animation-mic-test-resume';
+  this.status = 'micTest';
+  this.statusText.textContent = 'Microfone';
+  this.statusText.className = 'mic-test-text';
+  StartAnimationMicTest(this.canvas);
+  this.updateButtons();
+  deleteAllAudios();
 }

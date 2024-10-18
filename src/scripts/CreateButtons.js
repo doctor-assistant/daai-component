@@ -5,16 +5,21 @@ export function getButtonClass(type) {
     pause: 'button-pause',
     finish: 'button-recording',
     resume: 'button-resume',
-    upload: 'button-primary',
+    upload: 'button-upload',
     change: 'button-change',
+    specialty: 'button-specialty',
   };
   return classesMap[type] || '';
 }
 // metódo para criar os botões, definido o seu conteúdo
-export function createButton(type, imageUrl, text, handler) {
+export function createButton(type, imageUrl, text, handler, specialty) {
   const button = document.createElement('button');
-  button.className = `button ${getButtonClass(type)}`;
-  button.innerHTML = `<img src="${imageUrl}" alt="${text}" class="button-icon"> ${text}`;
+  button.className = `button ${getButtonClass(type, specialty)}`;
+  const icon = imageUrl
+    ? `<img src="${imageUrl}" alt="${text}" class="button-icon">`
+    : '';
+  button.innerHTML = `${icon} ${text}`;
   button.addEventListener('click', handler);
+
   return button;
 }

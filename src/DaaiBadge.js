@@ -1,9 +1,11 @@
+import { getSpecialty } from './api/Specialty.js';
 import {
   GEAR,
   MICROPHONE_ICON,
   PAUSE_ICON,
   RECORDING_ICON,
   RESUME_ICON,
+  SPECIALTY_ICON,
 } from './icons/icons.js';
 import { blockPageReload } from './scripts/BlockPageReload.js';
 import { checkPermissionsAndLoadDevices } from './scripts/CheckPermissions.js';
@@ -15,6 +17,7 @@ import { createButton } from './scripts/CreateButtons.js';
 import { initializeEasterEgg } from './scripts/EasterEgg.js';
 import {
   finishRecording,
+  newRecording,
   pauseRecording,
   resumeRecording,
   startRecording,
@@ -36,20 +39,263 @@ class DaaiBadge extends HTMLElement {
     this.intervalId = null;
     this.easterEggTimeoutId = null;
     this.apiKey = '';
-    this.onError = '';
-    this.onSuccess = '';
+    this.onSuccess = null;
+    this.onError = null;
+    this.professionalId = '';
+    this.specialty = 'generic';
+    this.modeApi = '';
 
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
     const shadow = this.attachShadow({ mode: 'open' });
     // Aqui criamos o style
     const style = document.createElement('style');
+    style.textContent = `@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-    const linkElement = document.createElement('link');
-    linkElement.setAttribute('rel', 'stylesheet');
-    linkElement.setAttribute('href', 'src/style.css');
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90vw;
+  margin-top: 20px
+}
 
-    shadow.appendChild(linkElement);
+.recorder-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 3px solid;
+  border-radius: 30px;
+  background-color: #ffffff;
+  height: 60px;
+  min-width: 650px;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  position: relative;
+  color: var(--text-badge-color, #009CB1);
+}
+
+.recorder-box button {
+  height: 50px;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.15s ease-in-out;
+}
+
+.recorder-box button:active {
+  transform: scale(0.95);
+}
+
+.text-waiting-mic {
+  color: #F43F5E;
+}
+
+.text-finish {
+  margin: 0 auto;
+}
+
+.text-upload {
+  color: var(--text-badge-color, #009CB1);
+}
+
+.text-waiting-mic-aprove {
+  color: #F43F5E;
+  font-weight: bold;
+}
+
+.button-primary {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color:  #009CB1;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.button-upload {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color: var(--button-upload-color, #009CB1);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.button-pause {
+  width: 60px;
+  height: 50px;
+  opacity: 1;
+  background-color: #F43F5E;
+  color: white;
+}
+
+.button-recording {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color: #F43F5E;
+  color: white;
+}
+
+.button-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 1rem;
+  z-index: 1000;
+  display: none;
+  font-family: "Inter", sans-serif;
+}
+
+.modal.active {
+  display: block;
+}
+
+.modal button {
+  margin-top: 1rem;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999;
+  display: none;
+  border-radius: 20px;
+}
+
+.backdrop.active {
+  display: block;
+}
+
+.close-button {
+  width: 100px;
+  height: 40px;
+  background-color: #525252;
+  border: none;
+  border-radius: 4px;
+  padding: 4px;
+  color: #FFFFFF;
+}
+
+.button-change {
+  background-color: transparent;
+  font-size: 30px;
+  border: none;
+  padding: 4px;
+  color: #64748B;
+  width: 12.66px;
+  height: 13.26px;
+}
+
+.button-resume {
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  background-color: var(--button-resume-color, #009CB1);
+  color: white;
+}
+
+.audio-visualizer {
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.audio-hide {
+  width: 0px;
+  height: 0px
+}
+
+.button[disabled] {
+  cursor: not-allowed;
+  background-color: #A6AFC366;
+  opacity: 0.5;
+}
+
+.text-waiting-aprove-mic {
+  color: var(--text-badge-color, #009CB1);
+}
+
+.animation-mic-test {
+  width: 130px;
+  margin-top: 40px;
+}
+
+.rounded-select {
+  font-size: 18px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 16px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+}
+
+.modal-title {
+  color: #000000
+}
+
+.rounded-select:focus {
+  border-color: #007bff;
+}
+
+.select-button {
+  border-radius: 10px;
+  width: 400px;
+  height: 50px;
+  text-align: center;
+  text-align-last: center;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+}
+
+.timer {
+  font-weight: 600;
+  color: #000000;
+}
+
+.button-specialty{
+  height: 50px;
+  font-size: 30px;
+  border-radius: 8px;
+  border:2px #64748B solid !important;
+  background: transparent !important;
+
+  color: white;
+}
+  .animation-mic-test-resume{
+    width: 130px;
+  }
+
+  `;
 
     const container = document.createElement('div');
     container.className = 'container';
@@ -85,6 +331,12 @@ class DaaiBadge extends HTMLElement {
         '',
         this.openMicrophoneModal.bind(this)
       ),
+      chooseSpecialty: createButton(
+        'specialty',
+        SPECIALTY_ICON,
+        '',
+        this.openSpecialtyModal.bind(this)
+      ),
       pause: createButton('pause', PAUSE_ICON, '', pauseRecording.bind(this)),
       start: createButton(
         'start',
@@ -108,7 +360,7 @@ class DaaiBadge extends HTMLElement {
         'upload',
         MICROPHONE_ICON,
         'Iniciar novo registro',
-        startRecording.bind(this)
+        newRecording.bind(this)
       ),
     };
 
@@ -116,22 +368,36 @@ class DaaiBadge extends HTMLElement {
       this.recorderBox.appendChild(button)
     );
     // aqui foi construido o modal para a troca de microfones
-    this.modal = document.createElement('div');
-    this.modal.className = 'modal';
-    this.modal.innerHTML = `
-      <p class='modal-title'>Escolha o Microfone</p>
-      <select id="microphone-select" class='select-button'></select>
-      <button id="close-modal" class="close-button">Fechar</button>
-    `;
+    this.microphoneModal = document.createElement('div');
+    this.microphoneModal.className = 'modal microphone-modal';
+    this.microphoneModal.innerHTML = `
+  <p class='modal-title'>Escolha o Microfone</p>
+  <select id="microphone-select" class='select-button'></select>
+  <button id="close-microphone-modal" class="close-button">Fechar</button>
+`;
 
-    this.backdrop = document.createElement('div');
-    this.backdrop.className = 'backdrop';
+    this.microphoneBackdrop = document.createElement('div');
+    this.microphoneBackdrop.className = 'backdrop microphone-backdrop';
+
+    // Modal para a escolha de especialidades
+    this.specialtyModal = document.createElement('div');
+    this.specialtyModal.className = 'modal specialty-modal';
+    this.specialtyModal.innerHTML = `
+  <p class='modal-title'>Escolha o Modelo do Relatório</p>
+  <select id="specialty-select" class='select-button'></select>
+  <button id="close-specialty-modal" class="close-button">Fechar</button>
+`;
+
+    this.specialtyBackdrop = document.createElement('div');
+    this.specialtyBackdrop.className = 'backdrop specialty-backdrop';
 
     shadow.appendChild(style);
     shadow.appendChild(container);
     container.appendChild(this.recorderBox);
-    shadow.appendChild(this.modal);
-    shadow.appendChild(this.backdrop);
+    shadow.appendChild(this.specialtyModal);
+    shadow.appendChild(this.microphoneModal);
+    shadow.appendChild(this.specialtyBackdrop);
+    shadow.appendChild(this.microphoneBackdrop);
     this.updateButtons();
     checkPermissionsAndLoadDevices(this);
   }
@@ -140,11 +406,33 @@ class DaaiBadge extends HTMLElement {
     checkPermissionsAndLoadDevices(this);
   }
 
+  generateRandomId() {
+    return Math.random().toString(36);
+  }
+
   static get observedAttributes() {
-    return ['theme', 'onSuccess', 'onError', 'apiKey'];
+    return [
+      'theme',
+      'onSuccess',
+      'onError',
+      'apiKey',
+      'professionalId',
+      'mode',
+    ];
   }
 
   connectedCallback() {
+    const successAttr = this.getAttribute('onSuccess');
+    const errorAttr = this.getAttribute('onError');
+    const key = this.getAttribute('apikey');
+
+    getSpecialty(key, this);
+    if (successAttr && typeof window[successAttr] === 'function') {
+      this.onSuccess = window[successAttr].bind(this);
+    }
+    if (errorAttr && typeof window[errorAttr] === 'function') {
+      this.onError = window[errorAttr].bind(this);
+    }
     const logoElement = this.shadowRoot.querySelector('img');
     const defaultTheme = {
       icon: this.getAttribute('icon') || initializeEasterEgg(logoElement),
@@ -152,6 +440,7 @@ class DaaiBadge extends HTMLElement {
       buttonRecordingColor: '#F43F5E',
       buttonPauseColor: '#F43F5E',
       buttonResumeColor: '#009CB1',
+      buttonUploadColor: '#009CB1',
       borderColor: '#009CB1',
       animationRecordingColor: '#F43F5E',
       animationPausedColor: '#009CB1',
@@ -166,6 +455,9 @@ class DaaiBadge extends HTMLElement {
     }
     applyThemeAttributes(this.theme, this);
     this.apiKey = this.getAttribute('apikey');
+    this.modeApi = this.getAttribute('modeApi');
+    this.professionalId =
+      this.getAttribute('professionalId') || this.generateRandomId();
     this.onSuccess = this.getAttribute('onSuccess')
       ? new Function('return ' + this.getAttribute('onSuccess'))()
       : null;
@@ -175,17 +467,15 @@ class DaaiBadge extends HTMLElement {
       : null;
   }
 
-  triggerSuccess() {
+  triggerSuccess(...params) {
     if (typeof this.onSuccess === 'function') {
-      console.log('Função de sucesso definida:', this.onSuccess);
-      this.onSuccess();
+      this.onSuccess(...params);
     }
   }
 
-  triggerError() {
+  triggerError(...params) {
     if (typeof this.onError === 'function') {
-      console.log('Função de erro definida:', this.onError);
-      this.onError();
+      this.onError(...params);
     }
   }
 
@@ -194,46 +484,69 @@ class DaaiBadge extends HTMLElement {
     const buttonVisibilityMap = {
       waiting: { visible: ['start'], disabled: ['start'] },
       micTest: {
-        visible: ['start', 'pause', 'changeMicrophone'],
-        disabled: ['pause'],
+        visible: ['start', 'changeMicrophone', 'chooseSpecialty'],
       },
       paused: { visible: ['pause', 'resume'], disabled: ['pause'] },
       recording: { visible: ['pause', 'finish'], disabled: [] },
       finished: { visible: [], disabled: [] },
       upload: { visible: ['upload'], disabled: [] },
+      micError: { visible: ['start'], disabled: ['start'] },
     };
 
     const { visible = [], disabled = [] } =
       buttonVisibilityMap[this.status] || {};
 
+    // Atualiza visibilidade e estado dos botões
     Object.keys(this.buttons).forEach((buttonType) => {
       const button = this.buttons[buttonType];
-
-      if (visible.includes(buttonType)) {
-        button.classList.remove('hidden');
-      } else {
-        button.classList.add('hidden');
-      }
+      button.classList.toggle('hidden', !visible.includes(buttonType));
       button.disabled = disabled.includes(buttonType);
-      if (['finished', 'waiting', 'upload'].includes(this.status)) {
-        this.canvas.classList.add('hidden');
-        this.timerElement.classList.add('hidden');
-      } else {
-        this.canvas.classList.remove('hidden');
-        this.timerElement.classList.remove('hidden');
-      }
     });
+
+    // Lógica para exibir ou ocultar canvas e timerElement
+    if (['finished', 'upload', 'resume'].includes(this.status)) {
+      this.canvas.classList.add('hidden');
+      this.timerElement.classList.add('hidden');
+    } else if (['micError', 'waiting'].includes(this.status)) {
+      this.canvas.classList.add('hidden');
+      this.timerElement.classList.add('hidden');
+    } else if (['micTest'].includes(this.status)) {
+      this.timerElement.classList.add('hidden');
+    } else {
+      this.canvas.classList.remove('hidden');
+      this.timerElement.classList.remove('hidden');
+    }
   }
 
   // abrir o modal de mudança de microfone
   openMicrophoneModal() {
-    this.backdrop.classList.add('active');
-    this.modal.classList.add('active');
+    this.microphoneBackdrop.classList.add('active');
+    this.microphoneModal.classList.add('active');
+    const specialtySelect =
+      this.specialtyModal.querySelector('#specialty-select');
+    this.specialty = specialtySelect.value;
+    this.specialty = specialtySelect;
+    this.updateButtons();
   }
 
   closeMicrophoneModal() {
-    this.backdrop.classList.remove('active');
-    this.modal.classList.remove('active');
+    this.microphoneBackdrop.classList.remove('active');
+    this.microphoneModal.classList.remove('active');
+  }
+
+  // abrir o modal de mudança de especialidade
+  openSpecialtyModal() {
+    this.specialtyBackdrop.classList.add('active');
+    this.specialtyModal.classList.add('active');
+    this.apiKey;
+  }
+
+  closeSpecialtyModal() {
+    this.specialtyBackdrop.classList.remove('active');
+    this.specialtyModal.classList.remove('active');
+    const specialtySelect =
+      this.specialtyModal.querySelector('#specialty-select');
+    this.specialty = specialtySelect.value;
   }
 }
 

@@ -9,8 +9,6 @@ export function parseThemeAttribute(themeAttr) {
 
 // Função ajustada para receber o contexto do componente
 export function applyThemeAttributes(themeProp, componentContext) {
-  console.log(themeProp, 'aqui');
-
   Object.keys(themeProp).forEach((key) => {
     const attributeKey = toKebabCase(key);
 
@@ -43,6 +41,11 @@ export function applyThemeAttributes(themeProp, componentContext) {
         const buttonResume =
           componentContext.shadowRoot.querySelector('.button-resume');
         if (buttonResume) buttonResume.style.backgroundColor = value;
+      },
+      'button-upload-color': (value) => {
+        const buttonUpload =
+          componentContext.shadowRoot.querySelector('.button-upload');
+        if (buttonUpload) buttonUpload.style.backgroundColor = value;
       },
       'border-color': (value) => {
         const recorderBox =
@@ -80,10 +83,8 @@ export function toKebabCase(camelCase) {
 }
 
 export function attributeChangedCallback(name, oldValue, newValue) {
-  console.log(`Atributo modificado: ${name}, Novo valor: ${newValue}`);
   if (name === 'theme') {
     this.theme = parseThemeAttribute(newValue);
-    console.log('parseThemeAttribute(newValue)', parseThemeAttribute(newValue));
     applyThemeAttributes();
     return;
   }
