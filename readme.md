@@ -1,4 +1,4 @@
-# Daai
+# Daai Component
 
 ### Sumário
 
@@ -22,22 +22,22 @@ O componente é um sistema de integração para empresas de saúde, como clínic
 
 ### instalação
 
-Para instalar o `Daai` no seu projeto, basta rodar no terminal do projeto que você deseja usar o componente.
+Para instalar o `Daai component` no seu projeto, basta rodar no terminal do projeto que você deseja usar o componente.
 
 💻 Execute esse comando:
 
 ```bash
-npm i @doctorassistant/daai
+npm i @doctorassistant/daai-component
 ```
 
 ### Como usar após a instalação:
 
-Após instalar o pacote no seu projeto, basta adicionar a tag <daai> no local onde deseja que o componente seja renderizado:
+Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> no local onde deseja que o componente seja renderizado:
 
 ```html
-import '@doctorassistant/daai';
+import '@doctorassistant/daai-component';
 
-<daai></daai>
+<daai-component></daai-component>
 ```
 
 onde ele for chamado vai ser renderizado nesse modelo:
@@ -49,9 +49,9 @@ onde ele for chamado vai ser renderizado nesse modelo:
 ```js
 // ⚠️ A propriedade professionalId não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave
 professionalId =
-  'aqui você deve passar um identificador para o usuário que irá utiizar a componente';
+  'aqui você deve passar um identificador para o usuário que irá utilizar a componente';
 
-// ⚠️ A propriedade apiKet é obrigatória, sem ela o componente não irá fazer requisições a api
+// ⚠️ A propriedade apiKey é obrigatória, sem ela o componente não irá fazer requisições a api
 apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 
 // ⚠️ A propriedade modeApi é obrigatória para definir se você deseja utilizar o ambiente de teste você deve passar o valor 'dev', caso você queira testar o ambiente de produção você deve passar o valor 'prod', caso você não passe essa propriedade, o componente não irá fazer requisições.
@@ -71,6 +71,7 @@ theme: {
   button-recording-color,
   button-pause-color,
   button-resume-color,
+  button-upload-color,
   border-color,
   animation-recording-color,
   animation-paused-color,
@@ -83,13 +84,14 @@ theme: {
 ### 🖌️ exemplo de uso da customização:
 
 ```html
-<daai
+<daai-component
   theme='{
   "icon": "path/to/icon.png",
   "buttonStartRecordingColor": "#0600b1",
   "buttonRecordingColor": "#0600b1",
   "buttonPauseColor": "#0600b1",
   "buttonResumeColor": "#0600b1",
+  "buttonUploadColor":"#0600b1",
   "borderColor": "#0600b1",
   "animationRecordingColor":"#0600b1",
   "animationPausedColor": "#0600b1",
@@ -98,7 +100,7 @@ theme: {
   onSuccess="função que você quer que execute caso seja sucesso"
   onError="função que você quer que execute caso ocorra um erro"
 >
-</daai>
+</daai-component>
 ```
 
 ### 🔎 definição de cada propriedade:
@@ -127,6 +129,10 @@ essa propriedade consegue mudar a cor de botão de `Pausar` o registro.
 #### button-resume-color
 
 Essa propriedade consegue alterar a cor do botão de `Continuar Registro`
+
+#### button-upload-color
+
+Essa propriedade consegue alterar a cor do botão de `Iniciar novo Registro`
 
 #### border-color
 
