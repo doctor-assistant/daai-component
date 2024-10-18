@@ -7,9 +7,9 @@ export async function uploadAudio(
   modeApi
 ) {
   const url =
-    modeApi === 'dev'
+    modeApi === 'dev' && modeApi !== 'prod'
       ? 'https://apim.doctorassistant.ai/api/sandbox/integration/consultations'
-      : '';
+      : 'https://apim.doctorassistant.ai/api/integration/consultations';
 
   const formData = new FormData();
   formData.append('recording', audioBlob);

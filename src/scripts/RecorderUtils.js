@@ -17,7 +17,7 @@ export async function startRecording() {
   this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
 
   try {
-    await professionalDb.professional_info.add({
+    professionalDb.professional_info.add({
       professionalId: this.professionalId,
       specialty: this.specialty,
     });
