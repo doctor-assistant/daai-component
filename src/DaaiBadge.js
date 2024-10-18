@@ -550,4 +550,4 @@ class DaaiBadge extends HTMLElement {
   }
 }
 
-customElements.define('daai-badge', DaaiBadge);
+customElements.define('daai-component', DaaiBadge);
