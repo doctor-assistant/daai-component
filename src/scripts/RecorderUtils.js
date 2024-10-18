@@ -162,7 +162,8 @@ export function finishRecording() {
           this.apiKey,
           this.onSuccess,
           this.onError,
-          this.specialty
+          this.specialty,
+          this.modeApi
         );
         await professionalDb.audio.add({
           professionalId: this.professionalId,

@@ -43,6 +43,7 @@ class DaaiBadge extends HTMLElement {
     this.onError = null;
     this.professionalId = '';
     this.specialty = 'generic';
+    this.modeApi = '';
 
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
@@ -454,6 +455,7 @@ class DaaiBadge extends HTMLElement {
     }
     applyThemeAttributes(this.theme, this);
     this.apiKey = this.getAttribute('apikey');
+    this.modeApi = this.getAttribute('modeApi');
     this.professionalId =
       this.getAttribute('professionalId') || this.generateRandomId();
     this.onSuccess = this.getAttribute('onSuccess')
