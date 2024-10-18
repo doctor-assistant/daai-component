@@ -1,15 +1,13 @@
 // setando as classes de acordo com o status
-export function getButtonClass(type, specialty) {
-  console.log(specialty, 'specialty');
+export function getButtonClass(type) {
   const classesMap = {
     start: 'button-primary',
     pause: 'button-pause',
     finish: 'button-recording',
     resume: 'button-resume',
-    upload: 'button-primary',
+    upload: 'button-upload',
     change: 'button-change',
-    specialty:
-      specialty !== 'generic' ? 'button-specialty' : 'button-specialty-select',
+    specialty: 'button-specialty',
   };
   return classesMap[type] || '';
 }

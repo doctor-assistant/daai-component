@@ -7,17 +7,10 @@ export async function uploadAudio(
 ) {
   const url =
     'https://apim.doctorassistant.ai/api/sandbox/integration/consultations';
-  console.log('api api');
-  console.log(apikey, 'apikey');
-
-  console.log('audio', audioBlob);
-  console.log('specialty', specialty);
 
   const formData = new FormData();
   formData.append('recording', audioBlob);
   formData.append('specialty', specialty);
-
-  console.log(formData, 'formData');
 
   try {
     const response = await fetch(url, {
@@ -30,11 +23,9 @@ export async function uploadAudio(
 
     if (response.ok) {
       const jsonResponse = await response.json();
-      console.log(typeof onSuccess, 'typeof onSuccess');
       if (typeof onSuccess === 'function') {
         onSuccess(jsonResponse);
       }
-      console.log('Resposta da API:', jsonResponse);
     } else {
       if (typeof onSuccess === 'function') {
         onSuccess('erro na requisição');

@@ -5,7 +5,7 @@ import {
 } from './Animations.js';
 import { blockPageReload } from './BlockPageReload.js';
 import { getFormattedRecordingTime } from './Clock.js';
-import { professionalDb } from './IndexDb.js';
+import { deleteAllAudios, professionalDb } from './IndexDb.js';
 
 export async function startRecording() {
   blockPageReload();
@@ -13,7 +13,6 @@ export async function startRecording() {
     clearInterval(this.intervalId);
   }
 
-  console.log(this.specialty, 'this.specialty');
   this.recordingTime = 0;
   this.timerElement.innerText = getFormattedRecordingTime(this.recordingTime);
 
@@ -30,7 +29,6 @@ export async function startRecording() {
           : undefined,
       },
     };
-    console.log(constraints, 'constraints');
 
     this.stream = await navigator.mediaDevices.getUserMedia(constraints);
 
@@ -148,6 +146,7 @@ export function finishRecording() {
     this.status = 'finished';
     let audioChunks = [];
 
+    // Coleta os chunks de áudio disponíveis.
     this.mediaRecorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         audioChunks.push(event.data);
@@ -155,15 +154,9 @@ export function finishRecording() {
     };
 
     this.mediaRecorder.onstop = async () => {
-      // Combina os chunks em um blob
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      // aqui vamos passar para o indexDB
-      await professionalDb.audio.add({
-        professionalId: this.professionalId,
-        audio: audioBlob,
-      });
-
       try {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
         uploadAudio(
           audioBlob,
           this.apiKey,
@@ -171,15 +164,20 @@ export function finishRecording() {
           this.onError,
           this.specialty
         );
+        await professionalDb.audio.add({
+          professionalId: this.professionalId,
+          audioData: audioBlob,
+        });
       } catch (error) {
         console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }
 
-      // Atualização de status da interface e botões
       this.statusText.classList.add('text-finish');
       this.statusText.textContent =
         'Aguarde enquanto geramos o relatório final...';
       this.updateButtons();
+
+      audioChunks.length = 0;
 
       setTimeout(() => {
         this.status = 'upload';
@@ -238,4 +236,5 @@ export function newRecording() {
   this.statusText.className = 'mic-test-text';
   StartAnimationMicTest(this.canvas);
   this.updateButtons();
+  deleteAllAudios();
 }

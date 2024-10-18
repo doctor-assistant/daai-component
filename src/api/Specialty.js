@@ -9,7 +9,6 @@ export async function getSpecialty(apikey, context) {
     });
     if (response.ok) {
       const jsonResponse = await response.json();
-      console.log('Resposta JSON:', jsonResponse);
 
       const select = context.specialtyModal.querySelector('#specialty-select');
       select.innerHTML = '';
@@ -28,8 +27,6 @@ export async function getSpecialty(apikey, context) {
         const selectedKey = select.value;
         const selectedOption = select.options[select.selectedIndex].textContent;
         context.specialty = selectedKey;
-        console.log(selectedOption, 'selectedOption');
-        console.log(selectedKey, 'selectedKey');
       });
 
       const closeModal = context.specialtyModal.querySelector(

@@ -7,41 +7,32 @@ export async function checkPermissionsAndLoadDevices(context) {
       return;
     }
 
-    // Tenta acessar o microfone
+    // Tenta acessar o microfone para verificar permissão
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-    // Verifica o status da permissão do microfone
-    const permissionStatus = await navigator.permissions.query({
-      name: 'microphone',
-    });
+    // Se o microfone for acessado com sucesso
+    handlePermissionGranted(context);
 
-    const handlePermissionChange = (status) => {
-      if (status === 'granted') {
-        context.canvas.classList.remove('hidden');
-        context.canvas.className = 'animation-mic-test';
-        context.status = 'micTest';
-        context.statusText.textContent = 'Microfone';
-        context.statusText.className = 'mic-test-text';
-        StartAnimationMicTest(context.canvas);
-      } else {
-        setMicWaitingState(context);
-      }
-      context.updateButtons();
-    };
-
-    // Verificar a permissão inicial e configurar evento para mudanças no status
-    handlePermissionChange(permissionStatus.state);
-    permissionStatus.onchange = () =>
-      handlePermissionChange(permissionStatus.state);
-
-    // Carrega dispositivos de áudio e configura o seletor
     await loadAudioDevices(context);
+
+    // Parar o stream após detectar que o microfone está funcionando
+    stream.getTracks().forEach((track) => track.stop());
   } catch (error) {
     handleMicError(context, error);
   }
 }
 
-// Define o estado de espera de permissão do microfone
+// Função chamada quando o acesso ao microfone é concedido
+function handlePermissionGranted(context) {
+  context.canvas.classList.remove('hidden');
+  context.canvas.className = 'animation-mic-test';
+  context.status = 'micTest';
+  context.statusText.textContent = 'Microfone';
+  context.statusText.className = 'mic-test-text';
+  StartAnimationMicTest(context.canvas);
+  context.updateButtons();
+}
+
 function setMicWaitingState(context) {
   context.canvas.classList.add('hidden');
   context.status = 'waiting';
@@ -49,7 +40,6 @@ function setMicWaitingState(context) {
   context.statusText.textContent = 'Aguardando autorização do microfone';
 }
 
-// Lida com erros de permissão ou dispositivos indisponíveis
 function handleMicError(context, error) {
   context.status = 'micError';
   console.error(

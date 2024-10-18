@@ -22,26 +22,38 @@ O componente é um sistema de integração para empresas de saúde, como clínic
 
 ### instalação
 
-Para instalar o `Daai-Badge` no seu projeto, basta rodar no terminal do projeto que você deseja usar o componente.
+Para instalar o `Daai` no seu projeto, basta rodar no terminal do projeto que você deseja usar o componente.
 
 💻 Execute esse comando:
 
 ```bash
-npm i @doctorassistant/daai-badge
+npm i @doctorassistant/daai
 ```
 
 ### Como usar após a instalação:
 
-Após instalar o pacote no seu projeto, basta adicionar a tag <daai-badge> no local onde deseja que o componente seja renderizado:
+Após instalar o pacote no seu projeto, basta adicionar a tag <daai> no local onde deseja que o componente seja renderizado:
 
 ```html
-<daai-badge></daai-badge>
+<daai></daai>
 ```
 
 onde ele for chamado vai ser renderizado nesse modelo:
+
 ![readme_component_layout.png](https://raw.githubusercontent.com/doctor-assistant/daai-component/main/readme_component_layout.png)
 
-## Customização
+## propriedades de funcionamento
+
+```js
+// ⚠️ A propriedade professionalId não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave
+professionalId =
+  'aqui você deve passar um identificador para o usuário que irá utiizar a componente';
+
+// ⚠️ A propriedade apiKet é obrigatória, sem ela o componente não irá fazer requisições a api
+apikey = 'aqui você deve passar a chave da api para realizar as requisições';
+```
+
+## Propriedades de customização
 
 Após a instalação do componente e a sua inclusão no código, será possível customizá-lo passando as props correspondentes. Caso as props não sejam fornecidas, ele utilizará o layout padrão. 🎨
 
@@ -61,14 +73,12 @@ theme: {
 }
  onSuccess={}
  onError={}
- apikey={}
-
 ```
 
 ### 🖌️ exemplo de uso da customização:
 
 ```html
-<daai-badge
+<daai
   theme='{
   "icon": "path/to/icon.png",
   "buttonStartRecordingColor": "#0600b1",
@@ -80,11 +90,10 @@ theme: {
   "animationPausedColor": "#0600b1",
   "textBadgeColor": "#0600b1"
   }'
-  onSuccess='função que você quer que execute caso seja sucesso'
-  onError='função que você quer que execute caso ocorra um erro'
-  apikey='chave da api"
+  onSuccess="função que você quer que execute caso seja sucesso"
+  onError="função que você quer que execute caso ocorra um erro"
 >
-</daai-badge>
+</daai>
 ```
 
 ### 🔎 definição de cada propriedade:
