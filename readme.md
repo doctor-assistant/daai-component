@@ -168,8 +168,7 @@ como posso fazer isso?
     <title>Document</title>
     // aqui você deve chamar por meio do cdn dentro do script
     <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@/dist/DaaiBadge.js"
+      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component/dist/DaaiBadge.js"
       type="module"
     ></script>
   </head>
@@ -187,7 +186,7 @@ como posso fazer isso?
 ```html
 Versão mais atualizada
 <script
-  src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@/dist/DaaiBadge.js"
+  src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component/dist/DaaiBadge.js"
   type="module"
 ></script>
 Versão especificada
