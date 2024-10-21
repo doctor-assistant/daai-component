@@ -5,7 +5,8 @@
 1. [Introdução](#introdução)
 2. [Como usar o componente](#uso)
 3. [Customização](#customização)
-4. [Construção do componente](#construção)
+4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
+5. [Construção do componente](#construção)
 
 ## Introdução
 
@@ -149,6 +150,54 @@ Essa propriedade é responsável por mudar a cor da animação quando ela está 
 #### text-badge-color
 
 Essa propriedade altera a cor dos textos do componente.
+
+## Uso do componente via CDN
+
+Caso a sua aplicação não utilize react, vue.js e angular, você pode optar por usar o nosso componente via CDN.
+
+como posso fazer isso?
+
+- exemplo de uso no HTML
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    // aqui você deve chamar por meio do cdn dentro do script
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@/dist/DaaiBadge.js"
+      type="module"
+    ></script>
+  </head>
+  <body>
+    <h1>Exemplo de uso do componente via cdn</h1>
+    <daai-component></daai-component>
+  </body>
+</html>
+```
+
+### ⚠️ Observações
+
+- Não é obrigatório passar a versão, caso o campo fique vazio ele irá pegar a versão mais recente.
+
+```html
+Versão mais atualizada
+<script
+  src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@/dist/DaaiBadge.js"
+  type="module"
+></script>
+Versão especificada
+<script
+  src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@X.X.X/dist/DaaiBadge.js"
+  type="module"
+></script>
+```
+
+- Quando passar o daai-component dentro do body você ainda terá que passar as propriedades obrigatórias citadas acima
 
 ## construção
 
