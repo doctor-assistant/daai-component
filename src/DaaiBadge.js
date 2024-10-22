@@ -56,9 +56,9 @@ class DaaiBadge extends HTMLElement {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 90vw;
-  margin-top: 20px
+  width: 100%;
 }
+
 
 .recorder-box {
   display: flex;
@@ -426,7 +426,7 @@ class DaaiBadge extends HTMLElement {
     const errorAttr = this.getAttribute('onError');
     const key = this.getAttribute('apikey');
 
-    getSpecialty(key, this);
+    getSpecialty(this);
     if (successAttr && typeof window[successAttr] === 'function') {
       this.onSuccess = window[successAttr].bind(this);
     }
@@ -522,10 +522,6 @@ class DaaiBadge extends HTMLElement {
   openMicrophoneModal() {
     this.microphoneBackdrop.classList.add('active');
     this.microphoneModal.classList.add('active');
-    const specialtySelect =
-      this.specialtyModal.querySelector('#specialty-select');
-    this.specialty = specialtySelect.value;
-    this.specialty = specialtySelect;
     this.updateButtons();
   }
 

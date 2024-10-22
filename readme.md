@@ -59,7 +59,7 @@ apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 modeApi = 'dev';
 ```
 
-## Propriedades de customização
+## customização
 
 Após a instalação do componente e a sua inclusão no código, será possível customizá-lo passando as props correspondentes. Caso as props não sejam fornecidas, ele utilizará o layout padrão. 🎨
 
@@ -113,6 +113,8 @@ theme: {
 
 #### icon
 
+⚠️ A imagem deve ter dimensões de no máximo 70px de altura e 70px de largura para ficar proporcional ao tamanho do componente
+
 ícone que vai ser renderizado no componente.
 
 #### button-start-recording-color
@@ -155,8 +157,6 @@ Essa propriedade altera a cor dos textos do componente.
 
 Caso a sua aplicação não utilize react, vue.js e angular, você pode optar por usar o nosso componente via CDN.
 
-como posso fazer isso?
-
 - exemplo de uso no HTML
 
 ```html
@@ -181,6 +181,7 @@ como posso fazer isso?
 
 ### ⚠️ Observações
 
+- Quando passar o daai-component dentro do body você ainda terá que passar as propriedades obrigatórias citadas acima.
 - Não é obrigatório passar a versão, caso o campo fique vazio ele irá pegar a versão mais recente.
 
 ```html
@@ -195,8 +196,6 @@ Versão especificada
   type="module"
 ></script>
 ```
-
-- Quando passar o daai-component dentro do body você ainda terá que passar as propriedades obrigatórias citadas acima
 
 ## construção
 

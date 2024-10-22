@@ -1,11 +1,8 @@
-export async function getSpecialty(apikey, context) {
+export async function getSpecialty(context) {
   const url = 'https://apim.doctorassistant.ai/api/specialties';
   try {
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'x-daai-api-key': apikey,
-      },
     });
     if (response.ok) {
       const jsonResponse = await response.json();
