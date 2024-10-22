@@ -15,6 +15,7 @@ export async function getSpecialty(context) {
           const option = document.createElement('option');
           option.value = specialty;
           option.textContent = title;
+          console.log(option, 'itens');
           return option;
         }
       );
@@ -22,7 +23,6 @@ export async function getSpecialty(context) {
       itens.forEach((option) => select.appendChild(option));
       select.addEventListener('change', () => {
         const selectedKey = select.value;
-        const selectedOption = select.options[select.selectedIndex].textContent;
         context.specialty = selectedKey;
       });
 

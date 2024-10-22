@@ -418,15 +418,21 @@ class DaaiBadge extends HTMLElement {
       'apiKey',
       'professionalId',
       'modeApi',
+      'specialty',
     ];
   }
 
   connectedCallback() {
     const successAttr = this.getAttribute('onSuccess');
     const errorAttr = this.getAttribute('onError');
-    const key = this.getAttribute('apikey');
+    const specialtyProp = this.getAttribute('specialty');
+    if (specialtyProp) {
+      this.specialty = specialtyProp;
+    } else {
+      this.specialty = 'generic';
+    }
 
-    getSpecialty(this);
+    getSpecialty(this, specialtyProp);
     if (successAttr && typeof window[successAttr] === 'function') {
       this.onSuccess = window[successAttr].bind(this);
     }
@@ -480,11 +486,16 @@ class DaaiBadge extends HTMLElement {
   }
 
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
+
   updateButtons() {
+    const specialtyProp = this.getAttribute('specialty');
+    const isDisabled = specialtyProp ? 'chooseSpecialty' : '';
+
     const buttonVisibilityMap = {
       waiting: { visible: ['start'], disabled: ['start'] },
       micTest: {
         visible: ['start', 'changeMicrophone', 'chooseSpecialty'],
+        disabled: [isDisabled],
       },
       paused: { visible: ['pause', 'resume'], disabled: ['pause'] },
       recording: { visible: ['pause', 'finish'], disabled: [] },
