@@ -1,8 +1,8 @@
 export async function uploadAudio(
   audioBlob,
   apikey,
-  onError,
   onSuccess,
+  onError,
   specialty,
   modeApi
 ) {
@@ -24,24 +24,15 @@ export async function uploadAudio(
       body: formData,
     });
 
-    if (response.ok) {
+    if (response) {
       const jsonResponse = await response.json();
       if (typeof onSuccess === 'function') {
         onSuccess(jsonResponse);
       }
-    } else {
-      if (typeof onSuccess === 'function') {
-        onSuccess('erro na requisição');
-      }
-      console.error(
-        'Erro na requisição:',
-        response.status,
-        response.statusText
-      );
     }
   } catch (error) {
     console.error('Erro ao enviar o áudio:', error);
-    if (typeof onSuccess === 'function') {
+    if (typeof onError === 'function') {
       onError('erro na requisição', error);
     }
   }

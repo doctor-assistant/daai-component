@@ -388,6 +388,18 @@ class DaaiBadge extends HTMLElement {
     this.specialtyBackdrop = document.createElement('div');
     this.specialtyBackdrop.className = 'backdrop specialty-backdrop';
 
+    // No construtor ou em outro método adequado:
+    this.buttons.chooseSpecialty.addEventListener('mouseover', async () => {
+      const specialty = this.specialty;
+      this.buttons.chooseSpecialty.title =
+        specialty || 'Especialidade não encontrada';
+    });
+
+    this.buttons.chooseSpecialty.addEventListener('mouseleave', () => {
+      this.buttons.chooseSpecialty.title =
+        this.specialty === 'generic' ? '' : this.specialty;
+    });
+
     shadow.appendChild(style);
     shadow.appendChild(container);
     container.appendChild(this.recorderBox);
@@ -484,8 +496,14 @@ class DaaiBadge extends HTMLElement {
 
   // aqui foi criado a lógica de alterar os botões de acordo com o status, ex: se for paused o botão de pause e resume vão ser renderizados
 
+  updateSpecialty() {
+    const specialtyProp = this.getAttribute('specialty');
+    console.log(this.specialty, 'this.specialty');
+  }
+
   updateButtons() {
     const specialtyProp = this.getAttribute('specialty');
+    console.log(this.specialty, 'this.specialty');
     const isDisabled = specialtyProp ? 'chooseSpecialty' : '';
 
     const buttonVisibilityMap = {

@@ -9,13 +9,14 @@ export async function getSpecialty(context) {
 
       const select = context.specialtyModal.querySelector('#specialty-select');
       select.innerHTML = '';
+      console.log(jsonResponse.specialties, '(jsonResponse.specialties');
 
       const itens = Object.entries(jsonResponse.specialties ?? {}).map(
         ([specialty, { title }]) => {
+          console.log([specialty, { title }], '[specialty, { title }]');
           const option = document.createElement('option');
           option.value = specialty;
           option.textContent = title;
-          console.log(option, 'itens');
           return option;
         }
       );
