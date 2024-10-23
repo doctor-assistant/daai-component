@@ -58,8 +58,6 @@ class DaaiBadge extends HTMLElement {
   justify-content: center;
   width: 100%;
 }
-
-
 .recorder-box {
   display: flex;
   align-items: center;
@@ -288,13 +286,11 @@ class DaaiBadge extends HTMLElement {
   border-radius: 8px;
   border:2px #64748B solid !important;
   background: transparent !important;
-
-  color: white;
+  color: black;
 }
   .animation-mic-test-resume{
     width: 130px;
   }
-
   `;
 
     const container = document.createElement('div');
@@ -324,6 +320,7 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox.appendChild(this.timerElement);
 
     // aqui vamos usar o createButton para criar esses botões com ícones e textos apropriados.
+
     this.buttons = {
       changeMicrophone: createButton(
         'change',
@@ -333,8 +330,8 @@ class DaaiBadge extends HTMLElement {
       ),
       chooseSpecialty: createButton(
         'specialty',
-        SPECIALTY_ICON,
-        '',
+        this.specialty === 'generic' ? SPECIALTY_ICON : '',
+        this.specialty === 'generic' ? '' : this.specialty,
         this.openSpecialtyModal.bind(this)
       ),
       pause: createButton('pause', PAUSE_ICON, '', pauseRecording.bind(this)),
@@ -545,7 +542,7 @@ class DaaiBadge extends HTMLElement {
   openSpecialtyModal() {
     this.specialtyBackdrop.classList.add('active');
     this.specialtyModal.classList.add('active');
-    this.apiKey;
+    this.updateButtons();
   }
 
   closeSpecialtyModal() {
@@ -554,6 +551,7 @@ class DaaiBadge extends HTMLElement {
     const specialtySelect =
       this.specialtyModal.querySelector('#specialty-select');
     this.specialty = specialtySelect.value;
+    this.updateButtons();
   }
 }
 
