@@ -1,10 +1,15 @@
 import Dexie from 'https://cdn.jsdelivr.net/npm/dexie@3.2.3/dist/dexie.mjs';
 
 export const professionalDb = new Dexie('professional');
+export const specialtiesDb = new Dexie('specialties');
 
 professionalDb.version(1).stores({
   professional_info: '++id, professionalId, specialty',
   audio: '++id, professionalId, audioData',
+});
+
+specialtiesDb.version(1).stores({
+  specialties: 'key,title',
 });
 
 export async function deleteAllAudios() {
@@ -31,7 +36,6 @@ export async function getSpecialtyByProfessionalId(professionalId) {
 export async function getLastSpecialty() {
   try {
     const result = await professionalDb.professional_info.orderBy('id').last();
-
     return result ? result.specialty : null;
   } catch (error) {
     console.error('Erro ao buscar a última especialidade:', error);
@@ -39,8 +43,30 @@ export async function getLastSpecialty() {
   }
 }
 
-const byProfessional = await getSpecialtyByProfessionalId('0.7s499xz3jlk');
-console.log(byProfessional, 'byProfessional');
+export async function saveSpecialties(data) {
+  try {
+    await specialtiesDb.transaction(
+      'rw',
+      specialtiesDb.specialties,
+      async () => {
+        for (const [key, value] of Object.entries(data)) {
+          await specialtiesDb.specialties.put({ key, title: value.title });
+        }
+      }
+    );
+  } catch (error) {
+    console.error('Erro ao salvar os dados:', error);
+  }
+}
 
-const lastest = await getLastSpecialty('0.7s499xz3jlk');
-console.log(lastest, 'lastest');
+export async function getSpecialtyTitle(specialtyKey) {
+  try {
+    const specialty = await specialtiesDb.specialties.get(specialtyKey);
+    if (specialty) {
+      return specialty.title;
+    }
+  } catch (error) {
+    console.error('Erro ao buscar a especialidade:', error);
+    return null;
+  }
+}
