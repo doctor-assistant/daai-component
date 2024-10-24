@@ -168,7 +168,7 @@ Caso a sua aplicação não utilize react, vue.js e angular, você pode optar po
     <title>Document</title>
     // aqui você deve chamar por meio do cdn dentro do script
     <script
-      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component/dist/DaaiBadge.js"
+      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
       type="module"
     ></script>
   </head>
@@ -187,7 +187,7 @@ Caso a sua aplicação não utilize react, vue.js e angular, você pode optar po
 ```html
 Versão mais atualizada
 <script
-  src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component/dist/DaaiBadge.js"
+  src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
   type="module"
 ></script>
 Versão especificada
