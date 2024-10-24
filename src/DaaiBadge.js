@@ -391,6 +391,9 @@ class DaaiBadge extends HTMLElement {
 
     this.buttons.chooseSpecialty.addEventListener('mouseover', async () => {
       const specialty = await getSpecialtyTitle(this.specialty);
+      if (!specialty) {
+        this.specialty = 'generic';
+      }
       this.buttons.chooseSpecialty.title =
         specialty || 'Especialidade não encontrada';
     });
