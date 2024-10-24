@@ -101,8 +101,8 @@ theme: {
   "animationPausedColor": "#0600b1",
   "textBadgeColor": "#0600b1"
   }'
-  onSuccess="função que você quer que execute caso seja sucesso"
-  onError="função que você quer que execute caso ocorra um erro"
+  onSuccess="função de callback que será executada em caso de sucesso"
+  onError="função de callback que será executada em caso de erro"
 >
 </daai-component>
 ```
@@ -226,6 +226,8 @@ psychiatry: 'Psiquiatria',
 rheumatology: 'Reumatologia',
 ```
 
+🔎 consulte aqui para versões mais atualizada das [especialidades](https://docs.doctorassistant.ai/daai-api-resources/processing-a-consultation#estrutura-da-requisi%C3%A7%C3%A3o)
+
 ### ⚠️ O que deve ser passado para essa propriedade?
 
 Você deve fornecer o valor em inglês conforme indicado acima. A versão exibida para o usuário será traduzida e formatada automaticamente.
@@ -239,7 +241,7 @@ caso você queira setar a especialidade como `Psiquiatria`
 
 ⚠️ importante!
 
-essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidae desejada, incialmente ela será como generic mas poderá ser alterada pelo usuário.
+essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
 
 ## construção
 
