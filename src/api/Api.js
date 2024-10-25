@@ -4,7 +4,8 @@ export async function uploadAudio(
   onSuccess,
   onError,
   specialty,
-  modeApi
+  modeApi,
+  metadata
 ) {
   const url =
     modeApi === 'dev' && modeApi !== 'prod'
@@ -14,6 +15,7 @@ export async function uploadAudio(
   const formData = new FormData();
   formData.append('recording', audioBlob);
   formData.append('specialty', specialty);
+  formData.append('metadata', JSON.stringify(metadata));
 
   try {
     const response = await fetch(url, {

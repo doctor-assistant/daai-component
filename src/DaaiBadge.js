@@ -45,6 +45,7 @@ class DaaiBadge extends HTMLElement {
     this.professionalId = '';
     this.specialty = 'generic';
     this.modeApi = '';
+    this.metadata = {};
 
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
@@ -432,6 +433,7 @@ class DaaiBadge extends HTMLElement {
       'professionalId',
       'modeApi',
       'specialty',
+      'metadata',
     ];
   }
 
@@ -439,6 +441,16 @@ class DaaiBadge extends HTMLElement {
     const successAttr = this.getAttribute('onSuccess');
     const errorAttr = this.getAttribute('onError');
     const specialtyProp = this.getAttribute('specialty');
+    const metadataProp = this.getAttribute('metadata');
+
+    if (metadataProp) {
+      try {
+        this.metadata = JSON.parse(metadataProp);
+      } catch (error) {
+        this.metadata = {};
+      }
+    }
+
     if (specialtyProp) {
       this.specialty = specialtyProp;
     } else {
