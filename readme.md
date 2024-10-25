@@ -6,7 +6,8 @@
 2. [Como usar o componente](#uso)
 3. [Customização](#customização)
 4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
-5. [Construção do componente](#construção)
+5. [Especialidades](#especialidades)
+6. [Construção do componente](#construção)
 
 ## Introdução
 
@@ -57,6 +58,8 @@ apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 
 // ⚠️ A propriedade modeApi é obrigatória para definir se você deseja utilizar o ambiente de teste você deve passar o valor 'dev', caso você queira testar o ambiente de produção você deve passar o valor 'prod', caso você não passe essa propriedade, o componente não irá fazer requisições.
 modeApi = 'dev';
+// ⚠️ A propriedade specialty não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, caso ela não seja passada o usuário pode selecionar a especialidade desejada no select.
+specialty='aqui você deve passar a especialidade que você quer que o usuário use"
 ```
 
 ## customização
@@ -98,8 +101,8 @@ theme: {
   "animationPausedColor": "#0600b1",
   "textBadgeColor": "#0600b1"
   }'
-  onSuccess="função que você quer que execute caso seja sucesso"
-  onError="função que você quer que execute caso ocorra um erro"
+  onSuccess="função de callback que será executada em caso de sucesso"
+  onError="função de callback que será executada em caso de erro"
 >
 </daai-component>
 ```
@@ -196,6 +199,50 @@ Versão especificada
   type="module"
 ></script>
 ```
+
+## Especialidades
+
+A propriedade `specialty` permite definir a especialidade desejada no componente, configurando o formato em que o relatório será gerado. Quando essa propriedade é fornecida, o seletor de especialidade será desabilitado, garantindo que todos os usuários utilizem a mesma especialidade.
+
+### Especialidades disponíveis
+
+```js
+cardiology: 'Cardiologia',
+case_discussion: 'Discussão de Caso',
+dermatology: 'Dermatologia',
+emergency: 'Medicina de Emergência',
+endocrinology: 'Endocrinologia',
+family: 'Medicina de Família',
+generic: 'SOAP Generalista',
+geriatry: 'Geriatria',
+gynecology: 'Ginecologia',
+neurology: 'Neurologia',
+occupational: 'Saúde Ocupacional',
+oncology:'Oncologia',
+ophthalmology:'Oftalmologia',
+pediatry:'Pediatria',
+pre_natal:'Pré-natal',
+psychiatry: 'Psiquiatria',
+rheumatology: 'Reumatologia',
+```
+
+🔎 consulte aqui para versões mais atualizada das [especialidades](https://docs.doctorassistant.ai/daai-api-resources/processing-a-consultation#estrutura-da-requisi%C3%A7%C3%A3o)
+
+### ⚠️ O que deve ser passado para essa propriedade?
+
+Você deve fornecer o valor em inglês conforme indicado acima. A versão exibida para o usuário será traduzida e formatada automaticamente.
+
+exemplo:
+caso você queira setar a especialidade como `Psiquiatria`
+
+```html
+<daai-component specialty="psychiatry"></daai-component>
+```
+
+⚠️ importante!
+
+- essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
+- sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o relatório será gerado como genérico.
 
 ## construção
 
