@@ -1,6 +1,6 @@
 {
   "name": "@doctorassistant/daai-component",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A custom web component for a recording",
   "main": "dist/DaaiBadge.js",
   "scripts": {
