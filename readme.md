@@ -59,7 +59,21 @@ apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 // ⚠️ A propriedade modeApi é obrigatória para definir se você deseja utilizar o ambiente de teste você deve passar o valor 'dev', caso você queira testar o ambiente de produção você deve passar o valor 'prod', caso você não passe essa propriedade, o componente não irá fazer requisições.
 modeApi = 'dev';
 // ⚠️ A propriedade specialty não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, caso ela não seja passada o usuário pode selecionar a especialidade desejada no select.
-specialty='aqui você deve passar a especialidade que você quer que o usuário use"
+specialty =
+  'aqui você deve passar a especialidade que você quer que o usuário use';
+// ⚠️ A propriedade metadata não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, no entanto, a chave serve para enviar dados que você deseja recuperar posteriormente pela nossa API quando a gravação for finalizada, possibilitando a recuperação por meio do webhook.
+metadata =
+  'aqui você deve passar o valor que deseja recuperar, se atente ao formato, descrevo no tópico abaixo.';
+```
+
+### Formato metadata
+
+```html
+// ⚠️ Essse deve ser o formato
+<body>
+  <daai-component metadata='{"name": "doctor", "role": "Assistant"}'>
+  </daai-component>
+</body>
 ```
 
 ## customização
