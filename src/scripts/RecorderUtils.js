@@ -1,4 +1,4 @@
-import { uploadAudio } from '../api/Api.js';
+import { uploadAudio } from '../api/UploadAudio.js';
 import {
   StartAnimationMicTest,
   StartAnimationRecording,
