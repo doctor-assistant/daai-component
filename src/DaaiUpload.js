@@ -1,7 +1,8 @@
+import { uploadExams } from './api/UploadExams.js';
 import {
-  DAAI_LOGO,
   DELETE_ICON,
   FILE_ICON,
+  SEND_FILES_ICONS,
   UPLOAD_ICON,
 } from './icons/icons.js';
 
@@ -22,28 +23,29 @@ class DaaiUpload extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 100%;
           margin-top: 10px;
         }
 
-        .recorder-box {
+        .upload-box {
+         color: #009CB1;
           display: flex;
+          gap:6px;
           align-items: center;
-          justify-content: space-between;
-          flex-direction: column;
+          justify-content: center;
+          flex-direction: row;
           padding: 1rem;
           border: 3px solid #009CB1;
           border-radius: 30px;
           background-color: #ffffff;
-          height: 300px;
-          width: 400px;
+          height: 60px;
+          max-width: 450px;
           font-family: "Inter", sans-serif;
           font-weight: 600;
           position: relative;
           transition: background-color 0.3s, border-color 0.3s;
         }
 
-        .recorder-box.dragging {
+        .upload-box.dragging {
           background-color: #e0f7fa;
           border-color: #007c91;
         }
@@ -51,7 +53,6 @@ class DaaiUpload extends HTMLElement {
         .header-content {
           display: flex;
           align-items: center;
-          width: 100%;
         }
 
         .upload {
@@ -59,20 +60,19 @@ class DaaiUpload extends HTMLElement {
           align-items: center;
           justify-content: center;
           flex-direction: column;
-          width: 100%;
-          height: 70%;
+          height: 50px;
+          width:300px;
           border: 2px dashed #009CB1;
           border-radius: 4px;
-          padding: 2px;
+          font-size:12px;
+          color:#475569;
+          font-size:12px;
         }
-
         input[type="file"] {
           display: none;
         }
 
         button {
-          border: none;
-          padding: 0.5rem 1rem;
           border-radius: 8px;
           font-size: 15px;
           cursor: pointer;
@@ -98,15 +98,12 @@ class DaaiUpload extends HTMLElement {
           display: flex;
           justify-content: space-between;
           align-items:center;
-          border: 1px solid #009CB1;
-          border-radius: 8px;
-          padding:10px
+          font-size:12px;
         }
 
         .error {
           color: red;
           font-size: 14px;
-          margin-top: 5px;
         }
 
         .files {
@@ -114,10 +111,18 @@ class DaaiUpload extends HTMLElement {
           flex-direction: column;
           width: 80%;
           border-radius: 8px;
-          padding: 10px;
           gap:5px;
         }
 
+        .upload-button {
+          border: none !important;
+          color:#475569;
+          font-size:12px;
+          height:60px;
+          color:#ffff;
+          background-color: #d3d3d3;
+          border: 3px solid #009CB1;
+        }
         .button-container {
           display: flex;
           align-items: center;
@@ -137,25 +142,37 @@ class DaaiUpload extends HTMLElement {
           color:#475569;
           font-size:12px;
         }
+
+        .finish-upload-button {
+          height:60px;
+          color:#ffff;
+          background-color: #009CB1;
+          border: 3px solid #009CB1;
+        }
       </style>
 
       <div class="container">
-        <div class="recorder-box" id="dropZone">
+      <div class='upload-box'  id="dropZone">
           <div class="header-content">
-            <img src=${DAAI_LOGO} alt="daai-logo" id="logo" />
-            <p>Upload de exames</p>
+            <p>Exames</p>
           </div>
           <span class="upload">
-            <span class="error" id="error"></span>
-            <div class='button-container'>
-              <img src=${UPLOAD_ICON} alt='upload-icon'/>
-              <button id="uploadButton">Arraste o exame aqui</button>
-              </div>
-              <span class='rules-text'>Apenas PDF, PNG, JPG e JPEG até 10 MB</span>
-            ${this.files ? ' <ul class="files" id="fileList"></ul>' : ''}
+          <div class='button-container'>
+          </div>
+          <span class="error" id="error"></span>
             <input type="file" id="fileInput" multiple />
-          </span>
-        </div>
+       ${this.files ? '<ul class="files" id="fileList"></ul>' : ''}
+    </span>
+    <button id="uploadButton" class='upload-button' title='Apenas PDF, PNG e JPEG até 10 MB'>
+          <img src=${UPLOAD_ICON} alt='upload-icon'/>
+          </button>
+            <button class='finish-upload-button' id='finishUploadButton'>
+            <img src=${SEND_FILES_ICONS} alt='upload-icon'/>
+            </button>
+            </div>
+      </div>
+      <div>
+
       </div>
     `;
 
@@ -173,6 +190,17 @@ class DaaiUpload extends HTMLElement {
       this.handleFiles(event.target.files)
     );
     this.addDragAndDropEvents();
+
+    this.finishUploadButton = shadow.querySelector('.finish-upload-button');
+
+    const iconFinish = document.createElement('img');
+    iconFinish.src = DELETE_ICON;
+    iconFinish.alt = 'delete-icon';
+
+    this.finishUploadButton = shadow.querySelector('.finish-upload-button');
+    this.finishUploadButton.addEventListener('click', () =>
+      this.finalizeUpload()
+    );
   }
 
   handleFiles(newFiles) {
@@ -182,9 +210,7 @@ class DaaiUpload extends HTMLElement {
     );
 
     if (invalidFiles.length > 0) {
-      this.showError(
-        'Arquivos inválidos. Apenas PDF, PNG, JPG e JPEG são permitidos.'
-      );
+      this.showError('Arquivo inválidos.');
     } else {
       this.clearError();
       this.files = [...this.files, ...validFiles];
@@ -193,7 +219,12 @@ class DaaiUpload extends HTMLElement {
   }
 
   isValidFile(file) {
-    const validTypes = ['application/pdf', 'image/png', 'image/jpeg'];
+    const validTypes = [
+      'application/pdf',
+      'image/*',
+      'image/jpeg',
+      'image/webp',
+    ];
     return validTypes.includes(file.type);
   }
 
@@ -262,6 +293,19 @@ class DaaiUpload extends HTMLElement {
       const files = event.dataTransfer.files;
       this.handleFiles(files);
     });
+  }
+
+  async finalizeUpload() {
+    if (!this.files.length)
+      return this.showError('Nenhum arquivo selecionado para upload.');
+
+    try {
+      await Promise.all(this.files.map((file) => uploadExams(file)));
+      this.files = [];
+      this.showFiles();
+    } catch (error) {
+      this.showError('Erro ao salvar os arquivos. Tente novamente.');
+    }
   }
 }
 
