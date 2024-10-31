@@ -11,6 +11,9 @@ class DaaiUpload extends HTMLElement {
     super();
 
     const shadow = this.attachShadow({ mode: 'open' });
+    this.modeApi = 'dev';
+    this.apiKey = '';
+    this.files = [];
 
     shadow.innerHTML = `
       <style>
@@ -160,8 +163,8 @@ class DaaiUpload extends HTMLElement {
           <div class='button-container'>
           </div>
           <span class="error" id="error"></span>
-            <input type="file" id="fileInput" multiple />
-       ${this.files ? '<ul class="files" id="fileList"></ul>' : ''}
+            <input type="file" id="fileInput" multiple placeholder='teste'/>
+      <ul class="files" id="fileList">Apenas PDF, PNG e JPEG até 10 MB</ul>
     </span>
     <button id="uploadButton" class='upload-button' title='Apenas PDF, PNG e JPEG até 10 MB'>
           <img src=${UPLOAD_ICON} alt='upload-icon'/>
@@ -176,8 +179,6 @@ class DaaiUpload extends HTMLElement {
       </div>
     `;
 
-    this.files = [];
-
     this.fileInput = shadow.querySelector('#fileInput');
     this.fileList = shadow.querySelector('#fileList');
     this.uploadButton = shadow.querySelector('#uploadButton');
@@ -185,17 +186,10 @@ class DaaiUpload extends HTMLElement {
     this.errorMessage = shadow.querySelector('#error');
 
     this.uploadButton.addEventListener('click', () => this.fileInput.click());
-
     this.fileInput.addEventListener('change', (event) =>
       this.handleFiles(event.target.files)
     );
     this.addDragAndDropEvents();
-
-    this.finishUploadButton = shadow.querySelector('.finish-upload-button');
-
-    const iconFinish = document.createElement('img');
-    iconFinish.src = DELETE_ICON;
-    iconFinish.alt = 'delete-icon';
 
     this.finishUploadButton = shadow.querySelector('.finish-upload-button');
     this.finishUploadButton.addEventListener('click', () =>
@@ -210,14 +204,63 @@ class DaaiUpload extends HTMLElement {
     );
 
     if (invalidFiles.length > 0) {
-      this.showError('Arquivo inválidos.');
+      this.showError('Arquivos inválidos.');
     } else {
       this.clearError();
       this.files = [...this.files, ...validFiles];
-      this.showFiles();
+      this.renderFileList();
     }
   }
 
+  static get observedAttributes() {
+    return [
+      'theme',
+      'onSuccess',
+      'onError',
+      'apiKey',
+      'professionalId',
+      'modeApi',
+      'specialty',
+    ];
+  }
+
+  connectedCallback() {
+    const successAttr = this.getAttribute('onSuccess');
+    const errorAttr = this.getAttribute('onError');
+    if (successAttr && typeof window[successAttr] === 'function') {
+      this.onSuccess = window[successAttr].bind(this);
+    }
+    if (errorAttr && typeof window[errorAttr] === 'function') {
+      this.onError = window[errorAttr].bind(this);
+    }
+    const defaultTheme = {
+      buttonStartRecordingColor: '#009CB1',
+      buttonRecordingColor: '#F43F5E',
+      buttonPauseColor: '#F43F5E',
+      buttonResumeColor: '#009CB1',
+      buttonUploadColor: '#009CB1',
+      borderColor: '#009CB1',
+      animationRecordingColor: '#F43F5E',
+      animationPausedColor: '#009CB1',
+      textBadgeColor: '#009CB1',
+    };
+
+    const themeAttr = this.getAttribute('theme');
+    if (themeAttr) {
+      this.theme = { ...defaultTheme, ...parseThemeAttribute(themeAttr) };
+    } else {
+      this.theme = defaultTheme;
+    }
+    this.apiKey = this.getAttribute('apikey');
+    this.modeApi = this.getAttribute('modeApi');
+    this.onSuccess = this.getAttribute('onSuccess')
+      ? new Function('return ' + this.getAttribute('onSuccess'))()
+      : null;
+
+    this.onError = this.getAttribute('onError')
+      ? new Function('return ' + this.getAttribute('onError'))()
+      : null;
+  }
   isValidFile(file) {
     const validTypes = [
       'application/pdf',
@@ -228,45 +271,42 @@ class DaaiUpload extends HTMLElement {
     return validTypes.includes(file.type);
   }
 
-  showFiles() {
-    if (!this.fileList) {
-      const ul = document.createElement('ul');
-      ul.classList.add('files');
-      this.fileList = ul;
-      this.shadowRoot.querySelector('.upload').appendChild(ul);
-    }
-
+  renderFileList() {
     this.fileList.innerHTML = '';
+    console.log(this.files.length, ' this.files');
+    console.log(this.files.length < 0, 'this.files.length < 0');
 
-    this.files.forEach((file, index) => {
+    if (this.files.length < 0) {
       const li = document.createElement('li');
-
       const icon = document.createElement('img');
       icon.src = FILE_ICON;
       icon.alt = 'file-icon';
-
       li.appendChild(icon);
-      li.appendChild(document.createTextNode(` ${file.name}`));
+      li.appendChild(document.createTextNode('testeee'));
+    }
+    if (this.files.length > 0) {
+      this.files.forEach((file, index) => {
+        const li = document.createElement('li');
+        const icon = document.createElement('img');
+        icon.src = FILE_ICON;
+        icon.alt = 'file-icon';
+        li.appendChild(icon);
+        li.appendChild(document.createTextNode(` ${file.name}`));
 
-      const deleteButton = document.createElement('button');
-      const iconDelete = document.createElement('img');
-      iconDelete.src = DELETE_ICON;
-      iconDelete.alt = 'delete-icon';
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-button');
+        deleteButton.innerHTML = `<img src="${DELETE_ICON}" alt="delete-icon"/>`;
+        deleteButton.addEventListener('click', () => this.deleteFile(index));
 
-      deleteButton.appendChild(iconDelete);
-      deleteButton.classList.add('delete-button');
-      deleteButton.addEventListener('click', () => {
-        this.deleteFile(index);
+        li.appendChild(deleteButton);
+        this.fileList.appendChild(li);
       });
-
-      li.appendChild(deleteButton);
-      this.fileList.appendChild(li);
-    });
+    }
   }
 
   deleteFile(index) {
     this.files.splice(index, 1);
-    this.showFiles();
+    this.renderFileList();
   }
 
   showError(message) {
@@ -300,13 +340,14 @@ class DaaiUpload extends HTMLElement {
       return this.showError('Nenhum arquivo selecionado para upload.');
 
     try {
-      await Promise.all(this.files.map((file) => uploadExams(file)));
+      await Promise.all(
+        this.files.map((file) => uploadExams(file, this.apiKey))
+      );
       this.files = [];
-      this.showFiles();
+      this.renderFileList();
     } catch (error) {
       this.showError('Erro ao salvar os arquivos. Tente novamente.');
     }
   }
 }
-
 customElements.define('daai-upload', DaaiUpload);
