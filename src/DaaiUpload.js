@@ -18,6 +18,7 @@ class DaaiUpload extends HTMLElement {
     this.modeApi = 'dev';
     this.apiKey = '';
     this.files = [];
+    this.loading = 'false';
 
     shadow.innerHTML = `
       <style>
@@ -327,17 +328,23 @@ class DaaiUpload extends HTMLElement {
   }
 
   async finalizeUpload() {
-    if (!this.files.length)
+    if (!this.files.length) {
       return this.showError('Nenhum arquivo selecionado para upload.');
+    }
+
+    this.fileList.innerHTML = '<span>Processando arquivos...</span>';
 
     try {
       await Promise.all(
         this.files.map((file) => uploadExams(file, this.apiKey))
       );
-      this.files = [];
-      this.renderFileList();
     } catch (error) {
       this.showError('Erro ao salvar os arquivos. Tente novamente.');
+    } finally {
+      this.fileList.innerHTML =
+        '<span>Upload concluído, insira novos arquivos</span>';
+      this.files = [];
+      this.uploadButton.style.display = 'block';
     }
   }
 }
