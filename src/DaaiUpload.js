@@ -5,6 +5,10 @@ import {
   SEND_FILES_ICONS,
   UPLOAD_ICON,
 } from './icons/icons.js';
+import {
+  applyThemeAttributes,
+  parseThemeAttribute,
+} from './scripts/ComponentProps.js';
 
 class DaaiUpload extends HTMLElement {
   constructor() {
@@ -29,15 +33,15 @@ class DaaiUpload extends HTMLElement {
           margin-top: 10px;
         }
 
-        .upload-box {
-         color: #009CB1;
+        .recorder-box {
+          color: var(--text-badge-color, #009CB1);
           display: flex;
           gap:6px;
           align-items: center;
           justify-content: center;
           flex-direction: row;
           padding: 1rem;
-          border: 3px solid #009CB1;
+          border: 3px solid;
           border-radius: 30px;
           background-color: #ffffff;
           height: 60px;
@@ -48,7 +52,7 @@ class DaaiUpload extends HTMLElement {
           transition: background-color 0.3s, border-color 0.3s;
         }
 
-        .upload-box.dragging {
+        .recorder-box.dragging {
           background-color: #e0f7fa;
           border-color: #007c91;
         }
@@ -65,7 +69,7 @@ class DaaiUpload extends HTMLElement {
           flex-direction: column;
           height: 50px;
           width:300px;
-          border: 2px dashed #009CB1;
+          border: 2px dashed var(--text-badge-color, #009CB1);
           border-radius: 4px;
           font-size:12px;
           color:#475569;
@@ -123,8 +127,8 @@ class DaaiUpload extends HTMLElement {
           font-size:12px;
           height:60px;
           color:#ffff;
-          background-color: #d3d3d3;
           border: 3px solid #009CB1;
+          background-color: var(--button-upload-color, #d3d3d3)
         }
         .button-container {
           display: flex;
@@ -147,15 +151,15 @@ class DaaiUpload extends HTMLElement {
         }
 
         .finish-upload-button {
+          background-color: var(--button-send-files, #009CB1);
           height:60px;
           color:#ffff;
-          background-color: #009CB1;
-          border: 3px solid #009CB1;
+          border: none;
         }
       </style>
 
       <div class="container">
-      <div class='upload-box'  id="dropZone">
+      <div class='recorder-box'  id="dropZone">
           <div class="header-content">
             <p>Exames</p>
           </div>
@@ -213,15 +217,7 @@ class DaaiUpload extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return [
-      'theme',
-      'onSuccess',
-      'onError',
-      'apiKey',
-      'professionalId',
-      'modeApi',
-      'specialty',
-    ];
+    return ['theme', 'onSuccess', 'onError', 'apiKey', 'modeApi'];
   }
 
   connectedCallback() {
@@ -234,14 +230,9 @@ class DaaiUpload extends HTMLElement {
       this.onError = window[errorAttr].bind(this);
     }
     const defaultTheme = {
-      buttonStartRecordingColor: '#009CB1',
-      buttonRecordingColor: '#F43F5E',
-      buttonPauseColor: '#F43F5E',
-      buttonResumeColor: '#009CB1',
-      buttonUploadColor: '#009CB1',
+      buttonSendFiles: '#009CB1',
+      buttonSearchFiles: '#d3d3d3',
       borderColor: '#009CB1',
-      animationRecordingColor: '#F43F5E',
-      animationPausedColor: '#009CB1',
       textBadgeColor: '#009CB1',
     };
 
@@ -251,6 +242,7 @@ class DaaiUpload extends HTMLElement {
     } else {
       this.theme = defaultTheme;
     }
+    applyThemeAttributes(this.theme, this);
     this.apiKey = this.getAttribute('apikey');
     this.modeApi = this.getAttribute('modeApi');
     this.onSuccess = this.getAttribute('onSuccess')
@@ -261,6 +253,7 @@ class DaaiUpload extends HTMLElement {
       ? new Function('return ' + this.getAttribute('onError'))()
       : null;
   }
+
   isValidFile(file) {
     const validTypes = [
       'application/pdf',
@@ -273,8 +266,6 @@ class DaaiUpload extends HTMLElement {
 
   renderFileList() {
     this.fileList.innerHTML = '';
-    console.log(this.files.length, ' this.files');
-    console.log(this.files.length < 0, 'this.files.length < 0');
 
     if (this.files.length < 0) {
       const li = document.createElement('li');

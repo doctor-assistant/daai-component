@@ -70,6 +70,18 @@ export function applyThemeAttributes(themeProp, componentContext) {
       'text-badge-color': (value) => {
         componentContext.style.setProperty('--text-badge-color', value);
       },
+      'button-send-files': (value) => {
+        const finishUploadButton = componentContext.shadowRoot.querySelector(
+          '.finish-upload-button'
+        );
+        if (finishUploadButton)
+          finishUploadButton.style.backgroundColor = value;
+      },
+      'button-search-files': (value) => {
+        const uploadButton =
+          componentContext.shadowRoot.querySelector('.upload-button');
+        if (uploadButton) uploadButton.style.backgroundColor = value;
+      },
     };
 
     if (attributeToElementMap[attributeKey]) {
