@@ -175,7 +175,9 @@ class DaaiUpload extends HTMLElement {
           <img src=${UPLOAD_ICON} alt='upload-icon'/>
           </button>
             <button class='finish-upload-button' id='finishUploadButton'>
-            <img src=${SEND_FILES_ICONS} alt='upload-icon'/>
+            <img src=${SEND_FILES_ICONS} alt='upload-icon'
+            disabled=${this.files}
+            />
             </button>
             </div>
       </div>
@@ -256,13 +258,13 @@ class DaaiUpload extends HTMLElement {
   }
 
   isValidFile(file) {
-    const validTypes = [
-      'application/pdf',
-      'image/*',
-      'image/jpeg',
-      'image/webp',
-    ];
-    return validTypes.includes(file.type);
+    const validTypes = ['application/pdf', 'image/*'];
+    return validTypes.some((type) => {
+      if (type === 'image/*') {
+        return file.type.startsWith('image/');
+      }
+      return file.type === type;
+    });
   }
 
   renderFileList() {
