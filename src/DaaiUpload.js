@@ -160,29 +160,26 @@ class DaaiUpload extends HTMLElement {
       </style>
 
       <div class="container">
-      <div class='recorder-box'  id="dropZone">
+        <div class='recorder-box'  id="dropZone">
           <div class="header-content">
             <p>Exames</p>
           </div>
           <span class="upload">
-          <div class='button-container'>
-          </div>
           <span class="error" id="error"></span>
             <input type="file" id="fileInput" multiple placeholder='teste'/>
-      <ul class="files" id="fileList">Apenas PDF, PNG e JPEG até 10 MB</ul>
-    </span>
-    <button id="uploadButton" class='upload-button' title='Apenas PDF, PNG e JPEG até 10 MB'>
+            <ul class="files" id="fileList">Apenas PDF, PNG e JPEG até 10 MB</ul>
+        </span>
+        <button id="uploadButton" class='upload-button' title='Apenas PDF, PNG e JPEG até 10 MB'>
           <img src=${UPLOAD_ICON} alt='upload-icon'/>
-          </button>
-            <button class='finish-upload-button' id='finishUploadButton'>
-            <img src=${SEND_FILES_ICONS} alt='upload-icon'
+        </button>
+        <button class='finish-upload-button' id='finishUploadButton'>
+          <img src=${SEND_FILES_ICONS} alt='upload-icon'
             disabled=${this.files}
-            />
-            </button>
-            </div>
+          />
+        </button>
+      </div>
       </div>
       <div>
-
       </div>
     `;
 
