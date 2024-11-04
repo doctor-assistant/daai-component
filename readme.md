@@ -7,8 +7,7 @@
 3. [Propriedades para o componente](#propriedades)
 4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
 5. [Especialidades](#especialidades)
-6. [Como implementar](#implementação)
-7. [Construção do componente](#construção)
+6. [Construção do componente](#construção)
 
 ## Introdução
 
@@ -40,7 +39,31 @@ Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> n
 ```html
 import '@doctorassistant/daai-component';
 
-<daai-component></daai-component>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+      function onSuccess(data) {
+        console.log(data);
+      }
+      function onError(data) {
+        console.log(data);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Exemplo de uso do componente via cdn</h1>
+    <daai-component
+      apiKey="YOUR_API_KEY"
+      modeApi="dev"
+      onSuccess="onSuccess"
+      onError="onError"
+    ></daai-component>
+  </body>
+</html>
 ```
 
 onde ele for chamado vai ser renderizado nesse modelo:
@@ -184,15 +207,27 @@ Caso a sua aplicação não utilize react, vue.js e angular, você pode optar po
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    // aqui você deve chamar por meio do cdn dentro do script
     <script
       src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
       type="module"
     ></script>
+    <script>
+      function onSuccess(data) {
+        console.log(data);
+      }
+      function onError(data) {
+        console.log(data);
+      }
+    </script>
   </head>
   <body>
     <h1>Exemplo de uso do componente via cdn</h1>
-    <daai-component></daai-component>
+    <daai-component
+      apiKey="YOUR_API_KEY"
+      modeApi="dev"
+      onSuccess="onSuccess"
+      onError="onError"
+    ></daai-component>
   </body>
 </html>
 ```
@@ -258,45 +293,6 @@ caso você queira setar a especialidade como `Psiquiatria`
 
 - essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
 - sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o relatório será gerado como genérico.
-
-## implementação
-
-### Use esse exemplo para teste de sua implementação 🧪
-
-⚠️ existem outras propriedades que você pode passar para customização, estão listadas [acima](#propriedades)
-
-```html
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    // aqui você deve chamar por meio do cdn dentro do script
-    <script
-      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
-      type="module"
-    ></script>
-    <script>
-      function onSuccess(data) {
-        console.log(data);
-      }
-      function onError(data) {
-        console.log(data);
-      }
-    </script>
-  </head>
-  <body>
-    <h1>Exemplo de uso do componente via cdn</h1>
-    <daai-component
-      apiKey="YOUR_API_KEY"
-      modeApi="dev"
-      onSuccess="onSuccess"
-      onError="onError"
-    ></daai-component>
-  </body>
-</html>
-```
 
 ## construção
 
