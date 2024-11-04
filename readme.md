@@ -1,13 +1,15 @@
-# Daai Component
+# Doctor Assistant - Componentes
 
-### Sumário
+## sumário
 
 1. [Introdução](#introdução)
-2. [Como usar o componente](#uso)
-3. [Customização](#customização)
-4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
-5. [Especialidades](#especialidades)
-6. [Construção do componente](#construção)
+2. [Daai-upload](#Daai-upload)
+3. [Daai-component](#Daai-component)
+4. [Como usar os componentes](#uso)
+5. [Uso do componente via CDN](#uso-do-componente-via-cdn)
+6. [Construção dos componentes](#construção)
+7. [Customização](#customização)
+8. [Especialidades](#especialidades)
 
 ## Introdução
 
@@ -34,6 +36,8 @@ npm i @doctorassistant/daai-component
 
 ### Como usar após a instalação:
 
+### Daai-component
+
 Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> no local onde deseja que o componente seja renderizado:
 
 ```html
@@ -45,6 +49,20 @@ import '@doctorassistant/daai-component';
 onde ele for chamado vai ser renderizado nesse modelo:
 
 ![readme_component_layout.png](https://raw.githubusercontent.com/doctor-assistant/daai-component/main/readme_component_layout.png)
+
+### Daai-upload
+
+Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> no local onde deseja que o componente seja renderizado:
+
+```html
+import '@doctorassistant/daai-component';
+
+<daai-upload></daai-upload>
+```
+
+onde ele for chamado vai ser renderizado nesse modelo:
+
+![alt text](daai_upload.png)
 
 ## propriedades de funcionamento
 
@@ -243,6 +261,12 @@ caso você queira setar a especialidade como `Psiquiatria`
 
 - essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
 - sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o relatório será gerado como genérico.
+
+## Daai Upload
+
+### Componente de upload
+
+Esse componente foi desenvolvido com a finalidade de fazer o upload de exames.
 
 ## construção
 
