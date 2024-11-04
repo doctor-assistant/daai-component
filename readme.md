@@ -4,7 +4,7 @@
 
 1. [Introdução](#introdução)
 2. [Como usar o componente](#uso)
-3. [Customização](#customização)
+3. [Propriedades para o componente](#propriedades)
 4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
 5. [Especialidades](#especialidades)
 6. [Como implementar](#implementação)
@@ -47,7 +47,9 @@ onde ele for chamado vai ser renderizado nesse modelo:
 
 ![readme_component_layout.png](https://raw.githubusercontent.com/doctor-assistant/daai-component/main/readme_component_layout.png)
 
-## propriedades de funcionamento
+## propriedades
+
+### propriedades de funcionamento
 
 ```js
 // ⚠️ A propriedade professionalId não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave
@@ -76,8 +78,6 @@ metadata =
   </daai-component>
 </body>
 ```
-
-## customização
 
 Após a instalação do componente e a sua inclusão no código, será possível customizá-lo passando as props correspondentes. Caso as props não sejam fornecidas, ele utilizará o layout padrão. 🎨
 
@@ -262,6 +262,8 @@ caso você queira setar a especialidade como `Psiquiatria`
 ## implementação
 
 ### Use esse exemplo para teste de sua implementação 🧪
+
+⚠️ existem outras propriedades que você pode passar para customização, estão listadas [acima](#propriedades)
 
 ```html
 <!doctype html>
