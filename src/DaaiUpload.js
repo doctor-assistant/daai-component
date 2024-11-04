@@ -51,6 +51,10 @@ class DaaiUpload extends HTMLElement {
           font-weight: 600;
           position: relative;
           transition: background-color 0.3s, border-color 0.3s;
+          @media (max-width: 600px) {
+            flex-direction: column;
+            height: 150px;
+            max-width: 250px;
         }
 
         .recorder-box.dragging {
@@ -61,6 +65,7 @@ class DaaiUpload extends HTMLElement {
         .header-content {
           display: flex;
           align-items: center;
+          gap:4px;
         }
 
         .upload {
@@ -75,6 +80,10 @@ class DaaiUpload extends HTMLElement {
           font-size:12px;
           color:#475569;
           font-size:12px;
+          @media (max-width: 600px) {
+             height: 50px;
+              width:200px;
+            }
         }
         input[type="file"] {
           display: none;
@@ -131,12 +140,12 @@ class DaaiUpload extends HTMLElement {
           border: 3px solid #009CB1;
           background-color: var(--button-upload-color, #d3d3d3)
         }
-        .button-container {
+        .buttons-container {
           display: flex;
           align-items: center;
           justify-content: center;
+          gap:4px;
         }
-
         .delete-button {
           cursor: pointer;
           color: red;
@@ -163,12 +172,13 @@ class DaaiUpload extends HTMLElement {
         <div class='recorder-box'  id="dropZone">
           <div class="header-content">
             <p>Exames</p>
-          </div>
-          <span class="upload">
-          <span class="error" id="error"></span>
-            <input type="file" id="fileInput" multiple placeholder='teste'/>
-            <ul class="files" id="fileList">Apenas PDF, PNG e JPEG até 10 MB</ul>
-        </span>
+            </div>
+            <span class="upload">
+            <span class="error" id="error"></span>
+              <input type="file" id="fileInput" multiple placeholder='teste'/>
+              <ul class="files" id="fileList">Apenas PDF, PNG e JPEG até 10 MB</ul>
+          </span>
+        <div class='buttons-container'>
         <button id="uploadButton" class='upload-button' title='Apenas PDF, PNG e JPEG até 10 MB'>
           <img src=${UPLOAD_ICON} alt='upload-icon'/>
         </button>
@@ -177,6 +187,7 @@ class DaaiUpload extends HTMLElement {
             disabled=${this.files}
           />
         </button>
+        </div>
       </div>
       </div>
       <div>
@@ -335,7 +346,9 @@ class DaaiUpload extends HTMLElement {
 
     try {
       await Promise.all(
-        this.files.map((file) => uploadExams(file, this.apiKey))
+        this.files.map((file) =>
+          uploadExams(file, this.apiKey, this.onSuccess, this.onError)
+        )
       );
     } catch (error) {
       this.showError('Erro ao salvar os arquivos. Tente novamente.');
