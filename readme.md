@@ -45,23 +45,10 @@ import '@doctorassistant/daai-component';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script>
-      function onSuccess(data) {
-        console.log(data);
-      }
-      function onError(data) {
-        console.log(data);
-      }
-    </script>
   </head>
   <body>
     <h1>Exemplo de uso do componente via cdn</h1>
-    <daai-component
-      apiKey="YOUR_API_KEY"
-      modeApi="dev"
-      onSuccess="onSuccess"
-      onError="onError"
-    ></daai-component>
+    <daai-component apiKey="YOUR_API_KEY" modeApi="dev"></daai-component>
   </body>
 </html>
 ```
@@ -97,7 +84,11 @@ metadata =
 ```html
 // ⚠️ Essse deve ser o formato
 <body>
-  <daai-component metadata='{"name": "doctor", "role": "Assistant"}'>
+  <daai-component
+    metadata='{"name": "doctor", "role": "Assistant"}'
+    apiKey="YOUR_API_KEY"
+    modeApi="dev"
+  >
   </daai-component>
 </body>
 ```
@@ -126,23 +117,37 @@ theme: {
 ### 🖌️ exemplo de uso da customização:
 
 ```html
-<daai-component
-  theme='{
-  "icon": "path/to/icon.png",
-  "buttonStartRecordingColor": "#0600b1",
-  "buttonRecordingColor": "#0600b1",
-  "buttonPauseColor": "#0600b1",
-  "buttonResumeColor": "#0600b1",
-  "buttonUploadColor":"#0600b1",
-  "borderColor": "#0600b1",
-  "animationRecordingColor":"#0600b1",
-  "animationPausedColor": "#0600b1",
-  "textBadgeColor": "#0600b1"
-  }'
-  onSuccess="função de callback que será executada em caso de sucesso"
-  onError="função de callback que será executada em caso de erro"
->
-</daai-component>
+import '@doctorassistant/daai-component';
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <daai-component
+      apiKey="YOUR_API_KEY"
+      modeApi="dev"
+      theme='{
+      "icon": "path/to/icon.png",
+      "buttonStartRecordingColor": "#0600b1",
+      "buttonRecordingColor": "#0600b1",
+      "buttonPauseColor": "#0600b1",
+      "buttonResumeColor": "#0600b1",
+      "buttonUploadColor":"#0600b1",
+      "borderColor": "#0600b1",
+      "animationRecordingColor":"#0600b1",
+      "animationPausedColor": "#0600b1",
+      "textBadgeColor": "#0600b1"
+      }'
+      onSuccess="onSuccess"
+      onError="onError"
+    >
+    </daai-component>
+  </body>
+</html>
 ```
 
 ### 🔎 definição de cada propriedade:
@@ -194,6 +199,14 @@ Essa propriedade é responsável por mudar a cor da animação quando ela está 
 
 Essa propriedade altera a cor dos textos do componente.
 
+#### onSuccess
+
+função de callback que será executada em caso de sucesso
+
+#### onError
+
+função de callback que será executada em caso de erro
+
 ## Uso do componente via CDN
 
 Caso a sua aplicação não utilize react, vue.js e angular, você pode optar por usar o nosso componente via CDN.
@@ -211,23 +224,10 @@ Caso a sua aplicação não utilize react, vue.js e angular, você pode optar po
       src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
       type="module"
     ></script>
-    <script>
-      function onSuccess(data) {
-        console.log(data);
-      }
-      function onError(data) {
-        console.log(data);
-      }
-    </script>
   </head>
   <body>
     <h1>Exemplo de uso do componente via cdn</h1>
-    <daai-component
-      apiKey="YOUR_API_KEY"
-      modeApi="dev"
-      onSuccess="onSuccess"
-      onError="onError"
-    ></daai-component>
+    <daai-component apiKey="YOUR_API_KEY" modeApi="dev"></daai-component>
   </body>
 </html>
 ```
