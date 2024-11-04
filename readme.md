@@ -38,19 +38,7 @@ Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> n
 
 ```html
 import '@doctorassistant/daai-component';
-
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <h1>Exemplo de uso do componente via cdn</h1>
-    <daai-component apiKey="YOUR_API_KEY" modeApi="dev"></daai-component>
-  </body>
-</html>
+<daai-component apiKey="YOUR_API_KEY" modeApi="dev"></daai-component>
 ```
 
 onde ele for chamado vai ser renderizado nesse modelo:
