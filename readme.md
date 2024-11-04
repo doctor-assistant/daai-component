@@ -3,7 +3,7 @@
 ### Sumário
 
 1. [Introdução](#introdução)
-2. [Como usar o componente](#uso)
+2. [Como usar os componentes](#uso)
 3. [Propriedades para o componente](#propriedades)
 4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
 5. [Especialidades](#especialidades)
@@ -34,6 +34,8 @@ npm i @doctorassistant/daai-component
 
 ### Como usar após a instalação:
 
+### Daai-component
+
 Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> no local onde deseja que o componente seja renderizado:
 
 ```html
@@ -45,9 +47,24 @@ onde ele for chamado vai ser renderizado nesse modelo:
 
 ![readme_component_layout.png](https://raw.githubusercontent.com/doctor-assistant/daai-component/main/readme_component_layout.png)
 
+### Daai-upload
+
+Após instalar o pacote no seu projeto, basta adicionar a tag <daai-upload> no local onde deseja que o componente seja renderizado:
+
+```html
+import '@doctorassistant/daai-component';
+<daai-upload apiKey="YOUR_API_KEY" modeApi="dev"></daai-upload>
+```
+
+onde ele for chamado vai ser renderizado nesse modelo:
+
+![readme_component_layout.png](https://raw.githubusercontent.com/doctor-assistant/daai-component/main/readme_component_layout.png)
+
 ## propriedades
 
 ### propriedades de funcionamento
+
+### Daai-component
 
 ```js
 // ⚠️ A propriedade professionalId não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave
@@ -65,6 +82,16 @@ specialty =
 // ⚠️ A propriedade metadata não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, no entanto, a chave serve para enviar dados que você deseja recuperar posteriormente pela nossa API quando a gravação for finalizada, possibilitando a recuperação por meio do webhook.
 metadata =
   'aqui você deve passar o valor que deseja recuperar, se atente ao formato, descrevo no tópico abaixo.';
+```
+
+### Daai-upload
+
+```js
+// ⚠️ A propriedade apiKey é obrigatória, sem ela o componente não irá fazer requisições a api
+apikey = 'aqui você deve passar a chave da api para realizar as requisições';
+
+// ⚠️ A propriedade modeApi é obrigatória para definir se você deseja utilizar o ambiente de teste você deve passar o valor 'dev', caso você queira testar o ambiente de produção você deve passar o valor 'prod', caso você não passe essa propriedade, o componente não irá fazer requisições.
+modeApi = 'dev';
 ```
 
 ### Formato metadata
@@ -85,6 +112,8 @@ Após a instalação do componente e a sua inclusão no código, será possível
 
 #### 📂 Props que você pode passar para o componente:
 
+### Daai-component
+
 ```js
 theme: {
   icon,
@@ -100,6 +129,16 @@ theme: {
 }
  onSuccess={}
  onError={}
+```
+
+### Daai-upload
+
+```js
+theme: {
+  borderColor, buttonSearchFiles, buttonSendFiles, textBadgeColor;
+}
+onSuccess = {};
+onError = {};
 ```
 
 ### 🖌️ exemplo de uso da customização:
@@ -126,6 +165,19 @@ import '@doctorassistant/daai-component';
     <daai-component
       apiKey="YOUR_API_KEY"
       modeApi="dev"
+      onSuccess="onSuccess"
+      onError="onError"
+      theme='{
+  "borderColor": "#0600b1",
+  "buttonSearchFiles":"#0600b1",
+  "buttonSendFiles": "#0600b1",
+  "textBadgeColor": "#0600b1"
+  }'
+    >
+    </daai-component>
+    <daai-upload
+      apiKey="YOUR_API_KEY"
+      modeApi="dev"
       theme='{
       "icon": "path/to/icon.png",
       "buttonStartRecordingColor": "#0600b1",
@@ -141,7 +193,7 @@ import '@doctorassistant/daai-component';
       onSuccess="onSuccess"
       onError="onError"
     >
-    </daai-component>
+    </daai-upload>
   </body>
 </html>
 ```
@@ -220,10 +272,15 @@ Caso a sua aplicação não utilize react, vue.js e angular, você pode optar po
       src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
       type="module"
     ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiUpload.js"
+      type="module"
+    ></script>
   </head>
   <body>
     <h1>Exemplo de uso do componente via cdn</h1>
     <daai-component apiKey="YOUR_API_KEY" modeApi="dev"></daai-component>
+    <daai-upload apiKey="YOUR_API_KEY" modeApi="dev"></daai-upload>
   </body>
 </html>
 ```
@@ -249,6 +306,8 @@ Versão especificada
 ## Especialidades
 
 A propriedade `specialty` permite definir a especialidade desejada no componente, configurando o formato em que o relatório será gerado. Quando essa propriedade é fornecida, o seletor de especialidade será desabilitado, garantindo que todos os usuários utilizem a mesma especialidade.
+
+⚠️ Funciona apenas para o daai-component
 
 ### Especialidades disponíveis
 
