@@ -1,15 +1,13 @@
-# Doctor Assistant - Componentes
+# Daai Component
 
-## sumário
+### Sumário
 
 1. [Introdução](#introdução)
-2. [Daai-upload](#Daai-upload)
-3. [Daai-component](#Daai-component)
-4. [Como usar os componentes](#uso)
-5. [Uso do componente via CDN](#uso-do-componente-via-cdn)
-6. [Construção dos componentes](#construção)
-7. [Customização](#customização)
-8. [Especialidades](#especialidades)
+2. [Como usar o componente](#uso)
+3. [Propriedades para o componente](#propriedades)
+4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
+5. [Especialidades](#especialidades)
+6. [Construção do componente](#construção)
 
 ## Introdução
 
@@ -36,35 +34,20 @@ npm i @doctorassistant/daai-component
 
 ### Como usar após a instalação:
 
-### Daai-component
-
 Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> no local onde deseja que o componente seja renderizado:
 
 ```html
 import '@doctorassistant/daai-component';
-
-<daai-component></daai-component>
+<daai-component apiKey="YOUR_API_KEY" modeApi="dev"></daai-component>
 ```
 
 onde ele for chamado vai ser renderizado nesse modelo:
 
 ![readme_component_layout.png](https://raw.githubusercontent.com/doctor-assistant/daai-component/main/readme_component_layout.png)
 
-### Daai-upload
+## propriedades
 
-Após instalar o pacote no seu projeto, basta adicionar a tag <daai-component> no local onde deseja que o componente seja renderizado:
-
-```html
-import '@doctorassistant/daai-component';
-
-<daai-upload></daai-upload>
-```
-
-onde ele for chamado vai ser renderizado nesse modelo:
-
-![alt text](daai_upload.png)
-
-## propriedades de funcionamento
+### propriedades de funcionamento
 
 ```js
 // ⚠️ A propriedade professionalId não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave
@@ -77,10 +60,26 @@ apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 // ⚠️ A propriedade modeApi é obrigatória para definir se você deseja utilizar o ambiente de teste você deve passar o valor 'dev', caso você queira testar o ambiente de produção você deve passar o valor 'prod', caso você não passe essa propriedade, o componente não irá fazer requisições.
 modeApi = 'dev';
 // ⚠️ A propriedade specialty não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, caso ela não seja passada o usuário pode selecionar a especialidade desejada no select.
-specialty='aqui você deve passar a especialidade que você quer que o usuário use"
+specialty =
+  'aqui você deve passar a especialidade que você quer que o usuário use';
+// ⚠️ A propriedade metadata não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, no entanto, a chave serve para enviar dados que você deseja recuperar posteriormente pela nossa API quando a gravação for finalizada, possibilitando a recuperação por meio do webhook.
+metadata =
+  'aqui você deve passar o valor que deseja recuperar, se atente ao formato, descrevo no tópico abaixo.';
 ```
 
-## customização
+### Formato metadata
+
+```html
+// ⚠️ Essse deve ser o formato
+<body>
+  <daai-component
+    metadata='{"name": "doctor", "role": "Assistant"}'
+    apiKey="YOUR_API_KEY"
+    modeApi="dev"
+  >
+  </daai-component>
+</body>
+```
 
 Após a instalação do componente e a sua inclusão no código, será possível customizá-lo passando as props correspondentes. Caso as props não sejam fornecidas, ele utilizará o layout padrão. 🎨
 
@@ -106,23 +105,45 @@ theme: {
 ### 🖌️ exemplo de uso da customização:
 
 ```html
-<daai-component
-  theme='{
-  "icon": "path/to/icon.png",
-  "buttonStartRecordingColor": "#0600b1",
-  "buttonRecordingColor": "#0600b1",
-  "buttonPauseColor": "#0600b1",
-  "buttonResumeColor": "#0600b1",
-  "buttonUploadColor":"#0600b1",
-  "borderColor": "#0600b1",
-  "animationRecordingColor":"#0600b1",
-  "animationPausedColor": "#0600b1",
-  "textBadgeColor": "#0600b1"
-  }'
-  onSuccess="função de callback que será executada em caso de sucesso"
-  onError="função de callback que será executada em caso de erro"
->
-</daai-component>
+import '@doctorassistant/daai-component';
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+      function onSuccess(data) {
+        console.log(data);
+      }
+      function onError(data) {
+        console.log(data);
+      }
+    </script>
+  </head>
+  <body>
+    <daai-component
+      apiKey="YOUR_API_KEY"
+      modeApi="dev"
+      theme='{
+      "icon": "path/to/icon.png",
+      "buttonStartRecordingColor": "#0600b1",
+      "buttonRecordingColor": "#0600b1",
+      "buttonPauseColor": "#0600b1",
+      "buttonResumeColor": "#0600b1",
+      "buttonUploadColor":"#0600b1",
+      "borderColor": "#0600b1",
+      "animationRecordingColor":"#0600b1",
+      "animationPausedColor": "#0600b1",
+      "textBadgeColor": "#0600b1"
+      }'
+      onSuccess="onSuccess"
+      onError="onError"
+    >
+    </daai-component>
+  </body>
+</html>
 ```
 
 ### 🔎 definição de cada propriedade:
@@ -174,6 +195,14 @@ Essa propriedade é responsável por mudar a cor da animação quando ela está 
 
 Essa propriedade altera a cor dos textos do componente.
 
+#### onSuccess
+
+função de callback que será executada em caso de sucesso
+
+#### onError
+
+função de callback que será executada em caso de erro
+
 ## Uso do componente via CDN
 
 Caso a sua aplicação não utilize react, vue.js e angular, você pode optar por usar o nosso componente via CDN.
@@ -187,7 +216,6 @@ Caso a sua aplicação não utilize react, vue.js e angular, você pode optar po
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    // aqui você deve chamar por meio do cdn dentro do script
     <script
       src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
       type="module"
@@ -195,7 +223,7 @@ Caso a sua aplicação não utilize react, vue.js e angular, você pode optar po
   </head>
   <body>
     <h1>Exemplo de uso do componente via cdn</h1>
-    <daai-component></daai-component>
+    <daai-component apiKey="YOUR_API_KEY" modeApi="dev"></daai-component>
   </body>
 </html>
 ```
@@ -261,12 +289,6 @@ caso você queira setar a especialidade como `Psiquiatria`
 
 - essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
 - sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o relatório será gerado como genérico.
-
-## Daai Upload
-
-### Componente de upload
-
-Esse componente foi desenvolvido com a finalidade de fazer o upload de exames.
 
 ## construção
 
