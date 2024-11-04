@@ -7,7 +7,8 @@
 3. [Customização](#customização)
 4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
 5. [Especialidades](#especialidades)
-6. [Construção do componente](#construção)
+6. [Como implementar](#implementação)
+7. [Construção do componente](#construção)
 
 ## Introdução
 
@@ -257,6 +258,43 @@ caso você queira setar a especialidade como `Psiquiatria`
 
 - essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
 - sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o relatório será gerado como genérico.
+
+## implementação
+
+### Use esse exemplo para teste de sua implementação 🧪
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    // aqui você deve chamar por meio do cdn dentro do script
+    <script
+      src="https://cdn.jsdelivr.net/npm/@doctorassistant/daai-component@latest/dist/DaaiBadge.js"
+      type="module"
+    ></script>
+    <script>
+      function onSuccess(data) {
+        console.log(data);
+      }
+      function onError(data) {
+        console.log(data);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Exemplo de uso do componente via cdn</h1>
+    <daai-component
+      apiKey="YOUR_API_KEY"
+      modeApi="dev"
+      onSuccess="onSuccess"
+      onError="onError"
+    ></daai-component>
+  </body>
+</html>
+```
 
 ## construção
 
