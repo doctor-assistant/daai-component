@@ -1,8 +1,14 @@
 import { DAAI_LOGO } from './icons/icons.js';
+import { applyThemeAttributes } from './scripts/ComponentProps.js';
+import { initializeEasterEgg } from './scripts/EasterEgg.js';
 
 class DaaiSumarization extends HTMLElement {
   constructor() {
     super();
+    this.textsToSumarize = '';
+    this.summarizedText = '';
+    this.apiKey = '';
+
     const shadow = this.attachShadow({ mode: 'open' });
     shadow.innerHTML = `
     <style>
@@ -136,45 +142,36 @@ class DaaiSumarization extends HTMLElement {
       <div class="container-content">
       <img src=${DAAI_LOGO} alt='upload-icon'
         <p>Sumário clínico</p>
+        <button class="sumary-button" id="generate">gerar sumário</button>
         <button class="sumary-button" id="sumary">Ver sumário</button>
       </div>
     </div>
     `;
 
-    this.shadowRoot
-      .querySelector('#sumary')
-      .addEventListener('click', () => this.showModal());
+    this.shadowRoot.querySelector('#generate').addEventListener('click', () => {
+      this.summarizeTexts();
+    });
+
+    this.shadowRoot.querySelector('#sumary').addEventListener('click', () => {
+      this.showModal();
+    });
   }
 
   showModal() {
+    console.log(this.summarizeTexts.summary, 'this.summarizeTexts.summary');
     const modal = document.createElement('div');
     modal.classList.add('modal');
     modal.innerHTML = `
       <div class='sumary-content'>
-      <p>📄 Sumário clínico do paciente</p>
-      <span class='period-container'>Análise do período de xx/xx/xxxx a xx/xx/xxxx</span>
-      <span class='sumary-container'>
-          Lorem ipsum dolor sit amet. Cum quos natus sit alias sunt hic ratione temporibus aut quia autem sit suscipit labore et vero iure et voluptatem dolorem. In voluptatem voluptas est autem tempore est cumque dolore eum quod fugiat sit minus neque. Et voluptatem nihil sit doloremque neque eos dolorem corrupti.
-
-          Qui perspiciatis praesentium eum nihil modi ut totam itaque et veritatis officia ad porro eaque sed aliquid ipsam aut possimus pariatur? Et aperiam consequatur est quia sunt quo pariatur sunt aut laboriosam necessitatibus sed fuga dolorem 33 explicabo voluptatibus.
-
-          Qui necessitatibus temporibus et voluptas eius et illo galisum. Qui enim omnis hic omnis commodi eum impedit provident non nulla quia id porro ipsam et cupiditate ullam. Aut rerum deserunt et reiciendis doloremque eos voluptas modi. Ab nobis quos aut modi rerum ea quisquam iste et dicta quaerat.
-
-            Lorem ipsum dolor sit amet. Cum quos natus sit alias sunt hic ratione temporibus aut quia autem sit suscipit labore et vero iure et voluptatem dolorem. In voluptatem voluptas est autem tempore est cumque dolore eum quod fugiat sit minus neque. Et voluptatem nihil sit doloremque neque eos dolorem corrupti.
-
-          Qui perspiciatis praesentium eum nihil modi ut totam itaque et veritatis officia ad porro eaque sed aliquid ipsam aut possimus pariatur? Et aperiam consequatur est quia sunt quo pariatur sunt aut laboriosam necessitatibus sed fuga dolorem 33 explicabo voluptatibus.
-
-          Qui necessitatibus temporibus et voluptas eius et illo galisum. Qui enim omnis hic omnis commodi eum impedit provident non nulla quia id porro ipsam et cupiditate ullam. Aut rerum deserunt et reiciendis doloremque eos voluptas modi. Ab nobis quos aut modi rerum ea quisquam iste et dicta quaerat.
-          Lorem ipsum dolor sit amet. Cum quos natus sit alias sunt hic ratione temporibus aut quia autem sit suscipit labore et vero iure et voluptatem dolorem. In voluptatem voluptas est autem tempore est cumque dolore eum quod fugiat sit minus neque. Et voluptatem nihil sit doloremque neque eos dolorem corrupti.
-
-          Qui perspiciatis praesentium eum nihil modi ut totam itaque et veritatis officia ad porro eaque sed aliquid ipsam aut possimus pariatur? Et aperiam consequatur est quia sunt quo pariatur sunt aut laboriosam necessitatibus sed fuga dolorem 33 explicabo voluptatibus.
-
-          Qui necessitatibus temporibus et voluptas eius et illo galisum. Qui enim omnis hic omnis commodi eum impedit provident non nulla quia id porro ipsam et cupiditate ullam. Aut rerum deserunt et reiciendis doloremque eos voluptas modi. Ab nobis quos aut modi rerum ea quisquam iste et dicta quaerat.
-      </span>
-      <div class='container-buttons'>
-      <button class="copy-button" id='copyText'>Copiar</button>
-      <button class="close-button" id="closeModal">Fechar</button>
-      </div>
+        <p>Sumário clínico do paciente</p>
+        <span class='period-container'>Análise do período de xx/xx/xxxx a xx/xx/xxxx</span>
+        <span class='sumary-container' id='teste'>
+          ${this.summarizeTexts.summary || 'Resumo não disponível'}
+        </span>
+        <div class='container-buttons'>
+          <button class="copy-button" id='copyText'>Copiar</button>
+          <button class="close-button" id="closeModal">Fechar</button>
+        </div>
       </div>
     `;
 
@@ -193,6 +190,21 @@ class DaaiSumarization extends HTMLElement {
       .querySelector('#copyText')
       .addEventListener('click', () => this.copySumaryText());
   }
+
+  formatText(textsToSummarize) {
+    try {
+      const data = JSON.parse(textsToSummarize);
+      if (Array.isArray(data)) {
+        const formated = JSON.stringify({ texts: data });
+        return formated;
+      }
+      return textsToSummarize;
+    } catch (error) {
+      console.error('Erro ao fazer parse da string JSON:', error);
+      return null;
+    }
+  }
+
   copySumaryText() {
     const sumaryText =
       this.shadowRoot.querySelector('.sumary-container').innerText;
@@ -217,6 +229,98 @@ class DaaiSumarization extends HTMLElement {
   closeModal(modal, overlay) {
     this.shadowRoot.removeChild(modal);
     this.shadowRoot.removeChild(overlay);
+  }
+
+  async summarization(apikey, texts, onSuccess, onError) {
+    const url =
+      'https://apim.doctorassistant.ai/api/summary/perform_summarization';
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'x-daai-api-key': apikey,
+          'Content-Type': 'application/json',
+        },
+        body: texts,
+      });
+      if (response) {
+        const jsonResponse = await response.json();
+        this.summarizeTexts = jsonResponse;
+        if (typeof onSuccess === 'function') {
+          onSuccess(jsonResponse);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao enviar os textos:', error);
+      if (typeof onError === 'function') {
+        onError('erro na requisição', error);
+      }
+    }
+  }
+
+  async summarizeTexts() {
+    console.log(this.apiKey, 'his.apiKey');
+    try {
+      this.summarization(this.apiKey, this.textsToSumarize);
+    } catch {}
+  }
+
+  static get observedAttributes() {
+    return ['theme', 'onSuccess', 'onError', 'apiKey', 'modeApi', 'texts'];
+  }
+
+  connectedCallback() {
+    const successAttr = this.getAttribute('onSuccess');
+    const errorAttr = this.getAttribute('onError');
+
+    if (successAttr && typeof window[successAttr] === 'function') {
+      this.onSuccess = window[successAttr].bind(this);
+    }
+    if (errorAttr && typeof window[errorAttr] === 'function') {
+      this.onError = window[errorAttr].bind(this);
+    }
+    const logoElement = this.shadowRoot.querySelector('img');
+    const defaultTheme = {
+      icon: this.getAttribute('icon') || initializeEasterEgg(logoElement),
+      borderColor: '#009CB1',
+      textBadgeColor: '#009CB1',
+    };
+
+    const themeAttr = this.getAttribute('theme');
+    if (themeAttr) {
+      this.theme = { ...defaultTheme, ...parseThemeAttribute(themeAttr) };
+    } else {
+      this.theme = defaultTheme;
+    }
+    applyThemeAttributes(this.theme, this);
+    this.apiKey = this.getAttribute('apikey');
+    this.modeApi = this.getAttribute('modeApi');
+    this.onSuccess = this.getAttribute('onSuccess');
+    this.textsToSumarize = this.formatText(this.getAttribute('texts'));
+
+    console.log(
+      'mock de texto',
+      this.textsToSumarize,
+      typeof this.textsToSumarize
+    )
+      ? new Function('return ' + this.getAttribute('onSuccess'))()
+      : null;
+
+    this.onError = this.getAttribute('onError')
+      ? new Function('return ' + this.getAttribute('onError'))()
+      : null;
+  }
+
+  triggerSuccess(...params) {
+    if (typeof this.onSuccess === 'function') {
+      this.onSuccess(...params);
+    }
+  }
+
+  triggerError(...params) {
+    if (typeof this.onError === 'function') {
+      this.onError(...params);
+    }
   }
 }
 
