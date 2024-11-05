@@ -1,3 +1,5 @@
+import { DAAI_LOGO } from './icons/icons.js';
+
 class DaaiSumarization extends HTMLElement {
   constructor() {
     super();
@@ -33,9 +35,8 @@ class DaaiSumarization extends HTMLElement {
       }
       .sumary-button {
         height: 30px;
-        width: 50px;
         font-size: 12px;
-        border-radius: 8px;
+        border-radius: 6px;
         background-color: #009CB1;
         color: white;
         border: none;
@@ -124,8 +125,10 @@ class DaaiSumarization extends HTMLElement {
     </style>
     <div class="container">
       <div class="container-content">
+      <img src=${DAAI_LOGO} alt='upload-icon'
         <p>Sumário clínico</p>
-        <button class="sumary-button" id="sumary">ver</button>
+        <button class="sumary-button" id="sumary">Gerar sumário</button>
+        <button class="sumary-button" id="sumary">Ver sumário</button>
       </div>
     </div>
     `;
