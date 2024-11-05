@@ -15,15 +15,15 @@ class DaaiSumarization extends HTMLElement {
         align-items: center;
         justify-content: center;
         margin-top: 10px;
+        font-family: "Inter", sans-serif;
       }
       .container-content {
-        color: var(--text-badge-color, #009CB1);
         display: flex;
         gap: 10px;
         align-items: center;
         justify-content: center;
         padding: 1rem;
-        border: 3px solid;
+        border: 3px solid #009CB1;
         border-radius: 30px;
         background-color: #ffffff;
         height: 40px;
@@ -32,10 +32,12 @@ class DaaiSumarization extends HTMLElement {
         font-weight: 600;
         position: relative;
         transition: background-color 0.3s, border-color 0.3s;
+        color:#475569;
       }
       .sumary-button {
-        height: 30px;
-        font-size: 12px;
+        height: 40px;
+        padding: 8px;
+        font-size: 13px;
         border-radius: 6px;
         background-color: #009CB1;
         color: white;
@@ -66,6 +68,7 @@ class DaaiSumarization extends HTMLElement {
         background-color: #4CAF50;
       }
       .modal {
+        color:#475569;
         position: fixed;
         top: 50%;
         left: 50%;
@@ -75,7 +78,7 @@ class DaaiSumarization extends HTMLElement {
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         z-index: 1000;
-        width: 400px;
+        width: 600px;
         font-weight:600;
         @media (max-width: 600px) {
          width: 80%;
@@ -99,7 +102,7 @@ class DaaiSumarization extends HTMLElement {
         border: 3px solid  #009CB1;
         border-radius: 10px;
         height: 60px;
-        width:96%;
+        width:97%;
         padding:4px;
       }
 
@@ -122,12 +125,17 @@ class DaaiSumarization extends HTMLElement {
         justify-content: center;
         flex-direction:column;
       }
+      .container-buttons{
+        width:100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
     </style>
     <div class="container">
       <div class="container-content">
       <img src=${DAAI_LOGO} alt='upload-icon'
         <p>Sumário clínico</p>
-        <button class="sumary-button" id="sumary">Gerar sumário</button>
         <button class="sumary-button" id="sumary">Ver sumário</button>
       </div>
     </div>
@@ -143,7 +151,7 @@ class DaaiSumarization extends HTMLElement {
     modal.classList.add('modal');
     modal.innerHTML = `
       <div class='sumary-content'>
-      <p>Sumário clínico do paciente</p>
+      <p>📄 Sumário clínico do paciente</p>
       <span class='period-container'>Análise do período de xx/xx/xxxx a xx/xx/xxxx</span>
       <span class='sumary-container'>
           Lorem ipsum dolor sit amet. Cum quos natus sit alias sunt hic ratione temporibus aut quia autem sit suscipit labore et vero iure et voluptatem dolorem. In voluptatem voluptas est autem tempore est cumque dolore eum quod fugiat sit minus neque. Et voluptatem nihil sit doloremque neque eos dolorem corrupti.
@@ -151,8 +159,19 @@ class DaaiSumarization extends HTMLElement {
           Qui perspiciatis praesentium eum nihil modi ut totam itaque et veritatis officia ad porro eaque sed aliquid ipsam aut possimus pariatur? Et aperiam consequatur est quia sunt quo pariatur sunt aut laboriosam necessitatibus sed fuga dolorem 33 explicabo voluptatibus.
 
           Qui necessitatibus temporibus et voluptas eius et illo galisum. Qui enim omnis hic omnis commodi eum impedit provident non nulla quia id porro ipsam et cupiditate ullam. Aut rerum deserunt et reiciendis doloremque eos voluptas modi. Ab nobis quos aut modi rerum ea quisquam iste et dicta quaerat.
+
+            Lorem ipsum dolor sit amet. Cum quos natus sit alias sunt hic ratione temporibus aut quia autem sit suscipit labore et vero iure et voluptatem dolorem. In voluptatem voluptas est autem tempore est cumque dolore eum quod fugiat sit minus neque. Et voluptatem nihil sit doloremque neque eos dolorem corrupti.
+
+          Qui perspiciatis praesentium eum nihil modi ut totam itaque et veritatis officia ad porro eaque sed aliquid ipsam aut possimus pariatur? Et aperiam consequatur est quia sunt quo pariatur sunt aut laboriosam necessitatibus sed fuga dolorem 33 explicabo voluptatibus.
+
+          Qui necessitatibus temporibus et voluptas eius et illo galisum. Qui enim omnis hic omnis commodi eum impedit provident non nulla quia id porro ipsam et cupiditate ullam. Aut rerum deserunt et reiciendis doloremque eos voluptas modi. Ab nobis quos aut modi rerum ea quisquam iste et dicta quaerat.
+          Lorem ipsum dolor sit amet. Cum quos natus sit alias sunt hic ratione temporibus aut quia autem sit suscipit labore et vero iure et voluptatem dolorem. In voluptatem voluptas est autem tempore est cumque dolore eum quod fugiat sit minus neque. Et voluptatem nihil sit doloremque neque eos dolorem corrupti.
+
+          Qui perspiciatis praesentium eum nihil modi ut totam itaque et veritatis officia ad porro eaque sed aliquid ipsam aut possimus pariatur? Et aperiam consequatur est quia sunt quo pariatur sunt aut laboriosam necessitatibus sed fuga dolorem 33 explicabo voluptatibus.
+
+          Qui necessitatibus temporibus et voluptas eius et illo galisum. Qui enim omnis hic omnis commodi eum impedit provident non nulla quia id porro ipsam et cupiditate ullam. Aut rerum deserunt et reiciendis doloremque eos voluptas modi. Ab nobis quos aut modi rerum ea quisquam iste et dicta quaerat.
       </span>
-      <div>
+      <div class='container-buttons'>
       <button class="copy-button" id='copyText'>Copiar</button>
       <button class="close-button" id="closeModal">Fechar</button>
       </div>
