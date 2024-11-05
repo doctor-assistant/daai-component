@@ -8,6 +8,7 @@ export function getButtonClass(type) {
     upload: 'button-upload',
     change: 'button-change',
     specialty: 'button-specialty',
+    suport: 'button-suport',
   };
   return classesMap[type] || '';
 }

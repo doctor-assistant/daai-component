@@ -1,6 +1,7 @@
 import { getSpecialty } from './api/Specialty.js';
 import {
   GEAR,
+  HELP_ICON,
   MICROPHONE_ICON,
   PAUSE_ICON,
   RECORDING_ICON,
@@ -68,8 +69,8 @@ class DaaiBadge extends HTMLElement {
   border: 3px solid;
   border-radius: 30px;
   background-color: #ffffff;
-  height: 60px;
-  min-width: 650px;
+  height: 50px;
+  min-width: 445px;
   font-family: "Inter", sans-serif;
   font-weight: 600;
   position: relative;
@@ -78,7 +79,7 @@ class DaaiBadge extends HTMLElement {
 
 .recorder-box button {
   height: 50px;
-  padding: 0.5rem 1rem;
+  width: 50px;
   border: none;
   border-radius: 8px;
   font-size: 15px;
@@ -340,25 +341,32 @@ class DaaiBadge extends HTMLElement {
       start: createButton(
         'start',
         MICROPHONE_ICON,
-        'Iniciar Registro',
+        '',
+        startRecording.bind(this)
+      ),
+      suport: createButton('suport', HELP_ICON, '', pauseRecording.bind(this)),
+      start: createButton(
+        'start',
+        MICROPHONE_ICON,
+        '',
         startRecording.bind(this)
       ),
       finish: createButton(
         'finish',
         RECORDING_ICON,
-        'Finalizar Registro',
+        '',
         finishRecording.bind(this)
       ),
       resume: createButton(
         'resume',
         RESUME_ICON,
-        'Continuar Registro',
+        '',
         resumeRecording.bind(this)
       ),
       upload: createButton(
         'upload',
         MICROPHONE_ICON,
-        'Iniciar novo registro',
+        '',
         newRecording.bind(this)
       ),
     };
@@ -518,7 +526,7 @@ class DaaiBadge extends HTMLElement {
     const buttonVisibilityMap = {
       waiting: { visible: ['start'], disabled: ['start'] },
       micTest: {
-        visible: ['start', 'changeMicrophone', 'chooseSpecialty'],
+        visible: ['suport', 'start', 'changeMicrophone', 'chooseSpecialty'],
         disabled: [isDisabled],
       },
       paused: { visible: ['pause', 'resume'], disabled: ['pause'] },

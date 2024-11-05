@@ -33,7 +33,7 @@ export async function StartAnimationMicTest(canvasElement) {
 
     const barWidth = 14;
     const barSpacing = 16;
-    const numberOfBars = 8;
+    const numberOfBars = 6;
     const totalWidth =
       numberOfBars * barWidth + (numberOfBars - 1) * barSpacing;
     const startX = (WIDTH - totalWidth) / 2;
@@ -118,7 +118,7 @@ export function StartAnimationRecording(
 
   const ctx = canvasElement.getContext('2d');
 
-  const defaultCanvWidth = 250;
+  const defaultCanvWidth = 130;
   const defaultCanvHeight = 50;
   const lineWidth = 0.5;
   const frequLnum = 50;

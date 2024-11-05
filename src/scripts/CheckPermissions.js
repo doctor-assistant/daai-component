@@ -27,7 +27,7 @@ function handlePermissionGranted(context) {
   context.canvas.classList.remove('hidden');
   context.canvas.className = 'animation-mic-test';
   context.status = 'micTest';
-  context.statusText.textContent = 'Microfone';
+  context.statusText.textContent = 'xx';
   context.statusText.className = 'mic-test-text';
   StartAnimationMicTest(context.canvas);
   context.updateButtons();
