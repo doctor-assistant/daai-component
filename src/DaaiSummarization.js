@@ -58,6 +58,20 @@ class DaaiSumarization extends HTMLElement {
         border: none;
         cursor: pointer;
       }
+
+      .sumary-text-button:disabled {
+        height: 40px;
+        width: 100px;
+        padding: 8px;
+        font-size: 13px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        background-color: #B0BEC5;
+        color: #475569;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
       .sumary-button {
         height: 40px;
         width: 60px;
@@ -72,7 +86,7 @@ class DaaiSumarization extends HTMLElement {
         .sumary-button:disabled {
           background-color: #B0BEC5;
           color: #FFFFFF;
-          cursor: not-allowed; /
+          cursor: not-allowed;
           opacity: 0.6;
       }
       .close-button{
@@ -304,10 +318,12 @@ class DaaiSumarization extends HTMLElement {
         getImageButton.src = buttonAvalibleIcon;
         generateButton.innerText = 'Concluído';
         generateButton.style.color = '#fffff';
+        generateButton.disabled = true;
 
         setTimeout(() => {
           generateButton.innerText = 'Gerar relatório';
           generateButton.style.color = '#fffff';
+          generateButton.disabled = true;
         }, 5000);
 
         if (jsonResponse) {
