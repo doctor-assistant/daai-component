@@ -39,9 +39,13 @@ class DaaiSumarization extends HTMLElement {
         position: relative;
         transition: background-color 0.3s, border-color 0.3s;
         color:#475569;
+        @media (max-width: 600px) {
+          max-width: 330px;
+          }
       }
       .sumary-button {
         height: 40px;
+        width: 100px;
         padding: 8px;
         font-size: 13px;
         border-radius: 6px;
@@ -49,6 +53,12 @@ class DaaiSumarization extends HTMLElement {
         color: white;
         border: none;
         cursor: pointer;
+      }
+        .sumary-button:disabled {
+          background-color: #B0BEC5;
+          color: #FFFFFF;
+          cursor: not-allowed; /
+          opacity: 0.6;
       }
       .close-button{
         height: 40px;
@@ -101,7 +111,7 @@ class DaaiSumarization extends HTMLElement {
       }
       .period-container{
         display: flex;
-        gap: 10px;
+        gap: 3px;
         align-items: center;
         font-weight: 500;
         justify-content: center;
@@ -143,7 +153,7 @@ class DaaiSumarization extends HTMLElement {
       <img src=${DAAI_LOGO} alt='upload-icon'
         <p>Sumário clínico</p>
         <button class="sumary-button" id="generate">gerar sumário</button>
-        <button class="sumary-button" id="sumary">Ver sumário</button>
+        <button class="sumary-button" id="sumary" disabled>Ver sumário</button>
       </div>
     </div>
     `;
@@ -191,6 +201,16 @@ class DaaiSumarization extends HTMLElement {
       .addEventListener('click', () => this.copySumaryText());
   }
 
+  enableSummaryButton() {
+    const summaryButton = this.shadowRoot.querySelector('#sumary');
+    summaryButton.disabled = false;
+  }
+
+  disableSummaryButton() {
+    const summaryButton = this.shadowRoot.querySelector('#sumary');
+    summaryButton.disabled = true;
+  }
+
   formatText(textsToSummarize) {
     try {
       const data = JSON.parse(textsToSummarize);
@@ -234,6 +254,11 @@ class DaaiSumarization extends HTMLElement {
   async summarization(apikey, texts, onSuccess, onError) {
     const url =
       'https://apim.doctorassistant.ai/api/summary/perform_summarization';
+
+    const generateButton = this.shadowRoot.querySelector('#generate');
+    generateButton.innerText = 'gerando';
+    generateButton.style.color = '#fffff';
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -243,14 +268,29 @@ class DaaiSumarization extends HTMLElement {
         },
         body: texts,
       });
+
       if (response) {
         const jsonResponse = await response.json();
+        generateButton.innerText = 'concluído';
+        generateButton.style.color = '#fffff';
+
+        setTimeout(() => {
+          generateButton.innerText = 'gerar relatório';
+          generateButton.style.color = '#fffff';
+        }, 5000);
+
+        if (jsonResponse) {
+          this.enableSummaryButton();
+        }
         this.summarizeTexts = jsonResponse;
         if (typeof onSuccess === 'function') {
           onSuccess(jsonResponse);
         }
       }
     } catch (error) {
+      generateButton.innerText = 'gerar sumário';
+      generateButton.style.color = '#FFFFFF';
+      this.disableSummaryButton();
       console.error('Erro ao enviar os textos:', error);
       if (typeof onError === 'function') {
         onError('erro na requisição', error);
@@ -260,9 +300,12 @@ class DaaiSumarization extends HTMLElement {
 
   async summarizeTexts() {
     console.log(this.apiKey, 'his.apiKey');
+
     try {
       this.summarization(this.apiKey, this.textsToSumarize);
-    } catch {}
+    } catch (error) {
+      console.error('Erro na sumarização:', error);
+    }
   }
 
   static get observedAttributes() {
