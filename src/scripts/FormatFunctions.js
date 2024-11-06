@@ -1,3 +1,7 @@
+export function formatAnalysisPeriod(data) {
+  console.log(data, 'data');
+}
+
 export function formatMarkdown(markdownText) {
   const formattedText = markdownText
     .replace(/^# (.*$)/gim, '<h1>$1</h1>')

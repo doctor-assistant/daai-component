@@ -1,7 +1,9 @@
-import { DAAI_LOGO } from './icons/icons.js';
+import { CLOSE_EYE_ICON, OPEN_SUMMARY_ICON } from './icons/icons.js';
 import { applyThemeAttributes } from './scripts/ComponentProps.js';
-import { initializeEasterEgg } from './scripts/EasterEgg.js';
-import { formatMarkdown } from './scripts/FormatMarkdown.js';
+import {
+  formatAnalysisPeriod,
+  formatMarkdown,
+} from './scripts/FormatFunctions.js';
 
 class DaaiSumarization extends HTMLElement {
   constructor() {
@@ -44,9 +46,20 @@ class DaaiSumarization extends HTMLElement {
           max-width: 330px;
           }
       }
-      .sumary-button {
+      .sumary-text-button {
         height: 40px;
         width: 100px;
+        padding: 8px;
+        font-size: 13px;
+        border-radius: 6px;
+        background-color: #009CB1;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .sumary-button {
+        height: 40px;
+        width: 60px;
         padding: 8px;
         font-size: 13px;
         border-radius: 6px;
@@ -156,10 +169,11 @@ class DaaiSumarization extends HTMLElement {
     </style>
     <div class="container">
       <div class="container-content">
-      <img src=${DAAI_LOGO} alt='upload-icon'
-        <p>Sumário clínico</p>
-        <button class="sumary-button" id="generate">gerar sumário</button>
-        <button class="sumary-button" id="sumary" disabled>Ver sumário</button>
+        <p>Sumário Clínico</p>
+        <button class="sumary-text-button" id="generate">Gerar sumário</button>
+        <button class="sumary-button" id="sumary" disabled>
+          <img src=${CLOSE_EYE_ICON} id='button-img' />
+        </button>
       </div>
     </div>
     `;
@@ -179,6 +193,8 @@ class DaaiSumarization extends HTMLElement {
     const formattedSummary = formatMarkdown(
       this.summarizeTexts.summary || 'Resumo não disponível'
     );
+
+    const formattedDate = formatAnalysisPeriod(this.textsToSumarize);
     modal.innerHTML = `
       <div class='sumary-content'>
         <p>Sumário clínico do paciente</p>
@@ -264,7 +280,11 @@ class DaaiSumarization extends HTMLElement {
       'https://apim.doctorassistant.ai/api/summary/perform_summarization';
 
     const generateButton = this.shadowRoot.querySelector('#generate');
-    generateButton.innerText = 'gerando';
+    const getImageButton = this.shadowRoot.querySelector('#button-img');
+    const buttonAvalibleIcon = OPEN_SUMMARY_ICON;
+
+    console.log(getImageButton, 'getImageButton');
+    generateButton.innerText = 'Gerando';
     generateButton.style.color = '#fffff';
 
     try {
@@ -279,11 +299,12 @@ class DaaiSumarization extends HTMLElement {
 
       if (response) {
         const jsonResponse = await response.json();
-        generateButton.innerText = 'concluído';
+        getImageButton.src = buttonAvalibleIcon;
+        generateButton.innerText = 'Concluído';
         generateButton.style.color = '#fffff';
 
         setTimeout(() => {
-          generateButton.innerText = 'gerar relatório';
+          generateButton.innerText = 'Gerar relatório';
           generateButton.style.color = '#fffff';
         }, 5000);
 
@@ -296,7 +317,7 @@ class DaaiSumarization extends HTMLElement {
         }
       }
     } catch (error) {
-      generateButton.innerText = 'gerar sumário';
+      generateButton.innerText = 'Gerar sumário';
       generateButton.style.color = '#FFFFFF';
       this.disableSummaryButton();
       console.error('Erro ao enviar os textos:', error);
@@ -328,9 +349,7 @@ class DaaiSumarization extends HTMLElement {
     if (errorAttr && typeof window[errorAttr] === 'function') {
       this.onError = window[errorAttr].bind(this);
     }
-    const logoElement = this.shadowRoot.querySelector('img');
     const defaultTheme = {
-      icon: this.getAttribute('icon') || initializeEasterEgg(logoElement),
       borderColor: '#009CB1',
       textBadgeColor: '#009CB1',
     };
@@ -346,6 +365,8 @@ class DaaiSumarization extends HTMLElement {
     this.modeApi = this.getAttribute('modeApi');
     this.onSuccess = this.getAttribute('onSuccess');
     this.textsToSumarize = this.formatText(this.getAttribute('texts'));
+
+    console.log(this.textsToSumarize, 'this.textsToSumarize');
 
     console.log(
       'mock de texto',
