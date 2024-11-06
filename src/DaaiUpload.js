@@ -35,7 +35,7 @@ class DaaiUpload extends HTMLElement {
         }
 
         .recorder-box {
-          color: var(--text-badge-color, #009CB1);
+          color: var(--text-badge-color, #475569);
           display: flex;
           gap:6px;
           align-items: center;
@@ -75,7 +75,7 @@ class DaaiUpload extends HTMLElement {
           flex-direction: column;
           height: 50px;
           width:300px;
-          border: 2px dashed var(--text-badge-color, #009CB1);
+          border: 2px dashed var(--text-badge-color, #475569);
           border-radius: 4px;
           font-size:12px;
           color:#475569;
@@ -113,7 +113,7 @@ class DaaiUpload extends HTMLElement {
 
         li {
           display: flex;
-          justify-content: space-between;
+          justify-content: space-around;
           align-items:center;
           font-size:12px;
         }
@@ -242,9 +242,9 @@ class DaaiUpload extends HTMLElement {
     }
     const defaultTheme = {
       buttonSendFiles: '#009CB1',
-      buttonSearchFiles: '#d3d3d3',
+      buttonSearchFiles: '#637381',
       borderColor: '#009CB1',
-      textBadgeColor: '#009CB1',
+      textBadgeColor: '#637381',
     };
 
     const themeAttr = this.getAttribute('theme');
