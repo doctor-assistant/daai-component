@@ -1,6 +1,7 @@
 import { DAAI_LOGO } from './icons/icons.js';
 import { applyThemeAttributes } from './scripts/ComponentProps.js';
 import { initializeEasterEgg } from './scripts/EasterEgg.js';
+import { formatMarkdown } from './scripts/FormatMarkdown.js';
 
 class DaaiSumarization extends HTMLElement {
   constructor() {
@@ -120,19 +121,24 @@ class DaaiSumarization extends HTMLElement {
         height: 60px;
         width:97%;
         padding:4px;
+       @media (max-width: 600px) {
+         font-size:12px;
+      }
       }
 
     .sumary-container{
         display: flex;
-        gap: 10px;
         font-weight: 500;
         align-items: flex-start;
         justify-content: flex-start;
+        flex-direction: column;
         border: 3px solid  #009CB1;
         border-radius: 10px;
         height: 300px;
+        width:96%;
         overflow-y: auto;
         padding:8px;
+        font-size: 12px;
       }
       .sumary-content{
         display: flex;
@@ -168,15 +174,17 @@ class DaaiSumarization extends HTMLElement {
   }
 
   showModal() {
-    console.log(this.summarizeTexts.summary, 'this.summarizeTexts.summary');
     const modal = document.createElement('div');
     modal.classList.add('modal');
+    const formattedSummary = formatMarkdown(
+      this.summarizeTexts.summary || 'Resumo não disponível'
+    );
     modal.innerHTML = `
       <div class='sumary-content'>
         <p>Sumário clínico do paciente</p>
         <span class='period-container'>Análise do período de xx/xx/xxxx a xx/xx/xxxx</span>
         <span class='sumary-container' id='teste'>
-          ${this.summarizeTexts.summary || 'Resumo não disponível'}
+          ${formattedSummary}
         </span>
         <div class='container-buttons'>
           <button class="copy-button" id='copyText'>Copiar</button>
@@ -299,8 +307,6 @@ class DaaiSumarization extends HTMLElement {
   }
 
   async summarizeTexts() {
-    console.log(this.apiKey, 'his.apiKey');
-
     try {
       this.summarization(this.apiKey, this.textsToSumarize);
     } catch (error) {
