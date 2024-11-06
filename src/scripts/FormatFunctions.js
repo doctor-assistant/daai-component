@@ -1,5 +1,27 @@
 export function formatAnalysisPeriod(data) {
-  console.log(data, 'data');
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data);
+    } catch (error) {
+      console.error('Erro ao parsear a string JSON:', error);
+      return 'Erro ao processar os dados';
+    }
+  }
+
+  if (Array.isArray(data)) {
+    const dates = data.map((item) => new Date(item.dt_cn));
+    dates.sort((a, b) => a - b);
+    const formatDate = (date) =>
+      `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, '0')}/${date.getFullYear()}`;
+    if (dates.length === 1) {
+      return `Análise do período de ${formatDate(dates[0])}`;
+    }
+    return `Análise do período de ${formatDate(dates[0])} a ${formatDate(dates[dates.length - 1])}`;
+  } else {
+    return 'Análise do período';
+  }
 }
 
 export function formatMarkdown(markdownText) {

@@ -11,6 +11,7 @@ class DaaiSumarization extends HTMLElement {
     this.textsToSumarize = '';
     this.summarizedText = '';
     this.apiKey = '';
+    this.texts = '';
 
     const shadow = this.attachShadow({ mode: 'open' });
     shadow.innerHTML = `
@@ -194,11 +195,12 @@ class DaaiSumarization extends HTMLElement {
       this.summarizeTexts.summary || 'Resumo não disponível'
     );
 
-    const formattedDate = formatAnalysisPeriod(this.textsToSumarize);
+    const formattedDate = formatAnalysisPeriod(this.texts);
+
     modal.innerHTML = `
       <div class='sumary-content'>
         <p>Sumário clínico do paciente</p>
-        <span class='period-container'>Análise do período de xx/xx/xxxx a xx/xx/xxxx</span>
+        <span class='period-container'>${formattedDate}</span>
         <span class='sumary-container' id='teste'>
           ${formattedSummary}
         </span>
@@ -365,6 +367,7 @@ class DaaiSumarization extends HTMLElement {
     this.modeApi = this.getAttribute('modeApi');
     this.onSuccess = this.getAttribute('onSuccess');
     this.textsToSumarize = this.formatText(this.getAttribute('texts'));
+    this.texts = this.getAttribute('texts');
 
     console.log(this.textsToSumarize, 'this.textsToSumarize');
 
