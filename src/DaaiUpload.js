@@ -41,7 +41,7 @@ class DaaiUpload extends HTMLElement {
           align-items: center;
           justify-content: center;
           flex-direction: row;
-          padding: 1rem;
+          padding: 12px;
           border: 3px solid;
           border-radius: 30px;
           background-color: #ffffff;
@@ -74,7 +74,7 @@ class DaaiUpload extends HTMLElement {
           justify-content: center;
           flex-direction: column;
           height: 50px;
-          width:300px;
+          width:259px;
           border: 2px dashed var(--text-badge-color, #475569);
           border-radius: 4px;
           font-size:12px;
@@ -144,7 +144,7 @@ class DaaiUpload extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap:4px;
+          gap:8px;
         }
         .delete-button {
           cursor: pointer;
