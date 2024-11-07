@@ -558,11 +558,27 @@ class DaaiBadge extends HTMLElement {
     this.microphoneBackdrop.classList.add('active');
     this.microphoneModal.classList.add('active');
     this.updateButtons();
+    this.dispatchEvent(
+      new CustomEvent("interface", {
+        bubbles: true,
+        detail: { 
+          microphoneSelect: true
+        },
+      }),
+    );
   }
 
   closeMicrophoneModal() {
     this.microphoneBackdrop.classList.remove('active');
     this.microphoneModal.classList.remove('active');
+    this.dispatchEvent(
+      new CustomEvent("interface", {
+        bubbles: true,
+        detail: { 
+          microphoneSelect: false 
+        },
+      }),
+    );
   }
 
   // abrir o modal de mudança de especialidade
@@ -570,6 +586,14 @@ class DaaiBadge extends HTMLElement {
     this.specialtyBackdrop.classList.add('active');
     this.specialtyModal.classList.add('active');
     this.updateButtons();
+    this.dispatchEvent(
+      new CustomEvent("interface", {
+        bubbles: true,
+        detail: { 
+          specialtySelect: true 
+        },
+      }),
+    );
   }
 
   closeSpecialtyModal() {
@@ -579,6 +603,14 @@ class DaaiBadge extends HTMLElement {
       this.specialtyModal.querySelector('#specialty-select');
     this.specialty = specialtySelect.value;
     this.updateButtons();
+    this.dispatchEvent(
+      new CustomEvent("interface", {
+        bubbles: true,
+        detail: { 
+          specialtySelect: false 
+        },
+      }),
+    );
   }
 }
 
