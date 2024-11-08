@@ -21,6 +21,7 @@ import {
   finishRecording,
   newRecording,
   pauseRecording,
+  redirectToSupportPage,
   resumeRecording,
   startRecording,
 } from './scripts/RecorderUtils.js';
@@ -65,16 +66,29 @@ class DaaiBadge extends HTMLElement {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
+  gap:8px;
+  padding: 15px;
   border: 3px solid;
   border-radius: 30px;
   background-color: #ffffff;
   height: 50px;
-  min-width: 445px;
+  min-width: 400px;
   font-family: "Inter", sans-serif;
   font-weight: 600;
   position: relative;
   color: var(--text-badge-color, #009CB1);
+   @media (max-width: 600px) {
+    min-width: 300px;
+    height: 170px;
+    padding: 2px;
+    flex-direction: column;
+    justify-content: center;
+
+    .wrapper{
+    flex-direction:row;
+    height: 70px;
+    }
+}
 }
 
 .recorder-box button {
@@ -242,8 +256,11 @@ class DaaiBadge extends HTMLElement {
 }
 
 .animation-mic-test {
-  width: 130px;
   margin-top: 40px;
+  width:130px;
+   @media (max-width: 600px) {
+        margin-top: 40px;
+    }
 }
 
 .rounded-select {
@@ -291,8 +308,19 @@ class DaaiBadge extends HTMLElement {
   background: transparent !important;
   color: black;
 }
-  .animation-mic-test-resume{
-    width: 130px;
+    .wrapper {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  .btnWrapper{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+  }
+  .button-help {
+    background: #475569 !important;
   }
   `;
 
@@ -302,20 +330,26 @@ class DaaiBadge extends HTMLElement {
     this.recorderBox = document.createElement('div');
     this.recorderBox.className = 'recorder-box';
 
+    const wrapper = document.createElement('div');
+    const btnWrapper = document.createElement('div');
+    wrapper.classList = ['wrapper'];
+    btnWrapper.classList = ['btnWrapper'];
+
     this.logo = document.createElement('img');
-    this.recorderBox.appendChild(this.logo);
+    wrapper.appendChild(this.logo);
     this.logo.alt = 'daai-logo';
-    this.recorderBox.appendChild(this.logo);
+    wrapper.appendChild(this.logo);
 
     this.status = 'waiting';
     this.statusText = document.createElement('span');
     this.statusText.classList.add('text-waiting-mic-aprove');
     this.statusText.textContent = 'Aguardando autorização do microfone...';
-    this.recorderBox.appendChild(this.statusText);
+    wrapper.appendChild(this.statusText);
 
     this.canvas = document.createElement('canvas');
     this.canvas.className = 'audio-hide';
-    this.recorderBox.appendChild(this.canvas);
+    wrapper.appendChild(this.canvas);
+    this.recorderBox.appendChild(wrapper);
 
     this.timerElement = document.createElement('div');
     this.timerElement.className = 'timer';
@@ -344,7 +378,12 @@ class DaaiBadge extends HTMLElement {
         '',
         startRecording.bind(this)
       ),
-      suport: createButton('suport', HELP_ICON, '', pauseRecording.bind(this)),
+      suport: createButton(
+        'suport',
+        HELP_ICON,
+        '',
+        redirectToSupportPage.bind(this)
+      ),
       start: createButton(
         'start',
         MICROPHONE_ICON,
@@ -372,8 +411,9 @@ class DaaiBadge extends HTMLElement {
     };
 
     Object.values(this.buttons).forEach((button) =>
-      this.recorderBox.appendChild(button)
+      btnWrapper.appendChild(button)
     );
+    this.recorderBox.appendChild(btnWrapper);
     // aqui foi construido o modal para a troca de microfones
     this.microphoneModal = document.createElement('div');
     this.microphoneModal.className = 'modal microphone-modal';

@@ -232,11 +232,15 @@ export function resumeRecording() {
 
 export function newRecording() {
   this.canvas.classList.remove('hidden');
-  this.canvas.className = 'animation-mic-test-resume';
+  this.canvas.className = 'animation-mic-test';
   this.status = 'micTest';
-  this.statusText.textContent = 'Microfone';
+  this.statusText.textContent = '';
   this.statusText.className = 'mic-test-text';
   StartAnimationMicTest(this.canvas);
   this.updateButtons();
   deleteAllAudios();
+}
+
+export function redirectToSupportPage(url) {
+  window.location.href = 'https://www.doctorassistant.ai/tutorial/';
 }
