@@ -66,19 +66,18 @@ class DaaiBadge extends HTMLElement {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap:8px;
   padding: 15px;
   border: 3px solid;
   border-radius: 30px;
   background-color: #ffffff;
   height: 50px;
-  min-width: 400px;
+  width: 430px;
   font-family: "Inter", sans-serif;
   font-weight: 600;
   position: relative;
   color: var(--text-badge-color, #009CB1);
    @media (max-width: 600px) {
-    min-width: 300px;
+    width: 270px;
     height: 170px;
     padding: 2px;
     flex-direction: column;
@@ -182,6 +181,13 @@ class DaaiBadge extends HTMLElement {
   z-index: 1000;
   display: none;
   font-family: "Inter", sans-serif;
+   @media (max-width: 600px) {
+    width: 270px;
+    height: 170px;
+    padding: 2px;
+    flex-direction: column;
+    justify-content: center;
+}
 }
 
 .modal.active {
@@ -256,10 +262,10 @@ class DaaiBadge extends HTMLElement {
 }
 
 .animation-mic-test {
-  margin-top: 40px;
+  margin-top: 20px;
   width:130px;
    @media (max-width: 600px) {
-        margin-top: 40px;
+        margin-top: 20px;
     }
 }
 
@@ -275,6 +281,13 @@ class DaaiBadge extends HTMLElement {
   -webkit-appearance: none;
   -moz-appearance: none;
   background-repeat: no-repeat;
+    @media (max-width: 600px) {
+    width: 270px;
+    height: 170px;
+    padding: 2px;
+    flex-direction: column;
+    justify-content: center;
+}
 }
 
 .modal-title {
@@ -298,6 +311,10 @@ class DaaiBadge extends HTMLElement {
 .timer {
   font-weight: 600;
   color: #000000;
+  margin-left:14px;
+  @media (max-width: 600px) {
+   margin-left:0px;
+}
 }
 
 .button-specialty{
@@ -430,7 +447,7 @@ class DaaiBadge extends HTMLElement {
     this.specialtyModal = document.createElement('div');
     this.specialtyModal.className = 'modal specialty-modal';
     this.specialtyModal.innerHTML = `
-  <p class='modal-title'>Escolha o Modelo do Relatório</p>
+  <p class='modal-title'>Escolha o Modelo do Registro</p>
   <select id="specialty-select" class='select-button'></select>
   <button id="close-specialty-modal" class="close-button">Fechar</button>
 `;

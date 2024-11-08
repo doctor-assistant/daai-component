@@ -248,7 +248,7 @@ Versão especificada
 
 ## Especialidades
 
-A propriedade `specialty` permite definir a especialidade desejada no componente, configurando o formato em que o relatório será gerado. Quando essa propriedade é fornecida, o seletor de especialidade será desabilitado, garantindo que todos os usuários utilizem a mesma especialidade.
+A propriedade `specialty` permite definir a especialidade desejada no componente, configurando o formato em que o registro será gerado. Quando essa propriedade é fornecida, o seletor de especialidade será desabilitado, garantindo que todos os usuários utilizem a mesma especialidade.
 
 ### Especialidades disponíveis
 
@@ -288,7 +288,7 @@ caso você queira setar a especialidade como `Psiquiatria`
 ⚠️ importante!
 
 - essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
-- sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o relatório será gerado como genérico.
+- sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o registro será gerado como genérico.
 
 ## construção
 

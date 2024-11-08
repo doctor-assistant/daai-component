@@ -176,7 +176,7 @@ export function finishRecording() {
 
       this.statusText.classList.add('text-finish');
       this.statusText.textContent =
-        'Aguarde enquanto geramos o relatório final...';
+        'Aguarde enquanto geramos o Registro final...';
       this.updateButtons();
 
       audioChunks.length = 0;
@@ -185,7 +185,7 @@ export function finishRecording() {
         this.status = 'upload';
         this.statusText.classList.remove('text-finish');
         this.statusText.classList.add('text-upload');
-        this.statusText.textContent = 'Relatório finalizado!';
+        this.statusText.textContent = 'Registro finalizado!';
         this.recordingTime = 0;
         getFormattedRecordingTime(this.recordingTime);
         this.updateButtons();
@@ -234,7 +234,7 @@ export function newRecording() {
   this.canvas.classList.remove('hidden');
   this.canvas.className = 'animation-mic-test';
   this.status = 'micTest';
-  this.statusText.textContent = '';
+  this.statusText.innerHTML = '';
   this.statusText.className = 'mic-test-text';
   StartAnimationMicTest(this.canvas);
   this.updateButtons();

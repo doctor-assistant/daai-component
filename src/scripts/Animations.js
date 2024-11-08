@@ -26,8 +26,12 @@ export async function StartAnimationMicTest(canvasElement) {
     }
 
     const canvasCtx = canvasElement.getContext('2d');
-    const WIDTH = canvasElement.width;
+    const WIDTH = 300;
     const HEIGHT = 100;
+
+    // Redefinir o tamanho do canvas ao padrão desejado
+    canvasElement.width = WIDTH;
+    canvasElement.height = HEIGHT;
 
     source.connect(analyser);
 
@@ -118,7 +122,7 @@ export function StartAnimationRecording(
 
   const ctx = canvasElement.getContext('2d');
 
-  const defaultCanvWidth = 130;
+  const defaultCanvWidth = 150;
   const defaultCanvHeight = 50;
   const lineWidth = 0.5;
   const frequLnum = 50;
@@ -126,14 +130,15 @@ export function StartAnimationRecording(
 
   const centerX = defaultCanvWidth / 2;
 
+  // Redefinir o tamanho do canvas ao padrão desejado
+  canvasElement.width = defaultCanvWidth;
+  canvasElement.height = defaultCanvHeight;
+
   const draw = () => {
     if (status === 'recording' || status === 'micTest' || status === 'upload') {
       requestAnimationFrame(draw);
 
       analyser.getByteFrequencyData(dataArray);
-
-      canvasElement.width = defaultCanvWidth;
-      canvasElement.height = defaultCanvHeight;
 
       ctx.clearRect(0, 0, defaultCanvWidth, defaultCanvHeight);
 
