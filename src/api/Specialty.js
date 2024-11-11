@@ -1,7 +1,7 @@
 import { saveSpecialties } from '../scripts/IndexDb.js';
 
 export async function getSpecialtyApi() {
-  const url = 'https://apim.doctorassistant.ai/api/specialties';
+  const url = 'https://apim.doctorassistant.ai/api/sandbox/specialties';
   try {
     const response = await fetch(url, {
       method: 'GET',

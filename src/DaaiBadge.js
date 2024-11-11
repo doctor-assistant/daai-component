@@ -229,6 +229,7 @@ class DaaiBadge extends HTMLElement {
 
 .button-change {
   background-color: transparent;
+  border:2px #DFDFDF solid !important;
   font-size: 30px;
   border: none;
   padding: 4px;
@@ -349,7 +350,7 @@ option {
     gap:10px;
   }
   .button-help {
-    background: #475569 !important;
+    background: #c9c9c9 !important;
   }
   `;
 
@@ -494,7 +495,7 @@ option {
         this.specialty = 'generic';
       }
       this.buttons.chooseSpecialty.title =
-        specialty || 'Especialidade não encontrada';
+        `Especialidade: ${specialty}` || 'Especialidade não encontrada';
     });
 
     this.buttons.chooseSpecialty.addEventListener('mouseleave', async () => {

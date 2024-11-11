@@ -157,7 +157,12 @@ export function finishRecording() {
       try {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
 
-        uploadAudio(
+        this.statusText.classList.add('text-finish');
+        this.statusText.textContent =
+          'Aguarde enquanto geramos o Registro final...';
+        this.updateButtons();
+
+        await uploadAudio(
           audioBlob,
           this.apiKey,
           this.onSuccess,
@@ -166,6 +171,7 @@ export function finishRecording() {
           this.modeApi,
           this.metadata
         );
+
         await professionalDb.audio.add({
           professionalId: this.professionalId,
           audioData: audioBlob,
@@ -174,22 +180,25 @@ export function finishRecording() {
         console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }
 
-      this.statusText.classList.add('text-finish');
-      this.statusText.textContent =
-        'Aguarde enquanto geramos o Registro final...';
-      this.updateButtons();
-
       audioChunks.length = 0;
 
-      setTimeout(() => {
-        this.status = 'upload';
-        this.statusText.classList.remove('text-finish');
-        this.statusText.classList.add('text-upload');
-        this.statusText.textContent = 'Registro finalizado!';
-        this.recordingTime = 0;
-        getFormattedRecordingTime(this.recordingTime);
-        this.updateButtons();
-      }, 10000);
+      this.status = 'upload';
+      this.statusText.classList.remove('text-finish');
+      this.statusText.classList.add('text-upload');
+      this.statusText.textContent = 'Registro finalizado!';
+      this.recordingTime = 0;
+      getFormattedRecordingTime(this.recordingTime);
+      this.updateButtons();
+
+      // setTimeout(() => {
+      //   this.status = 'upload';
+      //   this.statusText.classList.remove('text-finish');
+      //   this.statusText.classList.add('text-upload');
+      //   this.statusText.textContent = 'Registro finalizado!';
+      //   this.recordingTime = 0;
+      //   getFormattedRecordingTime(this.recordingTime);
+      //   this.updateButtons();
+      // }, 10000);
     };
   }
 }
