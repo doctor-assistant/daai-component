@@ -67,7 +67,11 @@ async function loadAudioDevices(context) {
     context.devices.forEach((device) => {
       const option = document.createElement('option');
       option.value = device.deviceId;
-      option.textContent = device.label || `Microfone ${device.deviceId}`;
+
+      const label = device.label || `Microfone ${device.deviceId}`;
+      option.textContent =
+        label.length > 20 ? label.slice(0, 40) + '...' : label;
+
       select.appendChild(option);
     });
 

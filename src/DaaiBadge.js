@@ -294,6 +294,12 @@ class DaaiBadge extends HTMLElement {
 }
 }
 
+option {
+   @media (max-width: 600px) {
+    font-size: 10px;
+}
+}
+
 .modal-title {
   color: #000000
 }
