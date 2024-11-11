@@ -396,6 +396,14 @@ class DaaiBadge extends HTMLElement {
         this.specialty === 'generic' ? '' : this.specialty,
         this.openSpecialtyModal.bind(this)
       ),
+      start: createButton(
+        'start',
+        MICROPHONE_ICON,
+        '',
+        startRecording.bind(this),
+        '',
+        'Iniciar o Registro'
+      ),
       pause: createButton(
         'pause',
         PAUSE_ICON,
