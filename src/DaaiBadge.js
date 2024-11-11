@@ -180,13 +180,13 @@ class DaaiBadge extends HTMLElement {
   padding: 1rem;
   z-index: 1000;
   display: none;
+  text-align:center;
   font-family: "Inter", sans-serif;
    @media (max-width: 600px) {
+   display: none;
     width: 270px;
     height: 170px;
     padding: 2px;
-    flex-direction: column;
-    justify-content: center;
 }
 }
 
@@ -215,12 +215,16 @@ class DaaiBadge extends HTMLElement {
 
 .close-button {
   width: 100px;
-  height: 40px;
+  height: 50px;
   background-color: #525252;
   border: none;
   border-radius: 4px;
   padding: 4px;
   color: #FFFFFF;
+   @media (max-width: 600px) {
+    width: 90%;
+   height: 40px;
+}
 }
 
 .button-change {
@@ -281,8 +285,8 @@ class DaaiBadge extends HTMLElement {
   -webkit-appearance: none;
   -moz-appearance: none;
   background-repeat: no-repeat;
-    @media (max-width: 600px) {
-    width: 270px;
+  @media (max-width: 600px) {
+    width: 100px;
     height: 170px;
     padding: 2px;
     flex-direction: column;
@@ -306,8 +310,11 @@ class DaaiBadge extends HTMLElement {
   text-align-last: center;
   font-family: "Inter", sans-serif;
   font-weight: 500;
+  @media (max-width: 600px) {
+   width: 90%;
+   padding:10px;
 }
-
+}
 .timer {
   font-weight: 600;
   color: #000000;
@@ -316,7 +323,6 @@ class DaaiBadge extends HTMLElement {
    margin-left:0px;
 }
 }
-
 .button-specialty{
   height: 50px;
   font-size: 30px;
@@ -325,7 +331,7 @@ class DaaiBadge extends HTMLElement {
   background: transparent !important;
   color: black;
 }
-    .wrapper {
+.wrapper {
     display:flex;
     justify-content:center;
     align-items:center;
@@ -380,7 +386,9 @@ class DaaiBadge extends HTMLElement {
         'change',
         GEAR,
         '',
-        this.openMicrophoneModal.bind(this)
+        this.openMicrophoneModal.bind(this),
+        '',
+        'configuração do microfone'
       ),
       chooseSpecialty: createButton(
         'specialty',
@@ -388,42 +396,53 @@ class DaaiBadge extends HTMLElement {
         this.specialty === 'generic' ? '' : this.specialty,
         this.openSpecialtyModal.bind(this)
       ),
-      pause: createButton('pause', PAUSE_ICON, '', pauseRecording.bind(this)),
-      start: createButton(
-        'start',
-        MICROPHONE_ICON,
+      pause: createButton(
+        'pause',
+        PAUSE_ICON,
         '',
-        startRecording.bind(this)
+        pauseRecording.bind(this),
+        '',
+        'Pausar Registro'
       ),
       suport: createButton(
         'suport',
         HELP_ICON,
         '',
-        redirectToSupportPage.bind(this)
+        redirectToSupportPage.bind(this),
+        '',
+        'Suporte'
       ),
       start: createButton(
         'start',
         MICROPHONE_ICON,
         '',
-        startRecording.bind(this)
+        startRecording.bind(this),
+        '',
+        'Iniciar o Registro'
       ),
       finish: createButton(
         'finish',
         RECORDING_ICON,
         '',
-        finishRecording.bind(this)
+        finishRecording.bind(this),
+        '',
+        'Finalizar Registro'
       ),
       resume: createButton(
         'resume',
         RESUME_ICON,
         '',
-        resumeRecording.bind(this)
+        resumeRecording.bind(this),
+        '',
+        'Retomar Registro'
       ),
       upload: createButton(
         'upload',
         MICROPHONE_ICON,
         '',
-        newRecording.bind(this)
+        newRecording.bind(this),
+        '',
+        'Iniciar novo Registro'
       ),
     };
 

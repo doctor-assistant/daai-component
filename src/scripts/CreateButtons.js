@@ -13,9 +13,14 @@ export function getButtonClass(type) {
   return classesMap[type] || '';
 }
 // metódo para criar os botões, definido o seu conteúdo
-export function createButton(type, imageUrl, text, handler, specialty) {
+export function createButton(type, imageUrl, text, handler, specialty, title) {
   const button = document.createElement('button');
   button.className = `button ${getButtonClass(type, specialty)}`;
+
+  if (title) {
+    button.title = title;
+  }
+
   const icon = imageUrl
     ? `<img src="${imageUrl}" alt="${text}" class="button-icon">`
     : '';
