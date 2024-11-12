@@ -1,12 +1,5 @@
 import { getSpecialty } from './api/Specialty.js';
-import {
-  GEAR,
-  MICROPHONE_ICON,
-  PAUSE_ICON,
-  RECORDING_ICON,
-  RESUME_ICON,
-  SPECIALTY_ICON,
-} from './icons/icons.js';
+import { GEAR, HELP_ICON, PAUSE_ICON, SPECIALTY_ICON } from './icons/icons.js';
 import { blockPageReload } from './scripts/BlockPageReload.js';
 import { checkPermissionsAndLoadDevices } from './scripts/CheckPermissions.js';
 import {
@@ -63,25 +56,26 @@ class DaaiBadge extends HTMLElement {
 .recorder-box {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  border: 3px solid;
+  justify-content:space-between;
+  padding: 12px;
+  border: 2px solid;
   border-radius: 30px;
   background-color: #ffffff;
-  height: 60px;
-  min-width: 650px;
+  height: 40px;
+  width: 365px;
   font-family: "Inter", sans-serif;
   font-weight: 600;
   position: relative;
   color: var(--text-badge-color, #009CB1);
+  font-size:11px;
+  gap:4px;
 }
 
 .recorder-box button {
-  height: 50px;
-  padding: 0.5rem 1rem;
+  height: 40px;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 10px;
   cursor: pointer;
   transition: transform 0.15s ease-in-out;
 }
@@ -117,6 +111,9 @@ class DaaiBadge extends HTMLElement {
   justify-content: center;
   align-items: center;
   gap: 2px;
+  display: flex;
+  align-items: center;
+  justify-content:center;
 }
 
 .button-upload {
@@ -129,17 +126,25 @@ class DaaiBadge extends HTMLElement {
   justify-content: center;
   align-items: center;
   gap: 2px;
+  display: flex;
+  align-items: center;
+  justify-content:center;
 }
 
 .button-pause {
-  width: 60px;
-  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content:center;
+  width: 35px;
   opacity: 1;
   background-color: #F43F5E;
   color: white;
 }
 
 .button-recording {
+  display: flex;
+  align-items: center;
+  justify-content:center;
   height: 50px;
   font-size: 30px;
   border-radius: 8px;
@@ -148,6 +153,9 @@ class DaaiBadge extends HTMLElement {
 }
 
 .button-success {
+  display: flex;
+  align-items: center;
+  justify-content:center;
   background-color: #28a745;
   color: white;
 }
@@ -208,8 +216,7 @@ class DaaiBadge extends HTMLElement {
   border: none;
   padding: 4px;
   color: #64748B;
-  width: 12.66px;
-  height: 13.26px;
+  border: 2px solid #525252 !important;
 }
 
 .button-resume {
@@ -241,8 +248,8 @@ class DaaiBadge extends HTMLElement {
 }
 
 .animation-mic-test {
-  width: 130px;
-  margin-top: 40px;
+  width: 70px;
+  margin-top: 10px;
 }
 
 .rounded-select {
@@ -291,7 +298,12 @@ class DaaiBadge extends HTMLElement {
   color: black;
 }
   .animation-mic-test-resume{
-    width: 130px;
+    width: 80px;
+    margin-top:10px;
+  }
+
+   .button-help {
+    background: #c9c9c9 !important;
   }
   `;
 
@@ -328,7 +340,9 @@ class DaaiBadge extends HTMLElement {
         'change',
         GEAR,
         '',
-        this.openMicrophoneModal.bind(this)
+        this.openMicrophoneModal.bind(this),
+        '',
+        'configuração do microfone'
       ),
       chooseSpecialty: createButton(
         'specialty',
@@ -336,33 +350,63 @@ class DaaiBadge extends HTMLElement {
         this.specialty === 'generic' ? '' : this.specialty,
         this.openSpecialtyModal.bind(this)
       ),
-      pause: createButton('pause', PAUSE_ICON, '', pauseRecording.bind(this)),
       start: createButton(
         'start',
-        MICROPHONE_ICON,
-        'Iniciar Registro',
-        startRecording.bind(this)
+        '',
+        '',
+        startRecording.bind(this),
+        '',
+        'Iniciar o Registro'
+      ),
+      pause: createButton(
+        'pause',
+        PAUSE_ICON,
+        '',
+        pauseRecording.bind(this),
+        '',
+        'Pausar Registro'
+      ),
+      suport: createButton(
+        'suport',
+        HELP_ICON,
+        '',
+        pauseRecording.bind(this),
+        '',
+        'Suporte'
+      ),
+      start: createButton(
+        'start',
+        '',
+        'Iniciar o Registro',
+        startRecording.bind(this),
+        '',
+        'Iniciar o Registro'
       ),
       finish: createButton(
         'finish',
-        RECORDING_ICON,
+        '',
         'Finalizar Registro',
-        finishRecording.bind(this)
+        finishRecording.bind(this),
+        '',
+        'Finalizar Registro'
       ),
       resume: createButton(
         'resume',
-        RESUME_ICON,
-        'Continuar Registro',
-        resumeRecording.bind(this)
+        '',
+        'Retormar Registro',
+        resumeRecording.bind(this),
+        '',
+        'Retomar Registro'
       ),
       upload: createButton(
         'upload',
-        MICROPHONE_ICON,
-        'Iniciar novo registro',
-        newRecording.bind(this)
+        '',
+        'Iniciar Novo Rgistro',
+        newRecording.bind(this),
+        '',
+        'Iniciar novo Registro'
       ),
     };
-
     Object.values(this.buttons).forEach((button) =>
       this.recorderBox.appendChild(button)
     );
@@ -520,7 +564,7 @@ class DaaiBadge extends HTMLElement {
     const buttonVisibilityMap = {
       waiting: { visible: ['start'], disabled: ['start'] },
       micTest: {
-        visible: ['start', 'changeMicrophone', 'chooseSpecialty'],
+        visible: ['suport', 'start', 'changeMicrophone', 'chooseSpecialty'],
         disabled: [isDisabled],
       },
       paused: { visible: ['pause', 'resume'], disabled: ['pause'] },
