@@ -192,6 +192,7 @@ class DaaiBadge extends HTMLElement {
 
 .modal.active {
   display: block;
+  z-index: 99999;
 }
 
 .modal button {
@@ -206,11 +207,12 @@ class DaaiBadge extends HTMLElement {
   height: 100vh;
   z-index: 999;
   display: none;
-  border-radius: 20px;
 }
 
 .backdrop.active {
   display: block;
+  background-color: #00000080;
+  z-index: 9999;
 }
 
 .close-button {
@@ -476,6 +478,7 @@ option {
 
     this.microphoneBackdrop = document.createElement('div');
     this.microphoneBackdrop.className = 'backdrop microphone-backdrop';
+    this.microphoneBackdrop.onclick = () => this.closeMicrophoneModal();
 
     // Modal para a escolha de especialidades
     this.specialtyModal = document.createElement('div');
@@ -488,6 +491,7 @@ option {
 
     this.specialtyBackdrop = document.createElement('div');
     this.specialtyBackdrop.className = 'backdrop specialty-backdrop';
+    this.specialtyBackdrop.onclick = () => this.closeSpecialtyModal();
 
     this.buttons.chooseSpecialty.addEventListener('mouseover', async () => {
       const specialty = await getSpecialtyTitle(this.specialty);
