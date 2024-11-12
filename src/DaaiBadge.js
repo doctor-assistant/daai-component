@@ -44,7 +44,7 @@ class DaaiBadge extends HTMLElement {
     this.onError = null;
     this.professionalId = '';
     this.specialty = 'generic';
-    this.modeApi = '';
+    this.modeApi = 'dev';
     this.metadata = {};
 
     this.upload = () => blockPageReload();
@@ -442,6 +442,7 @@ class DaaiBadge extends HTMLElement {
     const errorAttr = this.getAttribute('onError');
     const specialtyProp = this.getAttribute('specialty');
     const metadataProp = this.getAttribute('metadata');
+    const mode = this.getAttribute('modeApi') || 'dev';
 
     if (metadataProp) {
       try {
@@ -457,7 +458,8 @@ class DaaiBadge extends HTMLElement {
       this.specialty = 'generic';
     }
 
-    getSpecialty(this, specialtyProp);
+    getSpecialty(this, mode);
+
     if (successAttr && typeof window[successAttr] === 'function') {
       this.onSuccess = window[successAttr].bind(this);
     }
@@ -486,7 +488,7 @@ class DaaiBadge extends HTMLElement {
     }
     applyThemeAttributes(this.theme, this);
     this.apiKey = this.getAttribute('apikey');
-    this.modeApi = this.getAttribute('modeApi');
+    this.modeApi = this.getAttribute('modeApi') || 'dev';
     this.professionalId =
       this.getAttribute('professionalId') || this.generateRandomId();
     this.onSuccess = this.getAttribute('onSuccess')
