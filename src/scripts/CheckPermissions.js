@@ -27,7 +27,7 @@ function handlePermissionGranted(context) {
   context.canvas.classList.remove('hidden');
   context.canvas.className = 'animation-mic-test';
   context.status = 'micTest';
-  context.statusText.textContent = 'Microfone';
+  context.statusText.innerHTML = ``;
   context.statusText.className = 'mic-test-text';
   StartAnimationMicTest(context.canvas);
   context.updateButtons();
@@ -67,7 +67,11 @@ async function loadAudioDevices(context) {
     context.devices.forEach((device) => {
       const option = document.createElement('option');
       option.value = device.deviceId;
-      option.textContent = device.label || `Microfone ${device.deviceId}`;
+
+      const label = device.label || `Microfone ${device.deviceId}`;
+      option.textContent =
+        label.length > 20 ? label.slice(0, 40) + '...' : label;
+
       select.appendChild(option);
     });
 
