@@ -545,6 +545,7 @@ option {
     const errorAttr = this.getAttribute('onError');
     const specialtyProp = this.getAttribute('specialty');
     const metadataProp = this.getAttribute('metadata');
+    const mode = this.getAttribute('modeApi') || 'dev';
 
     if (metadataProp) {
       try {
@@ -560,7 +561,8 @@ option {
       this.specialty = 'generic';
     }
 
-    getSpecialty(this, specialtyProp);
+    getSpecialty(this, mode);
+
     if (successAttr && typeof window[successAttr] === 'function') {
       this.onSuccess = window[successAttr].bind(this);
     }

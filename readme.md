@@ -57,8 +57,9 @@ professionalId =
 // ⚠️ A propriedade apiKey é obrigatória, sem ela o componente não irá fazer requisições a api
 apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 
-// ⚠️ A propriedade modeApi é obrigatória para definir se você deseja utilizar o ambiente de teste você deve passar o valor 'dev', caso você queira testar o ambiente de produção você deve passar o valor 'prod', caso você não passe essa propriedade, o componente irá fazer requisições para o ambiente de staging ( ele tem como padrão 'dev').
+// ⚠️ A propriedade modeApi é obrigatória para definir o ambiente a ser utilizado. Se você não especificá-la ao componente, o valor padrão será 'dev', direcionando as requisições para o ambiente de teste. Caso o valor seja definido como 'prod', as requisições serão enviadas para o ambiente de produção.
 modeApi = 'dev';
+
 // ⚠️ A propriedade specialty não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, caso ela não seja passada o usuário pode selecionar a especialidade desejada no select.
 specialty =
   'aqui você deve passar a especialidade que você quer que o usuário use';
