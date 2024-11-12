@@ -8,7 +8,7 @@ export async function uploadAudio(
   metadata
 ) {
   const url =
-    modeApi === 'dev' && modeApi !== 'prod'
+    modeApi === 'dev'
       ? 'https://apim.doctorassistant.ai/api/sandbox/consultations'
       : 'https://apim.doctorassistant.ai/api/production/consultations';
 
