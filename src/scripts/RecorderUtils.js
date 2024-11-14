@@ -251,5 +251,5 @@ export function newRecording() {
 }
 
 export function redirectToSupportPage(url) {
-  window.location.href = 'https://www.doctorassistant.ai/tutorial/';
+  window.open('https://doctorassistant.ai/tutorial/', '_blank');
 }

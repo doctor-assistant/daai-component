@@ -352,7 +352,7 @@ option {
     gap:10px;
   }
   .button-help {
-    background: #c9c9c9 !important;
+   background: #c9c9c9;
   }
   `;
 
@@ -534,7 +534,6 @@ option {
       'onError',
       'apiKey',
       'professionalId',
-      'modeApi',
       'specialty',
       'metadata',
     ];
@@ -545,7 +544,8 @@ option {
     const errorAttr = this.getAttribute('onError');
     const specialtyProp = this.getAttribute('specialty');
     const metadataProp = this.getAttribute('metadata');
-    const mode = this.getAttribute('modeApi') || 'dev';
+    const apikey = this.getAttribute('apikey');
+    this.modeApi = apikey && apikey.startsWith('PRODUCTION') ? 'prod' : 'dev';
 
     if (metadataProp) {
       try {
@@ -561,7 +561,7 @@ option {
       this.specialty = 'generic';
     }
 
-    getSpecialty(this, mode);
+    getSpecialty(this, this.modeApi);
 
     if (successAttr && typeof window[successAttr] === 'function') {
       this.onSuccess = window[successAttr].bind(this);
@@ -581,6 +581,7 @@ option {
       animationRecordingColor: '#F43F5E',
       animationPausedColor: '#009CB1',
       textBadgeColor: '#009CB1',
+      buttonHelpColor: '#c9c9c9',
     };
 
     const themeAttr = this.getAttribute('theme');
@@ -591,7 +592,6 @@ option {
     }
     applyThemeAttributes(this.theme, this);
     this.apiKey = this.getAttribute('apikey');
-    this.modeApi = this.getAttribute('modeApi') || 'dev';
     this.professionalId =
       this.getAttribute('professionalId') || this.generateRandomId();
     this.onSuccess = this.getAttribute('onSuccess')
