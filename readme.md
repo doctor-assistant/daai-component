@@ -57,10 +57,6 @@ professionalId =
 // ⚠️ A propriedade apiKey é obrigatória, sem ela o componente não irá fazer requisições a api
 apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 
-// ⚠️ ( DEPRECIADO ) Não tem necessidade de usar ⚠️
-// A propriedade modeApi é obrigatória para definir o ambiente a ser utilizado. Se você não especificá-la ao componente, o valor padrão será 'dev', direcionando as requisições para o ambiente de teste. Caso o valor seja definido como 'prod', as requisições serão enviadas para o ambiente de produção.
-modeApi = 'dev';
-
 // ⚠️ A propriedade specialty não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, caso ela não seja passada o usuário pode selecionar a especialidade desejada no select.
 specialty =
   'aqui você deve passar a especialidade que você quer que o usuário use';
@@ -68,6 +64,8 @@ specialty =
 metadata =
   'aqui você deve passar o valor que deseja recuperar, se atente ao formato, descrevo no tópico abaixo.';
 ```
+
+⚠️ A propriedade ~~modeApi~~ não é mais necessária. A partir da versão 1.2.0, identificamos o ambiente de execução através da apiKey
 
 ### Formato metadata
 
