@@ -189,16 +189,6 @@ export function finishRecording() {
       this.recordingTime = 0;
       getFormattedRecordingTime(this.recordingTime);
       this.updateButtons();
-
-      // setTimeout(() => {
-      //   this.status = 'upload';
-      //   this.statusText.classList.remove('text-finish');
-      //   this.statusText.classList.add('text-upload');
-      //   this.statusText.textContent = 'Registro finalizado!';
-      //   this.recordingTime = 0;
-      //   getFormattedRecordingTime(this.recordingTime);
-      //   this.updateButtons();
-      // }, 10000);
     };
   }
 }
