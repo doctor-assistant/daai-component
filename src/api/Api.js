@@ -26,7 +26,15 @@ export async function uploadAudio(
       body: formData,
     });
 
-    if (response) {
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      if (typeof onError === 'function') {
+        onError('Erro na requisição', errorResponse);
+      }
+      return;
+    }
+
+    if (response.ok) {
       const jsonResponse = await response.json();
       if (typeof onSuccess === 'function') {
         onSuccess(jsonResponse);
