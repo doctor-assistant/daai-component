@@ -70,6 +70,11 @@ export function applyThemeAttributes(themeProp, componentContext) {
       'text-badge-color': (value) => {
         componentContext.style.setProperty('--text-badge-color', value);
       },
+      'button-help-color': (value) => {
+        const buttonHelp =
+          componentContext.shadowRoot.querySelector('.button-help');
+        if (buttonHelp) buttonHelp.style.backgroundColor = value;
+      },
     };
 
     if (attributeToElementMap[attributeKey]) {
@@ -130,6 +135,9 @@ export function attributeChangedCallback(name, oldValue, newValue) {
     },
     'text-badge-color': (value) => {
       this.style.setProperty('--text-badge-color', value);
+    },
+    'button-help-color': (value) => {
+      componentContext.style.setProperty('--button-help-color', value);
     },
   };
   if (attributeToElementMap[name]) {

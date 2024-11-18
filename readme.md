@@ -57,9 +57,6 @@ professionalId =
 // ⚠️ A propriedade apiKey é obrigatória, sem ela o componente não irá fazer requisições a api
 apikey = 'aqui você deve passar a chave da api para realizar as requisições';
 
-// ⚠️ A propriedade modeApi é obrigatória para definir o ambiente a ser utilizado. Se você não especificá-la ao componente, o valor padrão será 'dev', direcionando as requisições para o ambiente de teste. Caso o valor seja definido como 'prod', as requisições serão enviadas para o ambiente de produção.
-modeApi = 'dev';
-
 // ⚠️ A propriedade specialty não é obrigatória, o componente irá funcionar normalmente caso você não passe essa chave, caso ela não seja passada o usuário pode selecionar a especialidade desejada no select.
 specialty =
   'aqui você deve passar a especialidade que você quer que o usuário use';
@@ -67,6 +64,8 @@ specialty =
 metadata =
   'aqui você deve passar o valor que deseja recuperar, se atente ao formato, descrevo no tópico abaixo.';
 ```
+
+⚠️ A propriedade ~~modeApi~~ não é mais necessária. A partir da versão 1.2.0, identificamos o ambiente de execução através da apiKey
 
 ### Formato metadata
 
@@ -88,18 +87,19 @@ Após a instalação do componente e a sua inclusão no código, será possível
 ```js
 theme: {
   icon,
-  button-start-recording-color,
-  button-recording-color,
-  button-pause-color,
-  button-resume-color,
-  button-upload-color,
-  border-color,
-  animation-recording-color,
-  animation-paused-color,
-  text-badge-color,
+    button - start - recording - color,
+    button - recording - color,
+    button - pause - color,
+    button - resume - color,
+    button - upload - color,
+    border - color,
+    animation - recording - color,
+    animation - paused - color,
+    text - badge - color,
+    button - help - color;
 }
- onSuccess={}
- onError={}
+onSuccess = {};
+onError = {};
 ```
 
 ### 🖌️ exemplo de uso da customização:
@@ -125,7 +125,6 @@ import '@doctorassistant/daai-component';
   <body>
     <daai-component
       apiKey="YOUR_API_KEY"
-      modeApi="dev"
       theme='{
       "icon": "path/to/icon.png",
       "buttonStartRecordingColor": "#0600b1",
@@ -136,7 +135,8 @@ import '@doctorassistant/daai-component';
       "borderColor": "#0600b1",
       "animationRecordingColor":"#0600b1",
       "animationPausedColor": "#0600b1",
-      "textBadgeColor": "#0600b1"
+      "textBadgeColor": "#0600b1",
+      "buttonHelpColor":"#0600b1"
       }'
       onSuccess="onSuccess"
       onError="onError"
@@ -195,6 +195,10 @@ Essa propriedade é responsável por mudar a cor da animação quando ela está 
 
 Essa propriedade altera a cor dos textos do componente.
 
+#### button-help-color
+
+Essa propriedade consegue alterar a cor do botão de `Ajuda`
+
 #### onSuccess
 
 função de callback que será executada em caso de sucesso
@@ -248,7 +252,7 @@ Versão especificada
 
 ## Especialidades
 
-A propriedade `specialty` permite definir a especialidade desejada no componente, configurando o formato em que o relatório será gerado. Quando essa propriedade é fornecida, o seletor de especialidade será desabilitado, garantindo que todos os usuários utilizem a mesma especialidade.
+A propriedade `specialty` permite definir a especialidade desejada no componente, configurando o formato em que o registro será gerado. Quando essa propriedade é fornecida, o seletor de especialidade será desabilitado, garantindo que todos os usuários utilizem a mesma especialidade.
 
 ### Especialidades disponíveis
 
@@ -288,7 +292,7 @@ caso você queira setar a especialidade como `Psiquiatria`
 ⚠️ importante!
 
 - essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
-- sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o relatório será gerado como genérico.
+- sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o registro será gerado como genérico.
 
 ## construção
 

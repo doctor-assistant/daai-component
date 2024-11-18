@@ -104,12 +104,12 @@ export async function startRecording() {
     );
 
     this.dispatchEvent(
-      new CustomEvent("interface", {
+      new CustomEvent('interface', {
         bubbles: true,
-        detail: { 
-          record: true 
+        detail: {
+          record: true,
         },
-      }),
+      })
     );
   } catch (error) {
     console.error('Erro ao acessar o microfone:', error);
@@ -167,15 +167,20 @@ export function finishRecording() {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
 
         this.dispatchEvent(
-          new CustomEvent("interface", {
+          new CustomEvent('interface', {
             bubbles: true,
-            detail: { 
-              record: false 
+            detail: {
+              record: false,
             },
-          }),
+          })
         );
 
-        uploadAudio(
+        this.statusText.classList.add('text-finish');
+        this.statusText.textContent =
+          'Aguarde enquanto geramos o Registro final...';
+        this.updateButtons();
+
+        await uploadAudio(
           audioBlob,
           this.apiKey,
           this.onSuccess,
@@ -184,6 +189,7 @@ export function finishRecording() {
           this.modeApi,
           this.metadata
         );
+
         await professionalDb.audio.add({
           professionalId: this.professionalId,
           audioData: audioBlob,
@@ -192,22 +198,15 @@ export function finishRecording() {
         console.error('Erro ao salvar ou recuperar áudio no IndexedDB:', error);
       }
 
-      this.statusText.classList.add('text-finish');
-      this.statusText.textContent =
-        'Aguarde enquanto geramos o relatório final...';
-      this.updateButtons();
-
       audioChunks.length = 0;
 
-      setTimeout(() => {
-        this.status = 'upload';
-        this.statusText.classList.remove('text-finish');
-        this.statusText.classList.add('text-upload');
-        this.statusText.textContent = 'Relatório finalizado!';
-        this.recordingTime = 0;
-        getFormattedRecordingTime(this.recordingTime);
-        this.updateButtons();
-      }, 10000);
+      this.status = 'upload';
+      this.statusText.classList.remove('text-finish');
+      this.statusText.classList.add('text-upload');
+      this.statusText.textContent = 'Registro finalizado!';
+      this.recordingTime = 0;
+      getFormattedRecordingTime(this.recordingTime);
+      this.updateButtons();
     };
   }
 }
@@ -250,11 +249,15 @@ export function resumeRecording() {
 
 export function newRecording() {
   this.canvas.classList.remove('hidden');
-  this.canvas.className = 'animation-mic-test-resume';
+  this.canvas.className = 'animation-mic-test';
   this.status = 'micTest';
-  this.statusText.textContent = 'Microfone';
+  this.statusText.innerHTML = '';
   this.statusText.className = 'mic-test-text';
   StartAnimationMicTest(this.canvas);
   this.updateButtons();
   deleteAllAudios();
+}
+
+export function redirectToSupportPage(url) {
+  window.open('https://doctorassistant.ai/tutorial/', '_blank');
 }
