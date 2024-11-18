@@ -102,6 +102,15 @@ export async function startRecording() {
       animationRecordingColor,
       animationPausedColor
     );
+
+    this.dispatchEvent(
+      new CustomEvent('interface', {
+        bubbles: true,
+        detail: {
+          record: true,
+        },
+      })
+    );
   } catch (error) {
     console.error('Erro ao acessar o microfone:', error);
     this.statusText.textContent = 'Erro ao acessar o microfone';
@@ -156,6 +165,15 @@ export function finishRecording() {
     this.mediaRecorder.onstop = async () => {
       try {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+        this.dispatchEvent(
+          new CustomEvent('interface', {
+            bubbles: true,
+            detail: {
+              record: false,
+            },
+          })
+        );
 
         this.statusText.classList.add('text-finish');
         this.statusText.textContent =
