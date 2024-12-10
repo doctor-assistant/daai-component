@@ -19,7 +19,8 @@
     "prettier": "3.3.3"
   },
   "dependencies": {
-    "dexie": "^4.0.8"
+    "dexie": "^4.0.8",
+    "extended-eventsource": "1.4.9"
   },
   "type": "module"
 }

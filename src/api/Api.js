@@ -1,3 +1,5 @@
+import { EventSourceManager } from '../scripts/sse.js';
+
 export async function uploadAudio(
   audioBlob,
   apikey,
@@ -5,12 +7,12 @@ export async function uploadAudio(
   onError,
   specialty,
   modeApi,
-  metadata
+  metadata,
+  onEvent
 ) {
-  const url =
-    modeApi === 'dev'
-      ? 'https://apim.doctorassistant.ai/api/sandbox/consultations'
-      : 'https://apim.doctorassistant.ai/api/production/consultations';
+  let eventSourceManager = null;
+
+  const url = `https://apim.doctorassistant.ai/api/${modeApi === 'dev' ? 'sandbox' : 'production'}/consultations`;
 
   const formData = new FormData();
   formData.append('recording', audioBlob);
@@ -26,6 +28,17 @@ export async function uploadAudio(
       body: formData,
     });
 
+    // const handleEvents = (data) => {
+    //   if (data.event === 'consultation.exam.resumed') {
+    //     queryClient.invalidateQueries({
+    //       queryKey: ['consultation', consultationId.value],
+    //     });
+    //     queryClient.invalidateQueries({
+    //       queryKey: ['consultations'],
+    //     });
+    //   }
+    // };
+
     if (!response.ok) {
       const errorResponse = await response.json();
       if (typeof onError === 'function') {
@@ -36,6 +49,13 @@ export async function uploadAudio(
 
     if (response.ok) {
       const jsonResponse = await response.json();
+      const consultationId = jsonResponse.id;
+      if (typeof onEvent === 'function') {
+        const sseUrl = `${url}/${consultationId}/events`;
+        eventSourceManager = new EventSourceManager(apikey, sseUrl, onEvent);
+        eventSourceManager.connect();
+      }
+
       if (typeof onSuccess === 'function') {
         onSuccess(jsonResponse);
       }
