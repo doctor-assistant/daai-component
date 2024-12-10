@@ -48,6 +48,7 @@ class DaaiBadge extends HTMLElement {
     this.specialty = 'generic';
     this.modeApi = 'dev';
     this.metadata = {};
+    this.onEvent = null;
 
     this.upload = () => blockPageReload();
     // Aqui criamos a shadow dom
@@ -536,6 +537,7 @@ option {
       'professionalId',
       'specialty',
       'metadata',
+      'onEvent',
     ];
   }
 
@@ -546,6 +548,7 @@ option {
     const metadataProp = this.getAttribute('metadata');
     const apikey = this.getAttribute('apikey');
     this.modeApi = apikey && apikey.startsWith('PRODUCTION') ? 'prod' : 'dev';
+    const eventAttr = this.getAttribute('onEvent');
 
     if (metadataProp) {
       try {
@@ -568,6 +571,10 @@ option {
     }
     if (errorAttr && typeof window[errorAttr] === 'function') {
       this.onError = window[errorAttr].bind(this);
+    }
+
+    if (eventAttr && typeof window[eventAttr] === 'function') {
+      this.onEvent = window[eventAttr].bind(this);
     }
     const logoElement = this.shadowRoot.querySelector('img');
     const defaultTheme = {
@@ -601,6 +608,10 @@ option {
     this.onError = this.getAttribute('onError')
       ? new Function('return ' + this.getAttribute('onError'))()
       : null;
+
+    this.onEvent = this.getAttribute('onEvent')
+      ? new Function('return ' + this.getAttribute('onEvent'))()
+      : null;
   }
 
   triggerSuccess(...params) {
@@ -612,6 +623,11 @@ option {
   triggerError(...params) {
     if (typeof this.onError === 'function') {
       this.onError(...params);
+    }
+  }
+  triggerEvent(...params) {
+    if (typeof this.onEvent === 'function') {
+      this.onEvent(...params);
     }
   }
 
@@ -664,12 +680,12 @@ option {
     this.microphoneModal.classList.add('active');
     this.updateButtons();
     this.dispatchEvent(
-      new CustomEvent("interface", {
+      new CustomEvent('interface', {
         bubbles: true,
-        detail: { 
-          microphoneSelect: true
+        detail: {
+          microphoneSelect: true,
         },
-      }),
+      })
     );
   }
 
@@ -677,12 +693,12 @@ option {
     this.microphoneBackdrop.classList.remove('active');
     this.microphoneModal.classList.remove('active');
     this.dispatchEvent(
-      new CustomEvent("interface", {
+      new CustomEvent('interface', {
         bubbles: true,
-        detail: { 
-          microphoneSelect: false 
+        detail: {
+          microphoneSelect: false,
         },
-      }),
+      })
     );
   }
 
@@ -692,12 +708,12 @@ option {
     this.specialtyModal.classList.add('active');
     this.updateButtons();
     this.dispatchEvent(
-      new CustomEvent("interface", {
+      new CustomEvent('interface', {
         bubbles: true,
-        detail: { 
-          specialtySelect: true 
+        detail: {
+          specialtySelect: true,
         },
-      }),
+      })
     );
   }
 
@@ -709,12 +725,12 @@ option {
     this.specialty = specialtySelect.value;
     this.updateButtons();
     this.dispatchEvent(
-      new CustomEvent("interface", {
+      new CustomEvent('interface', {
         bubbles: true,
-        detail: { 
-          specialtySelect: false 
+        detail: {
+          specialtySelect: false,
         },
-      }),
+      })
     );
   }
 }
