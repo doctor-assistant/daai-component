@@ -50,6 +50,7 @@ export async function uploadAudio(
     if (response.ok) {
       const jsonResponse = await response.json();
       const consultationId = jsonResponse.id;
+
       if (typeof onEvent === 'function') {
         const sseUrl = `${url}/${consultationId}/events`;
         eventSourceManager = new EventSourceManager(apikey, sseUrl, onEvent);

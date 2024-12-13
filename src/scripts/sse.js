@@ -37,8 +37,10 @@ class EventSourceManager {
   handleMessage(event) {
     try {
       const data = JSON.parse(event.data);
-      console.log('Received data:', data);
       this.onMessage(data);
+      if (data.event === 'consultation.integrated') {
+        this.close();
+      }
     } catch (error) {
       console.error('Error parsing SSE data:', error);
     }
@@ -50,7 +52,6 @@ class EventSourceManager {
   }
 
   reconnect() {
-    this.close();
     console.info(`Reconnecting in ${this.retryDelay / 1000} seconds...`);
     setTimeout(() => this.connect(), this.retryDelay);
   }
