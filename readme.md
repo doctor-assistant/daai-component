@@ -7,7 +7,8 @@
 3. [Propriedades para o componente](#propriedades)
 4. [Uso do componente via CDN](#uso-do-componente-via-cdn)
 5. [Especialidades](#especialidades)
-6. [Construção do componente](#construção)
+6. [Eventos](#eventos)
+7. [Construção do componente](#construção)
 
 ## Introdução
 
@@ -100,6 +101,7 @@ theme: {
 }
 onSuccess = {};
 onError = {};
+onEvent = {};
 ```
 
 ### 🖌️ exemplo de uso da customização:
@@ -118,6 +120,9 @@ import '@doctorassistant/daai-component';
         console.log(data);
       }
       function onError(data) {
+        console.log(data);
+      }
+      function onEvent(data) {
         console.log(data);
       }
     </script>
@@ -140,6 +145,7 @@ import '@doctorassistant/daai-component';
       }'
       onSuccess="onSuccess"
       onError="onError"
+      onEvent="onEvent"
     >
     </daai-component>
   </body>
@@ -206,6 +212,10 @@ função de callback que será executada em caso de sucesso
 #### onError
 
 função de callback que será executada em caso de erro
+
+#### onEvent
+
+função de callback que será executada e receberá o status de processamento em tempo real
 
 ## Uso do componente via CDN
 
@@ -293,6 +303,22 @@ caso você queira setar a especialidade como `Psiquiatria`
 
 - essa propriedade não é obrigatória, caso você não passe o usuário poderá escolher no select a especialidade desejada, caso isso não aconteça o valor default é genérico.
 - sempre verifique se o nome da especialidade está correto, caso esteja com erro de digitação o registro será gerado como genérico.
+
+## eventos
+
+Eventos de processamento em tempo real disponíveis que serão recebidos pelo `onEvent`
+
+```json
+{ "event": "consultation.processing" }
+```
+
+```json
+{ "event": "consultation.completed" }
+```
+
+```json
+{ "event": "consultation.integrated" }
+```
 
 ## construção
 
