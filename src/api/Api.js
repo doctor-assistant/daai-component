@@ -28,17 +28,6 @@ export async function uploadAudio(
       body: formData,
     });
 
-    // const handleEvents = (data) => {
-    //   if (data.event === 'consultation.exam.resumed') {
-    //     queryClient.invalidateQueries({
-    //       queryKey: ['consultation', consultationId.value],
-    //     });
-    //     queryClient.invalidateQueries({
-    //       queryKey: ['consultations'],
-    //     });
-    //   }
-    // };
-
     if (!response.ok) {
       const errorResponse = await response.json();
       if (typeof onError === 'function') {
