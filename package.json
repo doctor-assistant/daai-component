@@ -1,6 +1,6 @@
 {
   "name": "@doctorassistant/daai-component",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "description": "A custom web component for a recording",
   "main": "dist/DaaiBadge.js",
   "scripts": {
@@ -19,7 +19,8 @@
     "prettier": "3.3.3"
   },
   "dependencies": {
-    "dexie": "^4.0.8"
+    "dexie": "^4.0.8",
+    "extended-eventsource": "1.4.9"
   },
   "type": "module"
 }
