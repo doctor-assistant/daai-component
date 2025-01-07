@@ -9,7 +9,9 @@ const config = {
     output: {
         path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist'),
         filename: 'DaaiBadge.js',
-        libraryTarget: 'commonjs2',
+        library: {
+            type: 'umd',
+        },
         devtoolModuleFilenameTemplate: '../[resource-path]',
     },
     devtool: 'source-map',
