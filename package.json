@@ -4,8 +4,8 @@
   "description": "A custom web component for a recording",
   "main": "dist/DaaiBadge.js",
   "scripts": {
-    "build": "mkdir -p dist && cp -r src/* dist/ && cp package.json package-lock.json index.html readme.md readme_component_layout.png dist/",
-    "start": "lite-server"
+    "build": "webpack --mode production",
+    "start": "webpack serve --mode development"
   },
   "keywords": [
     "web-component",
@@ -15,12 +15,18 @@
   "author": "vitoria.cst",
   "license": "MIT",
   "devDependencies": {
-    "lite-server": "^2.6.1",
-    "prettier": "3.3.3"
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "babel-loader": "^9.2.1",
+    "html-webpack-plugin": "^5.6.3",
+    "prettier": "3.3.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
-    "dexie": "^4.0.8",
-    "extended-eventsource": "1.4.9"
+    "dexie": "^4.0.10",
+    "extended-eventsource": "^1.7.0"
   },
   "type": "module"
 }

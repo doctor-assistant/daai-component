@@ -1,4 +1,4 @@
-import { EventSource } from 'https://esm.run/extended-eventsource@1.4.9';
+import { EventSource } from 'extended-eventsource';
 
 class EventSourceManager {
   constructor(apiKey, url, onMessage) {
