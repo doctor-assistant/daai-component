@@ -8,7 +8,7 @@ const config = {
     entry: './src/DaaiBadge.js',
     output: {
         path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist'),
-        filename: 'daai-badje.js',
+        filename: 'DaaiBadge.js',
         libraryTarget: 'commonjs2',
         devtoolModuleFilenameTemplate: '../[resource-path]',
     },
