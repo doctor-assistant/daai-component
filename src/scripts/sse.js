@@ -8,6 +8,8 @@ class EventSourceManager {
     this.eventSource = null;
     this.retryDelay = 5000;
     this.reconnectTimeout = null;
+    this.retryCount = 0;
+    this.maxRetries = 10;
 
     this.handleOpen = this.handleOpen.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
@@ -36,6 +38,8 @@ class EventSourceManager {
 
   handleOpen() {
     console.info('SSE connection opened.');
+    // Reset retry count on successful connection
+    this.retryCount = 0;
   }
 
   handleMessage(event) {
@@ -56,7 +60,13 @@ class EventSourceManager {
   }
 
   reconnect() {
-    console.info(`Reconnecting in ${this.retryDelay / 1000} seconds...`);
+    this.retryCount++;
+    if (this.retryCount > this.maxRetries) {
+      console.error(`Maximum retry attempts (${this.maxRetries}) reached. Stopping reconnection.`);
+      return;
+    }
+    
+    console.info(`Reconnecting (attempt ${this.retryCount}/${this.maxRetries}) in ${this.retryDelay / 1000} seconds...`);
     // Clear any existing reconnect timeout
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
