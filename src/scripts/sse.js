@@ -7,10 +7,14 @@ class EventSourceManager {
     this.onMessage = onMessage;
     this.eventSource = null;
     this.retryDelay = 5000;
+    this.reconnectTimeout = null;
 
     this.handleOpen = this.handleOpen.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
     this.handleError = this.handleError.bind(this);
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => this.close());
   }
 
   connect() {
@@ -53,10 +57,20 @@ class EventSourceManager {
 
   reconnect() {
     console.info(`Reconnecting in ${this.retryDelay / 1000} seconds...`);
-    setTimeout(() => this.connect(), this.retryDelay);
+    // Clear any existing reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+    }
+    this.reconnectTimeout = setTimeout(() => this.connect(), this.retryDelay);
   }
 
   close() {
+    // Clear any pending reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+    
     if (this.eventSource) {
       console.info('Closing SSE connection.');
       this.eventSource.close();
