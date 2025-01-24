@@ -54,8 +54,12 @@ export async function startRecording() {
     this.analyser.connect(this.gainNode);
     this.gainNode.connect(this.audioContext.destination);
 
+    // Detecta se é Safari para usar o formato de áudio compatível
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const mimeType = isSafari ? 'audio/mp4; codecs=mp4a.40.2' : 'audio/webm';
+    
     // Inicializa o MediaRecorder para gravar o áudio
-    this.mediaRecorder = new MediaRecorder(this.stream);
+    this.mediaRecorder = new MediaRecorder(this.stream, { mimeType });
     this.mediaRecorder.ondataavailable = (event) =>
       this.handleDataAvailable(event);
     this.status = 'recording';
@@ -164,7 +168,9 @@ export function finishRecording() {
 
     this.mediaRecorder.onstop = async () => {
       try {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const mimeType = isSafari ? 'audio/mp4; codecs=mp4a.40.2' : 'audio/webm';
+        const audioBlob = new Blob(audioChunks, { type: mimeType });
 
         this.dispatchEvent(
           new CustomEvent('interface', {
