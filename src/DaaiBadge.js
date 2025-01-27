@@ -1,4 +1,5 @@
 import { getSpecialty } from './api/Specialty.js';
+import { VERSION } from './constants/version.js';
 import {
   GEAR,
   HELP_ICON,
@@ -557,6 +558,12 @@ option {
         this.metadata = {};
       }
     }
+    
+    // Ensure metadata exists and add version
+    if (!this.metadata) {
+      this.metadata = {};
+    }
+    this.metadata.version = VERSION;
 
     if (specialtyProp) {
       this.specialty = specialtyProp;
