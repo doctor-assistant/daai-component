@@ -1,5 +1,5 @@
 import { getSpecialty } from './api/Specialty.js';
-import { VERSION } from './constants/version.js';
+import pkg from '../package.json' assert { type: 'json' };
 import {
   GEAR,
   HELP_ICON,
@@ -563,7 +563,7 @@ option {
     if (!this.metadata) {
       this.metadata = {};
     }
-    this.metadata.version = VERSION;
+    this.metadata.version = pkg.version;
 
     if (specialtyProp) {
       this.specialty = specialtyProp;
