@@ -13,7 +13,7 @@ export async function uploadAudio(
 ) {
   let eventSourceManager = null;
 
-  const url = `https://apim.doctorassistant.ai/api/${modeApi === 'dev' ? 'sandbox' : 'production'}/consultations`;
+  const url = 'https://apim.doctorassistant.ai/api/production/consultations';
 
   const formData = new FormData();
   formData.append('recording', audioBlob);
