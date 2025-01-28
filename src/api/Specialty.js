@@ -1,10 +1,7 @@
 import { saveSpecialties } from '../scripts/IndexDb.js';
 
-export async function getSpecialtyApi(modeApi) {
-  const url =
-    modeApi === 'dev'
-      ? 'https://apim.doctorassistant.ai/api/sandbox/specialties'
-      : 'https://apim.doctorassistant.ai/api/production/specialties';
+export async function getSpecialtyApi() {
+  const url = 'https://apim.doctorassistant.ai/api/production/specialties';
 
   try {
     const response = await fetch(url, {
