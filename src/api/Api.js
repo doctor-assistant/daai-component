@@ -8,7 +8,8 @@ export async function uploadAudio(
   specialty,
   modeApi,
   metadata,
-  onEvent
+  onEvent,
+  professionalId
 ) {
   let eventSourceManager = null;
 
@@ -18,6 +19,7 @@ export async function uploadAudio(
   formData.append('recording', audioBlob);
   formData.append('specialty', specialty);
   formData.append('metadata', JSON.stringify(metadata));
+  formData.append('professionalId', professionalId);
 
   try {
     const response = await fetch(url, {
