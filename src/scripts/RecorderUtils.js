@@ -188,7 +188,8 @@ export function finishRecording() {
           this.specialty,
           this.modeApi,
           this.metadata,
-          this.onEvent
+          this.onEvent,
+          this.professionalId
         );
 
         await professionalDb.audio.add({
