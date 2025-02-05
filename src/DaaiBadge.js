@@ -35,6 +35,10 @@ class DaaiBadge extends HTMLElement {
     this.audioContext = null;
     this.analyser = null;
     this.gainNode = null;
+    this.videoAudioSource = null;
+    this.videoAudioNode = null;
+    this.videoElement = null;
+    this.isCapturingVideoAudio = false;
     this.status = 'initial';
     this.devices = [];
     this.currentDeviceId = null;

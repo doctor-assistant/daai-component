@@ -7,6 +7,73 @@ import { blockPageReload } from './BlockPageReload.js';
 import { getFormattedRecordingTime } from './Clock.js';
 import { deleteAllAudios, professionalDb } from './IndexDb.js';
 
+export async function captureVideoAudio(videoElement) {
+  if (!this.audioContext) {
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  
+  try {
+    if (!videoElement || !(videoElement instanceof HTMLVideoElement)) {
+      throw new Error('Elemento de vídeo inválido');
+    }
+
+    if (this.isCapturingVideoAudio) {
+      await this.stopVideoAudioCapture();
+    }
+
+    this.videoElement = videoElement;
+    this.videoAudioNode = this.audioContext.createMediaElementSource(videoElement);
+    
+    if (this.gainNode) {
+      this.videoAudioNode.connect(this.gainNode);
+    } else {
+      this.videoAudioNode.connect(this.audioContext.destination);
+    }
+    
+    this.isCapturingVideoAudio = true;
+    
+    this.dispatchEvent(
+      new CustomEvent('interface', {
+        bubbles: true,
+        detail: {
+          videoAudioCapture: true,
+        },
+      })
+    );
+  } catch (error) {
+    console.error('Erro ao capturar áudio do vídeo:', error);
+    await this.stopVideoAudioCapture();
+    throw new Error(`Falha ao capturar áudio do vídeo: ${error.message}`);
+  }
+}
+
+export async function stopVideoAudioCapture() {
+  try {
+    if (this.videoAudioNode) {
+      this.videoAudioNode.disconnect();
+      this.videoAudioNode = null;
+    }
+    
+    if (this.videoElement) {
+      this.videoElement = null;
+    }
+    
+    this.isCapturingVideoAudio = false;
+    
+    this.dispatchEvent(
+      new CustomEvent('interface', {
+        bubbles: true,
+        detail: {
+          videoAudioCapture: false,
+        },
+      })
+    );
+  } catch (error) {
+    console.error('Erro ao parar captura de áudio do vídeo:', error);
+    throw new Error(`Falha ao parar captura de áudio do vídeo: ${error.message}`);
+  }
+}
+
 export async function startRecording() {
   blockPageReload();
   if (this.intervalId) {
@@ -38,7 +105,7 @@ export async function startRecording() {
     }
 
     // Cria a fonte de áudio a partir do stream
-    const source = this.audioContext.createMediaStreamSource(this.stream);
+    const micSource = this.audioContext.createMediaStreamSource(this.stream);
 
     // Configura o analisador para a visualização de áudio
     this.analyser = this.audioContext.createAnalyser();
@@ -50,7 +117,17 @@ export async function startRecording() {
     this.gainNode = this.audioContext.createGain();
     this.gainNode.gain.value = 0;
 
-    source.connect(this.analyser);
+    // Cria o nó de mixagem
+    this.mixerNode = this.audioContext.createGain();
+    micSource.connect(this.mixerNode);
+    
+    // Conecta o áudio do vídeo se estiver capturando
+    if (this.isCapturingVideoAudio && this.videoAudioNode) {
+      this.videoAudioNode.connect(this.mixerNode);
+    }
+
+    // Conecta os nós de áudio
+    this.mixerNode.connect(this.analyser);
     this.analyser.connect(this.gainNode);
     this.gainNode.connect(this.audioContext.destination);
 
