@@ -542,6 +542,8 @@ option {
       'specialty',
       'metadata',
       'onEvent',
+      'telemedicine',
+      'video-element',
     ];
   }
 
@@ -551,6 +553,20 @@ option {
     const specialtyProp = this.getAttribute('specialty');
     const metadataProp = this.getAttribute('metadata');
     const apikey = this.getAttribute('apikey');
+    const telemedicine = this.getAttribute('telemedicine') === 'true';
+    const videoElementId = this.getAttribute('video-element');
+    
+    this.telemedicine = telemedicine;
+    if (telemedicine && videoElementId) {
+      const videoElement = document.getElementById(videoElementId);
+      if (videoElement instanceof HTMLVideoElement) {
+        this.videoElement = videoElement;
+        this.captureVideoAudio(videoElement).catch(error => {
+          console.error('Erro ao capturar áudio do vídeo:', error);
+        });
+      }
+    }
+    
     this.modeApi = apikey && apikey.startsWith('PRODUCTION') ? 'prod' : 'dev';
     const eventAttr = this.getAttribute('onEvent');
 
@@ -632,6 +648,23 @@ option {
   triggerEvent(...params) {
     if (typeof this.onEvent === 'function') {
       this.onEvent(...params);
+    }
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (name === 'theme') {
+      const themeObj = parseThemeAttribute(newValue);
+      applyThemeAttributes(themeObj, this);
+    } else if (name === 'telemedicine') {
+      this.telemedicine = newValue === 'true';
+    } else if (name === 'video-element' && this.telemedicine) {
+      const videoElement = document.getElementById(newValue);
+      if (videoElement instanceof HTMLVideoElement) {
+        this.videoElement = videoElement;
+        this.captureVideoAudio(videoElement).catch(error => {
+          console.error('Erro ao capturar áudio do vídeo:', error);
+        });
+      }
     }
   }
 

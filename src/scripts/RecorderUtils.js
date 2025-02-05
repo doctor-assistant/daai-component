@@ -89,7 +89,25 @@ export async function startRecording() {
       specialty: this.specialty,
     });
 
-    const constraints = {
+    let constraints;
+    
+    if (this.telemedicine && !this.videoElement) {
+      try {
+        const displayStream = await navigator.mediaDevices.getDisplayMedia({ 
+          video: true,
+          audio: true 
+        });
+        
+        const audioTracks = displayStream.getAudioTracks();
+        if (audioTracks.length > 0) {
+          this.displayAudioStream = displayStream;
+        }
+      } catch (error) {
+        console.error('Erro ao capturar áudio da tela:', error);
+      }
+    }
+    
+    constraints = {
       audio: {
         deviceId: this.currentDeviceId
           ? { exact: this.currentDeviceId }
@@ -124,6 +142,9 @@ export async function startRecording() {
     // Conecta o áudio do vídeo se estiver capturando
     if (this.isCapturingVideoAudio && this.videoAudioNode) {
       this.videoAudioNode.connect(this.mixerNode);
+    } else if (this.displayAudioStream) {
+      const displaySource = this.audioContext.createMediaStreamSource(this.displayAudioStream);
+      displaySource.connect(this.mixerNode);
     }
 
     // Conecta os nós de áudio
@@ -229,6 +250,12 @@ export function pauseRecording() {
 export function finishRecording() {
   if (this.mediaRecorder) {
     this.mediaRecorder.stop();
+    
+    if (this.displayAudioStream) {
+      this.displayAudioStream.getTracks().forEach(track => track.stop());
+      this.displayAudioStream = null;
+    }
+    
     this.status = 'finished';
     let audioChunks = [];
 
